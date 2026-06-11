@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bookia — MVP Fase 1
 
-## Getting Started
+SaaS AI-first para convertir conversaciones en citas agendadas. Demo con datos simulados.
 
-First, run the development server:
+## Setup rápido (5 min)
+
+**Requisitos:** Node.js 18+
 
 ```bash
+cd bookia
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Credenciales de demo
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Email | Contraseña |
+|---|---|
+| admin@bookia.co | bookia2024 |
 
-## Learn More
+## Estructura
 
-To learn more about Next.js, take a look at the following resources:
+```
+bookia/
+├── app/                    → Páginas Next.js (App Router)
+│   ├── page.tsx            → Landing page pública
+│   ├── (auth)/login        → Login
+│   ├── (auth)/register     → Registro
+│   └── (dashboard)/        → Dashboard, conversaciones, settings
+├── components/             → Componentes React
+├── data/                   → JSON simulados (users, metrics, conversations)
+└── lib/                    → Helpers (data.ts, time.ts)
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Comandos
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run dev       # Servidor de desarrollo en localhost:3000
+npm run build     # Build de producción
+npm run test      # Tests unitarios Jest
+npm run test:e2e  # Tests E2E Playwright (requiere servidor corriendo)
+```
 
-## Deploy on Vercel
+## Lo que incluye (Fase 1)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Landing page con pricing en COP
+- Login / registro con NextAuth
+- Dashboard con 4 métricas + 3 gráficos (Recharts)
+- Inbox de conversaciones 3 canales (WA + IG + FB)
+- Thread de mensajes con badge "Sugerida por IA"
+- Panel de configuración del negocio y agente
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Lo que viene (Fase 2)
+
+- Conexión real a Meta API (WhatsApp, Instagram, Facebook)
+- Integración con Agenda Pro
+- Envío real de respuestas desde el inbox

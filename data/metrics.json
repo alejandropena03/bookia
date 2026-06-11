@@ -1,0 +1,59 @@
+{
+  "summary": {
+    "mensajes_hoy": 47,
+    "citas_esta_semana": 12,
+    "tasa_conversion": 68,
+    "tiempo_respuesta_min": 1.8,
+    "mensajes_hoy_delta": 23,
+    "citas_semana_delta": 8
+  },
+  "daily": [
+    { "date": "2026-05-12", "mensajes": 38, "citas": 5, "whatsapp": 19, "instagram": 13, "facebook": 6, "tiempo_respuesta": 4.2, "tasa_conversion": 58 },
+    { "date": "2026-05-13", "mensajes": 42, "citas": 6, "whatsapp": 21, "instagram": 15, "facebook": 6, "tiempo_respuesta": 3.8, "tasa_conversion": 61 },
+    { "date": "2026-05-14", "mensajes": 35, "citas": 5, "whatsapp": 17, "instagram": 12, "facebook": 6, "tiempo_respuesta": 5.1, "tasa_conversion": 55 },
+    { "date": "2026-05-15", "mensajes": 51, "citas": 8, "whatsapp": 26, "instagram": 18, "facebook": 7, "tiempo_respuesta": 2.9, "tasa_conversion": 67 },
+    { "date": "2026-05-16", "mensajes": 44, "citas": 7, "whatsapp": 22, "instagram": 15, "facebook": 7, "tiempo_respuesta": 3.4, "tasa_conversion": 64 },
+    { "date": "2026-05-17", "mensajes": 28, "citas": 4, "whatsapp": 14, "instagram": 10, "facebook": 4, "tiempo_respuesta": 6.2, "tasa_conversion": 52 },
+    { "date": "2026-05-18", "mensajes": 22, "citas": 3, "whatsapp": 11, "instagram": 8, "facebook": 3, "tiempo_respuesta": 7.1, "tasa_conversion": 48 },
+    { "date": "2026-05-19", "mensajes": 46, "citas": 7, "whatsapp": 23, "instagram": 16, "facebook": 7, "tiempo_respuesta": 3.1, "tasa_conversion": 65 },
+    { "date": "2026-05-20", "mensajes": 53, "citas": 9, "whatsapp": 27, "instagram": 19, "facebook": 7, "tiempo_respuesta": 2.7, "tasa_conversion": 70 },
+    { "date": "2026-05-21", "mensajes": 49, "citas": 8, "whatsapp": 25, "instagram": 17, "facebook": 7, "tiempo_respuesta": 2.4, "tasa_conversion": 68 },
+    { "date": "2026-05-22", "mensajes": 55, "citas": 10, "whatsapp": 28, "instagram": 19, "facebook": 8, "tiempo_respuesta": 2.1, "tasa_conversion": 72 },
+    { "date": "2026-05-23", "mensajes": 47, "citas": 8, "whatsapp": 24, "instagram": 16, "facebook": 7, "tiempo_respuesta": 2.8, "tasa_conversion": 67 },
+    { "date": "2026-05-24", "mensajes": 31, "citas": 4, "whatsapp": 16, "instagram": 11, "facebook": 4, "tiempo_respuesta": 5.8, "tasa_conversion": 54 },
+    { "date": "2026-05-25", "mensajes": 18, "citas": 2, "whatsapp": 9, "instagram": 6, "facebook": 3, "tiempo_respuesta": 8.2, "tasa_conversion": 44 },
+    { "date": "2026-05-26", "mensajes": 52, "citas": 9, "whatsapp": 26, "instagram": 18, "facebook": 8, "tiempo_respuesta": 2.6, "tasa_conversion": 69 },
+    { "date": "2026-05-27", "mensajes": 58, "citas": 11, "whatsapp": 29, "instagram": 20, "facebook": 9, "tiempo_respuesta": 1.9, "tasa_conversion": 73 },
+    { "date": "2026-05-28", "mensajes": 54, "citas": 10, "whatsapp": 27, "instagram": 19, "facebook": 8, "tiempo_respuesta": 2.3, "tasa_conversion": 71 },
+    { "date": "2026-05-29", "mensajes": 61, "citas": 12, "whatsapp": 31, "instagram": 21, "facebook": 9, "tiempo_respuesta": 1.7, "tasa_conversion": 75 },
+    { "date": "2026-05-30", "mensajes": 57, "citas": 10, "whatsapp": 29, "instagram": 20, "facebook": 8, "tiempo_respuesta": 2.0, "tasa_conversion": 72 },
+    { "date": "2026-05-31", "mensajes": 34, "citas": 5, "whatsapp": 17, "instagram": 12, "facebook": 5, "tiempo_respuesta": 5.3, "tasa_conversion": 56 },
+    { "date": "2026-06-01", "mensajes": 25, "citas": 3, "whatsapp": 13, "instagram": 9, "facebook": 3, "tiempo_respuesta": 6.8, "tasa_conversion": 50 },
+    { "date": "2026-06-02", "mensajes": 56, "citas": 10, "whatsapp": 28, "instagram": 20, "facebook": 8, "tiempo_respuesta": 2.2, "tasa_conversion": 70 },
+    { "date": "2026-06-03", "mensajes": 62, "citas": 13, "whatsapp": 31, "instagram": 22, "facebook": 9, "tiempo_respuesta": 1.6, "tasa_conversion": 76 },
+    { "date": "2026-06-04", "mensajes": 59, "citas": 11, "whatsapp": 30, "instagram": 21, "facebook": 8, "tiempo_respuesta": 1.9, "tasa_conversion": 74 },
+    { "date": "2026-06-05", "mensajes": 65, "citas": 14, "whatsapp": 33, "instagram": 23, "facebook": 9, "tiempo_respuesta": 1.5, "tasa_conversion": 77 },
+    { "date": "2026-06-06", "mensajes": 60, "citas": 12, "whatsapp": 30, "instagram": 21, "facebook": 9, "tiempo_respuesta": 1.8, "tasa_conversion": 75 },
+    { "date": "2026-06-07", "mensajes": 37, "citas": 5, "whatsapp": 19, "instagram": 13, "facebook": 5, "tiempo_respuesta": 4.9, "tasa_conversion": 57 },
+    { "date": "2026-06-08", "mensajes": 20, "citas": 2, "whatsapp": 10, "instagram": 7, "facebook": 3, "tiempo_respuesta": 7.4, "tasa_conversion": 46 },
+    { "date": "2026-06-09", "mensajes": 58, "citas": 11, "whatsapp": 29, "instagram": 20, "facebook": 9, "tiempo_respuesta": 2.0, "tasa_conversion": 71 },
+    { "date": "2026-06-10", "mensajes": 47, "citas": 12, "whatsapp": 24, "instagram": 16, "facebook": 7, "tiempo_respuesta": 1.8, "tasa_conversion": 68 }
+  ],
+  "channels": {
+    "whatsapp": { "porcentaje": 50, "total_mensajes": 1524, "total_citas": 112 },
+    "instagram": { "porcentaje": 35, "total_mensajes": 1067, "total_citas": 78 },
+    "facebook": { "porcentaje": 15, "total_mensajes": 457, "total_citas": 34 }
+  },
+  "services": [
+    { "name": "Relleno de labios", "count": 68, "porcentaje": 30 },
+    { "name": "Toxina botulínica", "count": 57, "porcentaje": 25 },
+    { "name": "Limpieza facial", "count": 57, "porcentaje": 25 },
+    { "name": "Reducción de medidas", "count": 46, "porcentaje": 20 }
+  ],
+  "conversation_status": {
+    "agendada": 42,
+    "en_curso": 28,
+    "pendiente": 18,
+    "perdida": 12
+  }
+}

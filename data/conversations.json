@@ -1,0 +1,221 @@
+[
+  {
+    "id": "conv_001",
+    "contact_id": "ct_001",
+    "contact_name": "Valentina Morales",
+    "contact_avatar": "VM",
+    "canal": "whatsapp",
+    "estado": "scheduled",
+    "servicio": "Relleno de labios",
+    "created_at": "2026-06-10T09:15:00Z",
+    "updated_at": "2026-06-10T09:42:00Z",
+    "cita": { "fecha": "2026-06-12", "hora": "10:00", "servicio": "Relleno de labios" },
+    "messages": [
+      { "id": "m001", "role": "user", "content": "Hola buenas, quería preguntar por el precio del relleno de labios 💋", "timestamp": "2026-06-10T09:15:00Z" },
+      { "id": "m002", "role": "ai_suggestion", "content": "¡Hola Valentina! Con mucho gusto te cuento. El relleno de labios con ácido hialurónico tiene un valor de $450.000 COP. El procedimiento dura aproximadamente 30 minutos y los resultados se ven de inmediato 😊 ¿Te gustaría agendar una cita?", "timestamp": "2026-06-10T09:16:00Z" },
+      { "id": "m003", "role": "agent", "content": "¡Hola Valentina! Con mucho gusto te cuento. El relleno de labios con ácido hialurónico tiene un valor de $450.000 COP. El procedimiento dura aproximadamente 30 minutos y los resultados se ven de inmediato 😊 ¿Te gustaría agendar una cita?", "timestamp": "2026-06-10T09:17:00Z" },
+      { "id": "m004", "role": "user", "content": "Uy sí, se ve muy bien el precio. ¿Para este viernes tienen disponibilidad?", "timestamp": "2026-06-10T09:28:00Z" },
+      { "id": "m005", "role": "ai_suggestion", "content": "Para este viernes 12 de junio tenemos disponibilidad a las 10:00am o a las 3:00pm. ¿Cuál te viene mejor?", "timestamp": "2026-06-10T09:29:00Z" },
+      { "id": "m006", "role": "agent", "content": "Para este viernes 12 de junio tenemos disponibilidad a las 10:00am o a las 3:00pm. ¿Cuál te viene mejor?", "timestamp": "2026-06-10T09:30:00Z" },
+      { "id": "m007", "role": "user", "content": "De una las 10! Me anoto 🙌", "timestamp": "2026-06-10T09:41:00Z" },
+      { "id": "m008", "role": "agent", "content": "¡Perfecto Valentina! Quedaste agendada para el viernes 12 de junio a las 10:00am para relleno de labios. Te enviamos recordatorio el día anterior. ¡Hasta el viernes! ✨", "timestamp": "2026-06-10T09:42:00Z" }
+    ]
+  },
+  {
+    "id": "conv_002",
+    "contact_id": "ct_002",
+    "contact_name": "Camila Ríos",
+    "contact_avatar": "CR",
+    "canal": "instagram",
+    "estado": "pending",
+    "servicio": "Toxina botulínica",
+    "created_at": "2026-06-10T10:30:00Z",
+    "updated_at": "2026-06-10T10:31:00Z",
+    "cita": null,
+    "messages": [
+      { "id": "m009", "role": "user", "content": "Buenas! vi su perfil y me interesa el botox. Cuánto vale?", "timestamp": "2026-06-10T10:30:00Z" },
+      { "id": "m010", "role": "ai_suggestion", "content": "¡Hola Camila! Claro que sí. La toxina botulínica tiene diferentes precios según la zona: frente $320.000, entrecejo $280.000 o ambas zonas $480.000. ¿Qué zona te interesa trabajar?", "timestamp": "2026-06-10T10:31:00Z" }
+    ]
+  },
+  {
+    "id": "conv_003",
+    "contact_id": "ct_003",
+    "contact_name": "Laura Jiménez",
+    "contact_avatar": "LJ",
+    "canal": "whatsapp",
+    "estado": "in_progress",
+    "servicio": "Limpieza facial",
+    "created_at": "2026-06-10T08:00:00Z",
+    "updated_at": "2026-06-10T11:15:00Z",
+    "cita": null,
+    "messages": [
+      { "id": "m011", "role": "user", "content": "Hola, quiero hacer una limpieza facial profunda", "timestamp": "2026-06-10T08:00:00Z" },
+      { "id": "m012", "role": "agent", "content": "Hola Laura! Claro, con mucho gusto. Nuestra limpieza facial profunda incluye extracción, hidratación y mascarilla. Tiene un valor de $180.000. ¿Tienes alguna condición de piel que debamos tener en cuenta?", "timestamp": "2026-06-10T08:05:00Z" },
+      { "id": "m013", "role": "user", "content": "Tengo piel grasa con tendencia acneica", "timestamp": "2026-06-10T08:22:00Z" },
+      { "id": "m014", "role": "ai_suggestion", "content": "Perfecto, para piel grasa con tendencia acneica te recomendamos nuestra limpieza facial especializada que incluye peeling enzimático. El valor es $220.000. Tenemos disponibilidad hoy en la tarde o mañana. ¿Qué te parece?", "timestamp": "2026-06-10T08:23:00Z" },
+      { "id": "m015", "role": "agent", "content": "Perfecto, para piel grasa con tendencia acneica te recomendamos nuestra limpieza facial especializada que incluye peeling enzimático. El valor es $220.000. Tenemos disponibilidad hoy en la tarde o mañana. ¿Qué te parece?", "timestamp": "2026-06-10T08:25:00Z" },
+      { "id": "m016", "role": "user", "content": "Me parece bien. ¿A qué horas tendrían hoy?", "timestamp": "2026-06-10T11:14:00Z" }
+    ]
+  },
+  {
+    "id": "conv_004",
+    "contact_id": "ct_004",
+    "contact_name": "Andrea Gómez",
+    "contact_avatar": "AG",
+    "canal": "facebook",
+    "estado": "escalated",
+    "servicio": "Reducción de medidas",
+    "created_at": "2026-06-09T15:00:00Z",
+    "updated_at": "2026-06-09T16:30:00Z",
+    "cita": null,
+    "messages": [
+      { "id": "m017", "role": "user", "content": "Hola, vi su página de Facebook. Quiero preguntar sobre reducción de medidas. Tengo una boda en 3 semanas, ¿qué me recomiendan?", "timestamp": "2026-06-09T15:00:00Z" },
+      { "id": "m018", "role": "agent", "content": "Hola Andrea! Para 3 semanas, lo más recomendable sería una combinación de cavitación + radiofrecuencia. En ese tiempo puedes ver resultados notables. ¿Puedes decirnos qué zonas quieres trabajar?", "timestamp": "2026-06-09T15:08:00Z" },
+      { "id": "m019", "role": "user", "content": "Abdomen y piernas. Pero tengo unas alergias. ¿Me podría llamar alguien para explicarme mejor? Me da miedito 😟", "timestamp": "2026-06-09T15:45:00Z" },
+      { "id": "m020", "role": "agent", "content": "Claro Andrea, entendemos tu preocupación. Voy a escalar tu caso a nuestra especialista para que te llame hoy mismo y te explique todo en detalle. ¿A qué número te llamamos?", "timestamp": "2026-06-09T16:30:00Z" }
+    ]
+  },
+  {
+    "id": "conv_005",
+    "contact_id": "ct_005",
+    "contact_name": "Sofía Herrera",
+    "contact_avatar": "SH",
+    "canal": "instagram",
+    "estado": "scheduled",
+    "servicio": "Relleno de labios",
+    "created_at": "2026-06-09T11:00:00Z",
+    "updated_at": "2026-06-09T11:35:00Z",
+    "cita": { "fecha": "2026-06-11", "hora": "14:00", "servicio": "Relleno de labios" },
+    "messages": [
+      { "id": "m021", "role": "user", "content": "Hola! Quiero agendar para relleno de labios, mi amiga vino con ustedes y quedó divina 🤩", "timestamp": "2026-06-09T11:00:00Z" },
+      { "id": "m022", "role": "ai_suggestion", "content": "¡Hola Sofía! Qué bueno que tu amiga tuvo una buena experiencia 💜 Para relleno de labios tenemos disponibilidad mañana miércoles 11 de junio. ¿A qué hora te queda mejor?", "timestamp": "2026-06-09T11:01:00Z" },
+      { "id": "m023", "role": "agent", "content": "¡Hola Sofía! Qué bueno que tu amiga tuvo una buena experiencia 💜 Para relleno de labios tenemos disponibilidad mañana miércoles 11 de junio. ¿A qué hora te queda mejor?", "timestamp": "2026-06-09T11:02:00Z" },
+      { "id": "m024", "role": "user", "content": "A las 2 de la tarde me sirve perfecto!", "timestamp": "2026-06-09T11:32:00Z" },
+      { "id": "m025", "role": "agent", "content": "Agendado Sofía! Mañana miércoles 11 de junio a las 2:00pm para relleno de labios. Recuerda venir sin maquillaje en la zona. ¡Hasta mañana! ✨", "timestamp": "2026-06-09T11:35:00Z" }
+    ]
+  },
+  {
+    "id": "conv_006",
+    "contact_id": "ct_006",
+    "contact_name": "María Fernanda Castro",
+    "contact_avatar": "MC",
+    "canal": "whatsapp",
+    "estado": "lost",
+    "servicio": "Toxina botulínica",
+    "created_at": "2026-06-08T14:00:00Z",
+    "updated_at": "2026-06-08T16:00:00Z",
+    "cita": null,
+    "messages": [
+      { "id": "m026", "role": "user", "content": "Cuánto vale el botox?", "timestamp": "2026-06-08T14:00:00Z" },
+      { "id": "m027", "role": "agent", "content": "Hola! La toxina botulínica parte desde $280.000 según la zona. ¿Te cuento más detalles?", "timestamp": "2026-06-08T14:05:00Z" },
+      { "id": "m028", "role": "user", "content": "Gracias", "timestamp": "2026-06-08T16:00:00Z" }
+    ]
+  },
+  {
+    "id": "conv_007",
+    "contact_id": "ct_007",
+    "contact_name": "Isabela Torres",
+    "contact_avatar": "IT",
+    "canal": "instagram",
+    "estado": "in_progress",
+    "servicio": "Limpieza facial",
+    "created_at": "2026-06-10T07:30:00Z",
+    "updated_at": "2026-06-10T10:00:00Z",
+    "cita": null,
+    "messages": [
+      { "id": "m029", "role": "user", "content": "Buenos días! Quisiera saber qué tratamientos tienen para manchas en la cara", "timestamp": "2026-06-10T07:30:00Z" },
+      { "id": "m030", "role": "ai_suggestion", "content": "Buenos días Isabela! Para manchas tenemos varias opciones: peeling químico ($250.000), láser despigmentante ($380.000) o tratamiento despigmentante con ácidos ($200.000). Todo depende del tipo de mancha. ¿Hace cuánto tiempo tienes las manchas?", "timestamp": "2026-06-10T07:31:00Z" },
+      { "id": "m031", "role": "agent", "content": "Buenos días Isabela! Para manchas tenemos varias opciones: peeling químico ($250.000), láser despigmentante ($380.000) o tratamiento despigmentante con ácidos ($200.000). Todo depende del tipo de mancha. ¿Hace cuánto tiempo tienes las manchas?", "timestamp": "2026-06-10T07:32:00Z" },
+      { "id": "m032", "role": "user", "content": "Como desde hace 2 años, después de un embarazo. Son en la frente y pómulos", "timestamp": "2026-06-10T09:58:00Z" }
+    ]
+  },
+  {
+    "id": "conv_008",
+    "contact_id": "ct_008",
+    "contact_name": "Daniela Vargas",
+    "contact_avatar": "DV",
+    "canal": "facebook",
+    "estado": "scheduled",
+    "servicio": "Reducción de medidas",
+    "created_at": "2026-06-09T09:00:00Z",
+    "updated_at": "2026-06-09T09:45:00Z",
+    "cita": { "fecha": "2026-06-13", "hora": "11:00", "servicio": "Cavitación + Radiofrecuencia" },
+    "messages": [
+      { "id": "m033", "role": "user", "content": "Hola! Cuántas sesiones de cavitación necesito para ver resultados?", "timestamp": "2026-06-09T09:00:00Z" },
+      { "id": "m034", "role": "agent", "content": "Hola Daniela! Generalmente con 6-8 sesiones se ven resultados muy notables. Recomendamos 2 sesiones por semana. El paquete de 8 sesiones tiene un valor especial de $960.000 (ahorro de $240.000). ¿Te interesa?", "timestamp": "2026-06-09T09:10:00Z" },
+      { "id": "m035", "role": "user", "content": "Sí! Quiero empezar. ¿Tienen cita el sábado?", "timestamp": "2026-06-09T09:38:00Z" },
+      { "id": "m036", "role": "agent", "content": "Claro Daniela! El sábado 13 de junio tenemos disponibilidad a las 9am, 11am o 2pm. ¿Cuál te viene mejor?", "timestamp": "2026-06-09T09:40:00Z" },
+      { "id": "m037", "role": "user", "content": "Las 11 perfecto!", "timestamp": "2026-06-09T09:44:00Z" },
+      { "id": "m038", "role": "agent", "content": "¡Listo Daniela! Agendada el sábado 13 de junio a las 11am para tu primera sesión de cavitación. Te confirmamos con el paquete de 8 sesiones. ¡Hasta el sábado! 💪", "timestamp": "2026-06-09T09:45:00Z" }
+    ]
+  },
+  {
+    "id": "conv_009",
+    "contact_id": "ct_009",
+    "contact_name": "Natalia Ospina",
+    "contact_avatar": "NO",
+    "canal": "whatsapp",
+    "estado": "pending",
+    "servicio": "Relleno de labios",
+    "created_at": "2026-06-10T11:00:00Z",
+    "updated_at": "2026-06-10T11:01:00Z",
+    "cita": null,
+    "messages": [
+      { "id": "m039", "role": "user", "content": "Hola! Me pueden mandar el portafolio de labios que han hecho? Para ver los antes y después", "timestamp": "2026-06-10T11:00:00Z" },
+      { "id": "m040", "role": "ai_suggestion", "content": "¡Hola Natalia! Con mucho gusto. Acá te comparto nuestro portafolio de resultados en relleno de labios. También puedes ver más trabajos en nuestro Instagram @esteticasantamaria. ¿Tienes alguna referencia de lo que buscas?", "timestamp": "2026-06-10T11:01:00Z" }
+    ]
+  },
+  {
+    "id": "conv_010",
+    "contact_id": "ct_010",
+    "contact_name": "Juliana Montoya",
+    "contact_avatar": "JM",
+    "canal": "instagram",
+    "estado": "pending",
+    "servicio": "Toxina botulínica",
+    "created_at": "2026-06-10T10:45:00Z",
+    "updated_at": "2026-06-10T10:46:00Z",
+    "cita": null,
+    "messages": [
+      { "id": "m041", "role": "user", "content": "Vi que hacen botox preventivo. Tengo 28 años y quiero empezar. ¿Me lo recomiendan?", "timestamp": "2026-06-10T10:45:00Z" },
+      { "id": "m042", "role": "ai_suggestion", "content": "Hola Juliana! Sí, el botox preventivo es muy popular entre los 25-30 años para prevenir líneas de expresión. A los 28 es un momento ideal. En consulta inicial (gratuita) la doctora evalúa si eres candidata y qué zonas tratar. ¿Te agendo una valoración?", "timestamp": "2026-06-10T10:46:00Z" }
+    ]
+  },
+  {
+    "id": "conv_011",
+    "contact_id": "ct_011",
+    "contact_name": "Carolina Patiño",
+    "contact_avatar": "CP",
+    "canal": "whatsapp",
+    "estado": "scheduled",
+    "servicio": "Limpieza facial",
+    "created_at": "2026-06-09T16:00:00Z",
+    "updated_at": "2026-06-09T16:25:00Z",
+    "cita": { "fecha": "2026-06-10", "hora": "15:00", "servicio": "Limpieza facial profunda" },
+    "messages": [
+      { "id": "m043", "role": "user", "content": "Buenas tardes, ¿tienen disponibilidad hoy para limpieza facial?", "timestamp": "2026-06-09T16:00:00Z" },
+      { "id": "m044", "role": "agent", "content": "Buenas tardes Carolina! Para hoy tenemos disponibilidad a las 5:30pm. Para mañana a las 3:00pm o 4:00pm. ¿Cuál te queda mejor?", "timestamp": "2026-06-09T16:05:00Z" },
+      { "id": "m045", "role": "user", "content": "Mañana a las 3 de la tarde me queda bien", "timestamp": "2026-06-09T16:22:00Z" },
+      { "id": "m046", "role": "agent", "content": "¡Perfecto Carolina! Mañana 10 de junio a las 3:00pm para limpieza facial profunda. ¡Hasta mañana! 😊", "timestamp": "2026-06-09T16:25:00Z" }
+    ]
+  },
+  {
+    "id": "conv_012",
+    "contact_id": "ct_012",
+    "contact_name": "Alejandra Muñoz",
+    "contact_avatar": "AM",
+    "canal": "facebook",
+    "estado": "in_progress",
+    "servicio": "Relleno de labios",
+    "created_at": "2026-06-10T09:00:00Z",
+    "updated_at": "2026-06-10T10:30:00Z",
+    "cita": null,
+    "messages": [
+      { "id": "m047", "role": "user", "content": "Hola! Me interesa el relleno de labios. ¿Con qué producto trabajan?", "timestamp": "2026-06-10T09:00:00Z" },
+      { "id": "m048", "role": "agent", "content": "Hola Alejandra! Trabajamos con ácido hialurónico Juvederm y Restylane, ambas marcas certificadas por INVIMA. Son los productos más seguros y naturales del mercado. ¿Tienes alguna alergia o condición médica que debamos saber?", "timestamp": "2026-06-10T09:08:00Z" },
+      { "id": "m049", "role": "user", "content": "No alergias. Pero tengo dudas sobre cuánto dura el resultado", "timestamp": "2026-06-10T10:28:00Z" },
+      { "id": "m050", "role": "ai_suggestion", "content": "Excelente pregunta Alejandra! El ácido hialurónico dura entre 8 y 12 meses dependiendo del metabolismo de cada persona y la zona. Los labios suelen durar 6-8 meses por el movimiento constante. ¿Quieres agendar una valoración gratuita con la doctora para que te explique todo?", "timestamp": "2026-06-10T10:29:00Z" },
+      { "id": "m051", "role": "agent", "content": "Excelente pregunta Alejandra! El ácido hialurónico dura entre 8 y 12 meses dependiendo del metabolismo de cada persona y la zona. Los labios suelen durar 6-8 meses por el movimiento constante. ¿Quieres agendar una valoración gratuita con la doctora para que te explique todo?", "timestamp": "2026-06-10T10:30:00Z" }
+    ]
+  }
+]

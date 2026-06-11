@@ -1,0 +1,11 @@
+[
+  {
+    "id": "usr_001",
+    "email": "admin@bookia.co",
+    "password": "bookia2024",
+    "businessName": "Estética Santa María",
+    "businessType": "clinica_estetica",
+    "city": "Cali",
+    "plan": "growth"
+  }
+]
