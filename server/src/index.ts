@@ -3,6 +3,8 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { env } from "./env.js";
 import { checkDbConnection } from "./db/client.js";
+import { sim } from "./api/sim.js";
+import { webhooks } from "./api/webhooks.js";
 
 const app = new Hono();
 
@@ -22,6 +24,9 @@ app.get("/health", async (c) => {
 });
 
 app.get("/", (c) => c.json({ name: "Bookia API", version: "0.1.0" }));
+
+app.route("/api/sim", sim);
+app.route("/webhooks", webhooks);
 
 if (process.env.NODE_ENV !== "test") {
   serve(

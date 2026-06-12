@@ -7,6 +7,7 @@ services:
       - "8787:8787"
     environment:
       DATABASE_URL: postgres://bookia:bookia_pass@postgres:5432/bookia
+      DATABASE_URL_APP: postgres://bookia_app:bookia_app_pass@postgres:5432/bookia
       NODE_ENV: production
     depends_on:
       postgres:

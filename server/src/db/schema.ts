@@ -42,7 +42,9 @@ export const contacts = pgTable("contacts", {
   name: text("name"),
   phone: text("phone"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (table) => [
+  uniqueIndex("contacts_tenant_channel_external_idx").on(table.tenantId, table.channel, table.externalId),
+]);
 
 export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -66,6 +68,17 @@ export const conversations = pgTable("conversations", {
 }, (table) => [
   index("conversations_tenant_status_idx").on(table.tenantId, table.status),
 ]);
+
+export const conversationState = pgTable("conversation_state", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  conversationId: uuid("conversation_id").notNull().references(() => conversations.id, { onDelete: "cascade" }).unique(),
+  flowKey: text("flow_key"),
+  currentState: text("current_state").notNull(),
+  slots: jsonb("slots").$type<Record<string, string>>().default({}).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
 
 export const messages = pgTable("messages", {
   id: uuid("id").defaultRandom().primaryKey(),

@@ -48,6 +48,8 @@ ALTER TABLE business_profile ENABLE ROW LEVEL SECURITY;
 ALTER TABLE business_profile FORCE ROW LEVEL SECURITY;
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE users FORCE ROW LEVEL SECURITY;
+ALTER TABLE conversation_state ENABLE ROW LEVEL SECURITY;
+ALTER TABLE conversation_state FORCE ROW LEVEL SECURITY;
 
 -- Drop existing policies if re-running
 DROP POLICY IF EXISTS tenant_isolation ON channel_accounts;
@@ -58,6 +60,7 @@ DROP POLICY IF EXISTS tenant_isolation ON flows;
 DROP POLICY IF EXISTS tenant_isolation ON catalog_items;
 DROP POLICY IF EXISTS tenant_isolation ON business_profile;
 DROP POLICY IF EXISTS tenant_isolation ON users;
+DROP POLICY IF EXISTS tenant_isolation ON conversation_state;
 
 -- Create tenant isolation policies (USING filtra lectura, WITH CHECK impide escritura cross-tenant)
 CREATE POLICY tenant_isolation ON channel_accounts
@@ -96,6 +99,11 @@ CREATE POLICY tenant_isolation ON business_profile
   WITH CHECK (tenant_id = current_setting('app.current_tenant', true)::uuid);
 
 CREATE POLICY tenant_isolation ON users
+  FOR ALL
+  USING (tenant_id = current_setting('app.current_tenant', true)::uuid)
+  WITH CHECK (tenant_id = current_setting('app.current_tenant', true)::uuid);
+
+CREATE POLICY tenant_isolation ON conversation_state
   FOR ALL
   USING (tenant_id = current_setting('app.current_tenant', true)::uuid)
   WITH CHECK (tenant_id = current_setting('app.current_tenant', true)::uuid);
