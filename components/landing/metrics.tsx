@@ -58,7 +58,7 @@ function AnimatedMetric({
       <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#7C3AED]/15 to-[#2563EB]/15 ring-1 ring-white/[0.04] flex items-center justify-center mx-auto mb-4">
         <metric.icon className="w-6 h-6 text-white/60" />
       </div>
-      <div ref={valueRef} className="text-3xl sm:text-4xl font-bold text-mid tabular-nums mb-2">
+      <div ref={valueRef} className="text-3xl sm:text-4xl font-bold gradient-brand tabular-nums mb-2">
         {metric.value}
       </div>
       <div className="text-lo text-xs sm:text-sm leading-relaxed">{metric.label}</div>
