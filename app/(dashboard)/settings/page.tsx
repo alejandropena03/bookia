@@ -85,11 +85,17 @@ export default function SettingsPage() {
                 </div>
               </div>
               <Tooltip>
-                <TooltipTrigger>
-                  <Button size="sm" disabled className="text-xs h-8 bg-gray-100 text-gray-400 cursor-default">
-                    Conectar
-                  </Button>
-                </TooltipTrigger>
+                <TooltipTrigger
+                  render={
+                    <span
+                      role="button"
+                      aria-disabled="true"
+                      className="inline-flex items-center justify-center text-xs h-8 px-3 rounded-xl bg-gray-100 text-gray-400 cursor-default select-none"
+                    >
+                      Conectar
+                    </span>
+                  }
+                />
                 <TooltipContent>
                   <div className="flex items-center gap-1.5">
                     <Info className="w-3 h-3" />
