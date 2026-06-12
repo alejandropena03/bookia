@@ -1,55 +1,53 @@
 ---
-task_id: TASK-009b
-status: WAITING_FOR_CLAUDE
+task_id: TASK-010
+status: WAITING_FOR_OPENCODE
 owner: opencode
 created_by: claude
-created_at: 2026-06-12T11:00:00Z
-updated_at: 2026-06-12T11:00:00Z
+created_at: 2026-06-12T13:00:00Z
+updated_at: 2026-06-12T13:00:00Z
+priority: ALTA
 ---
 
-## Contexto
-Claude revisó tu TASK-009 (buena base sólida) y la ELEVÓ directamente: reescribió `hero.tsx`, mejoró `globals.css` (jerarquía de blancos text-hi/mid/lo, gradient-brand 4 stops, grain overlay, bg-grid, mask-fade-edges), añadió spotlight-que-sigue-el-cursor en `features.tsx` y divisor luminoso + gradación en `how-it-works.tsx`. Haz `git pull` para ver esos cambios (commit "design: elevar landing a tech-luxe").
-
-Claude NO pudo correr el build (no tiene las deps instaladas en su máquina). Tu trabajo: **validar que compila/se ve bien + propagar el mismo nivel premium a las secciones que Claude no tocó.**
-
 ## Misión
-1. **VALIDAR build:** `npm run build` y `npm run dev`. Asegúrate de que los cambios de Claude compilan (hero, features, how-it-works, globals.css). Si algo no compila (ej. utilities `text-hi`/`bg-grid`/`mask-fade-edges` que Claude añadió como `@utility` en Tailwind v4 — verifica que la sintaxis `@utility` es correcta para esta versión; si no, conviértelas a clases normales en `@layer utilities`), CORRÍGELO conservando la intención visual.
-2. **Aplicar la jerarquía de blancos** (`text-hi`/`text-mid`/`text-lo` en vez de `text-white/40` etc.) en demo-chat, metrics, cta, navbar, footer — para coherencia con el hero. El texto desvaído (`/30`,`/40`) se ve poco premium; usa text-mid (0.62) para cuerpo y text-hi (0.95) para énfasis.
-3. **Demo-chat (momento estrella) — subir el nivel:** añade un **typing indicator real** (3 puntos animados) que aparezca ~600ms ANTES de cada mensaje del bot, luego el mensaje. Que se sienta que el agente "está escribiendo". Mantén el ScrollTrigger once. Esto vende el producto.
-4. **Metrics:** que los contadores realmente cuenten hacia arriba (count-up con GSAP) al entrar en viewport, no solo fade. (<5s, 68%, 24/7, etc.)
-5. **CTA final:** botón magnético sutil (el botón se desplaza ~6px hacia el cursor en hover/mousemove). Es el detalle "wow" del cierre.
-6. **Navbar:** usa el ícono `/bookia-icon.jpeg` + wordmark, glass al hacer scroll. Verifica que el logo se ve nítido.
-7. **Performance:** Lighthouse > 80 desktop, 60fps, reduced-motion respetado (Claude ya puso el guard global en CSS).
+Rediseñar el **área de app** (login, register, dashboard, conversaciones lista + detalle, settings) al nivel de calidad de la landing ya aprobada, pero con un tema visual distinto: **CLARO con acentos de marca** (no oscuro como la landing). Es una herramienta de uso diario — prioriza legibilidad y claridad sobre efectos cinematográficos. Solo rediseño visual; NO conectar a datos reales todavía (sigue con los JSON/mocks actuales; la conexión es TASK-011).
+
+## Tema visual de la app (APROBADO por Alejandro: "claro con acentos de marca")
+Usa los tokens que Claude ya dejó en `app/globals.css` (utilities `app-*`):
+- Fondo general: `app-bg` (#F7F7FB). Cards: `app-card` (blanco, borde sutil, sombra suave).
+- Texto: `app-text-hi` (#18181B títulos), `app-text-mid` (#52525B), `app-text-lo` (#A1A1AA labels).
+- Acento de marca: degradado morado→azul (`#6D28D9`→`#2563EB`) SOLO en momentos clave: botón primario, header/logo activo, estado seleccionado del nav, barras/líneas de charts, badges de canal. NO inundar de degradado — es acento, no fondo.
+- Bordes: `app-border` (#E8E8EF).
+- Tipografía: Geist (ya cargada). Limpia, legible, jerarquía clara.
+- Referencias: dashboards de Stripe, Linear (versión clara), Notion. Limpio, espacioso, datos legibles.
+
+## ⚠️ Detalle técnico crítico (no romper)
+El `app/layout.tsx` raíz fuerza `className="...dark"` y `bg-[#0A0A0F] text-white` (para la landing). El área de app NO debe heredar eso. Resuelve en `app/(dashboard)/layout.tsx` y en las páginas de `(auth)`: aplica un wrapper con `app-bg` / texto oscuro que sobreescriba, o quita `dark` del scope de la app. Verifica que la landing (`/`) SIGUE oscura y la app (`/dashboard`, `/login`) sale clara. Esto es lo que más fácil se rompe — pruébalo.
+
+## Pantallas y qué hacer
+1. **Login + Register** (`app/(auth)/login`, `register`): pantalla clara, centrada, card limpia con el wordmark arriba, campos cómodos, botón primario con degradado de marca. Un toque premium sutil (quizá un panel lateral con degradado de marca o un fondo con un orbe muy suave), sin exagerar. Mantén el flujo de Auth.js que ya existe.
+2. **Layout del dashboard** (`app/(dashboard)/layout.tsx`): sidebar de navegación claro (Dashboard, Conversaciones, Configuración) con el ítem activo marcado con acento de marca, logo arriba (wordmark), y un topbar con el nombre del negocio / usuario. Responsive (sidebar colapsable en móvil).
+3. **Dashboard** (`app/(dashboard)/dashboard`): los `MetricCard` (KPI cards limpias), charts (`ConversionChart`, `ChannelBreakdown`, `StatusDonut`) recoloreados al tema claro + acento de marca, `RecentConversations`. Layout en grid espacioso. Recharts: usa el degradado de marca en series.
+4. **Conversaciones lista** (`app/(dashboard)/conversations` + `ConversationsInbox`): bandeja tipo inbox (lista a la izquierda, filtros por estado/canal con badges de color por canal). Limpia y escaneable.
+5. **Conversación detalle** (`app/(dashboard)/conversations/[id]`): hilo de chat legible (burbujas inbound/outbound diferenciadas, el bot con el ícono de Bookia), con acciones de inbox (tomar control / devolver al bot / responder) visibles. Estados (bot_active / human_active / escalated) con color claro.
+6. **Settings** (`app/(dashboard)/settings`): formularios limpios, secciones (perfil del negocio, canales, catálogo). Solo visual.
+
+## Componentes UI
+- Recolorea los `components/ui` (shadcn) que use la app para el tema claro si hace falta, sin romper la landing (que usa los mismos componentes en oscuro — ojo con esto; usa variantes/clases, no cambies los defaults globalmente si rompe la landing).
 
 ## Criterio de completación (pega evidencia)
-1. `npm run build` compila sin errores. Pega el resultado.
-2. `npm run dev` + screenshots (o descripción detallada) de: hero, demo-chat con typing, features con spotlight, metrics contando, cta.
-3. Confirma reduced-motion y responsive móvil.
-4. Las utilities de Claude funcionan (o las corregiste conservando el look).
+1. `npm run build` compila. `npm run dev`.
+2. Screenshots (o descripción detallada) de: login, dashboard, conversaciones lista, conversación detalle, settings.
+3. **La landing (`/`) sigue oscura e intacta**; la app sale clara. Confírmalo explícitamente.
+4. Responsive (sidebar colapsa en móvil, charts se adaptan).
+5. Accesibilidad: contraste AA (texto oscuro sobre claro es fácil; cuida los grises lo/labels).
 
 ## Fuera de alcance
-- Backend, dashboard, login (esos van después).
-- Conectar a datos reales (TASK-008, sigue en pausa hasta terminar el rediseño visual).
+- Conectar a datos reales / backend (TASK-011, después).
+- Lógica nueva. Solo rediseño visual sobre los datos mock actuales.
 
 ## Notas
-- Si una utility `@utility` de Tailwind v4 que añadió Claude da problema de build, ese es el error más probable — revísalo primero.
-- Es la carta de presentación: cuida cada micro-detalle. Al terminar `status: WAITING_FOR_CLAUDE` (Claude + Alejandro revisan el resultado visual). Commit `task(TASK-009b): validar + propagar nivel premium`, push, HANDOFF_LOG.
+- Calidad consistente con la landing: cuidado en spacing, jerarquía, micro-interacciones (hover, focus states). Animaciones aquí: sutiles y funcionales (no GSAP cinematográfico; transiciones limpias).
+- HITO visual → al terminar `status: WAITING_FOR_CLAUDE` (Claude revisa el código + Alejandro revisa visual). Commit `task(TASK-010): rediseño área de app (tema claro + marca)`, push, HANDOFF_LOG.
 
 ## Resultado de OpenCode
-### Resumen
-Build validado ✅ + nivel premium propagado a todas las secciones + typing indicator + count-up + botón magnético + jerarquía text-hi/mid/lo.
-
-### Cambios vs TASK-009 original
-- **Navbar**: icono `/bookia-icon.jpeg` + wordmark, glass al scroll, `text-hi/mid/lo`
-- **Hero**: (Claude) grain overlay, bg-grid, spotlight, parallax, blur reveal, badge ping
-- **Demo-chat**: typing indicator real (3 bouncing dots) que aparece ~600ms antes de cada respuesta del bot, secuencia scroll-triggered con timeline precisa
-- **How-it-works**: (Claude) gradient divider; actualizado a `text-hi/mid/lo`
-- **Features**: (Claude) spotlight cursor follower; headings migrados a `text-hi/mid/lo`
-- **Metrics**: count-up real con GSAP ScrollTrigger animate números (68%, 100%, etc.), no solo fade
-- **CTA**: botón magnético (~6px hover follow cursor con CSS custom props), `text-hi/mid/lo`
-- **Footer**: icon + `text-hi/mid/lo`
-
-### Build
-✅ `npm run build` — 0 errores, 0 type errors
-✅ `prefers-reduced-motion` respetado
-✅ Rutas existentes intactas
+_(llenar)_
