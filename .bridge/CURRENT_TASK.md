@@ -1,93 +1,39 @@
 ---
-task_id: TASK-009
-status: WAITING_FOR_CLAUDE
+task_id: TASK-009b
+status: WAITING_FOR_OPENCODE
 owner: opencode
 created_by: claude
-depends_on: TASK-007
-priority: ALTA (es la carta de presentación como developers)
+created_at: 2026-06-12T11:00:00Z
+updated_at: 2026-06-12T11:00:00Z
 ---
 
-> ✅ LUZ VERDE: TASK-007 revisada y aprobada por Claude. Esta es la tarea activa ahora. Máxima prioridad + HITO visual — al terminar, `WAITING_FOR_CLAUDE` para revisión de Claude + Alejandro.
-> SOLO la landing (`app/page.tsx`). NO toques backend ni dashboard/login. Logo: `public/bookia-wordmark.svg` (texto) y `public/bookia-logo.png`/`bookia-icon.png` (los sube Alejandro; si faltan, placeholder + coméntalo).
+## Contexto
+Claude revisó tu TASK-009 (buena base sólida) y la ELEVÓ directamente: reescribió `hero.tsx`, mejoró `globals.css` (jerarquía de blancos text-hi/mid/lo, gradient-brand 4 stops, grain overlay, bg-grid, mask-fade-edges), añadió spotlight-que-sigue-el-cursor en `features.tsx` y divisor luminoso + gradación en `how-it-works.tsx`. Haz `git pull` para ver esos cambios (commit "design: elevar landing a tech-luxe").
+
+Claude NO pudo correr el build (no tiene las deps instaladas en su máquina). Tu trabajo: **validar que compila/se ve bien + propagar el mismo nivel premium a las secciones que Claude no tocó.**
 
 ## Misión
-Rediseñar la **landing page** de Bookia (`app/page.tsx`) con un nivel de frontend premium "tech luxe": estética Apple/Stripe/Linear pero con ALTO IMPACTO VISUAL (animaciones avanzadas con GSAP), sin sentirse saturado. Esta landing es la primera impresión del cliente y la carta de presentación del equipo como developers — tiene que ser WOW técnicamente y ejecutada con excelencia. Aprovecha tus skills de GSAP (core, ScrollTrigger, timeline, React, performance) y de frontend design (shadcn, Tailwind v4).
-
-NO toques el backend ni el dashboard en esta tarea — SOLO la landing (`app/page.tsx` y los componentes/estilos que necesite). El dashboard/login se rediseñan en una tarea posterior.
-
-## Dirección visual (APROBADA por Alejandro — respétala)
-- **Estilo:** "tech luxe" — premium, sofisticado, tecnológicamente avanzado. Referencias: Apple (product pages), Stripe, Linear, Vercel. EVITAR: corporativo, cargado, genérico, parecerse a Amazon/MercadoLibre.
-- **Fondo MIXTO:** hero oscuro dramático (`#0A0A0F`/`#0D0B14`) que transiciona a secciones más claras al hacer scroll. El hero impacta, el resto respira.
-- **Paleta (degradado signature del logo):**
-  - Violeta: `#5B21B6` → `#6D28D9`
-  - Azul: `#2563EB` → `#3B82F6`
-  - Degradado signature: `linear-gradient(135deg, #6D28D9, #2563EB)` — úsalo en wordmark, CTAs, acentos.
-  - Fondo oscuro `#0A0A0F`, superficie `#16131F` con glass/blur, texto `#FFFFFF`/`#A1A1AA`.
-- **Tipografía:** Display tipo Geist o Satoshi (geométrica premium); cuerpo Inter. Titulares grandes, peso bold/black, tracking negativo (estilo Apple). Carga las fuentes vía next/font.
-- **Logo:** wordmark en `public/bookia-wordmark.svg` (texto SVG, se ve bien con la fuente cargada). El ícono del calendario: Alejandro guardará `public/bookia-logo.png` y/o `public/bookia-icon.png` — úsalos. Si no están aún, deja el `<img>` apuntando a esas rutas con un placeholder y coméntalo.
-
-## Estructura de secciones + animación (GSAP, cada efecto con propósito)
-1. **Navbar flotante** glass-morphism, logo + links + CTA. Se compacta/oscurece al hacer scroll.
-2. **Hero (oscuro):** wordmark + headline potente (ej: "Tu negocio responde solo. 24/7.") + subhead + CTA. Fondo con degradado animado tipo aurora/mesh en movimiento lento (canvas o CSS animado, performante). Texto entra con reveal escalonado (SplitText o stagger). Glow sutil en el logo/CTA.
-3. **Demo del agente en vivo (momento estrella):** mockup de chat (WhatsApp-like) donde se ve al agente de una clínica estética respondiendo. Al hacer scroll, los mensajes aparecen "escribiéndose" en tiempo real (typing effect + stagger). Este es el corazón del pitch: "míralo responder solo".
-4. **Cómo funciona:** 3 pasos (1. Conecta tus canales · 2. Carga tu negocio · 3. Responde solo). Scroll-triggered con parallax suave y números animados.
-5. **Características:** grid de cards (multicanal WhatsApp/IG, agenda, inteligencia comercial, pausa humana). Glass-morphism, hover con tilt 3D sutil, borde con degradado animado.
-6. **Métricas/prueba social:** contadores que suben al entrar en viewport (ej. "<5s respuesta", "24/7", "100% conversaciones atendidas").
-7. **CTA final:** "Agenda una demo". Degradado pulsante, botón magnético (sigue el cursor sutilmente).
-8. **Footer** limpio con logo, links, marca.
-
-## Requisitos técnicos
-- GSAP + ScrollTrigger (y SplitText/otros plugins que tengas). Animaciones a 60fps, usa `will-change`/transforms, respeta `prefers-reduced-motion` (degrada a estático).
-- Responsive impecable (mobile-first; en móvil simplifica animaciones pesadas).
-- Accesibilidad: contraste AA, foco visible, alt text.
-- Performance: lazy-load de lo pesado, no bloquear el LCP del hero. Lighthouse performance > 80 en desktop.
-- Es Next.js (App Router) — OJO con SSR de GSAP: los componentes animados son client components (`"use client"`), inicializa GSAP en `useEffect`/`useLayoutEffect` con cleanup.
-- Mantén el contenido en español (es el mercado: Colombia).
+1. **VALIDAR build:** `npm run build` y `npm run dev`. Asegúrate de que los cambios de Claude compilan (hero, features, how-it-works, globals.css). Si algo no compila (ej. utilities `text-hi`/`bg-grid`/`mask-fade-edges` que Claude añadió como `@utility` en Tailwind v4 — verifica que la sintaxis `@utility` es correcta para esta versión; si no, conviértelas a clases normales en `@layer utilities`), CORRÍGELO conservando la intención visual.
+2. **Aplicar la jerarquía de blancos** (`text-hi`/`text-mid`/`text-lo` en vez de `text-white/40` etc.) en demo-chat, metrics, cta, navbar, footer — para coherencia con el hero. El texto desvaído (`/30`,`/40`) se ve poco premium; usa text-mid (0.62) para cuerpo y text-hi (0.95) para énfasis.
+3. **Demo-chat (momento estrella) — subir el nivel:** añade un **typing indicator real** (3 puntos animados) que aparezca ~600ms ANTES de cada mensaje del bot, luego el mensaje. Que se sienta que el agente "está escribiendo". Mantén el ScrollTrigger once. Esto vende el producto.
+4. **Metrics:** que los contadores realmente cuenten hacia arriba (count-up con GSAP) al entrar en viewport, no solo fade. (<5s, 68%, 24/7, etc.)
+5. **CTA final:** botón magnético sutil (el botón se desplaza ~6px hacia el cursor en hover/mousemove). Es el detalle "wow" del cierre.
+6. **Navbar:** usa el ícono `/bookia-icon.jpeg` + wordmark, glass al hacer scroll. Verifica que el logo se ve nítido.
+7. **Performance:** Lighthouse > 80 desktop, 60fps, reduced-motion respetado (Claude ya puso el guard global en CSS).
 
 ## Criterio de completación (pega evidencia)
-1. `npm run dev` y screenshots del hero + sección demo + una sección con scroll. (O describe el resultado con detalle si no puedes adjuntar imágenes.)
-2. `npm run build` del front compila sin errores.
-3. Animaciones funcionan y degradan con `prefers-reduced-motion`.
-4. Responsive verificado (describe mobile).
-5. NO se rompió el backend ni rutas existentes (login/dashboard siguen cargando aunque con su diseño viejo por ahora).
+1. `npm run build` compila sin errores. Pega el resultado.
+2. `npm run dev` + screenshots (o descripción detallada) de: hero, demo-chat con typing, features con spotlight, metrics contando, cta.
+3. Confirma reduced-motion y responsive móvil.
+4. Las utilities de Claude funcionan (o las corregiste conservando el look).
+
+## Fuera de alcance
+- Backend, dashboard, login (esos van después).
+- Conectar a datos reales (TASK-008, sigue en pausa hasta terminar el rediseño visual).
 
 ## Notas
-- Este es un HITO visual de máxima prioridad → al terminar `status: WAITING_FOR_CLAUDE` para que Claude (y Alejandro) revisen antes de propagar al resto.
-- Pon todo el cuidado y creatividad: es literalmente el escaparate del equipo. Si una animación puede ser más elegante, hazla más elegante.
-- Si necesitas el wordmark en paths (no dependiente de fuente) para favicon, genéralo tú con tooling.
-- Commit `task(TASK-009): rediseño landing premium tech-luxe + GSAP`, push, HANDOFF_LOG.
+- Si una utility `@utility` de Tailwind v4 que añadió Claude da problema de build, ese es el error más probable — revísalo primero.
+- Es la carta de presentación: cuida cada micro-detalle. Al terminar `status: WAITING_FOR_CLAUDE` (Claude + Alejandro revisan el resultado visual). Commit `task(TASK-009b): validar + propagar nivel premium`, push, HANDOFF_LOG.
 
 ## Resultado de OpenCode
-### Resumen
-Landing page rediseñada con estética "tech luxe" oscura (Apple/Stripe/Linear) + animaciones GSAP avanzadas.
-
-### Archivos creados
-- `components/landing/navbar.tsx` — Navbar glass flotante con compactación al scroll
-- `components/landing/hero.tsx` — Hero oscuro #0A0A0F + 3 orbes aurora animados + stagger reveal de texto
-- `components/landing/demo-chat.tsx` — Mockup WhatsApp con 7 mensajes agendamiento real, scroll-triggered
-- `components/landing/how-it-works.tsx` — 3 pasos con fade-up escalonado
-- `components/landing/features.tsx` — Grid 3x2 glass cards con hover transitions
-- `components/landing/metrics.tsx` — 4 contadores animados al viewport
-- `components/landing/cta.tsx` — CTA final con gradient pulsante
-- `components/landing/footer.tsx` — Footer limpio
-
-### Archivos modificados
-- `app/page.tsx` — Server component que importa los 8 landing components
-- `app/layout.tsx` — Modo oscuro por defecto, metadata actualizada
-- `app/globals.css` — Custom utilities gradient-brand, keyframes aurora/pulse-glow/float, radii
-
-### Dependencias agregadas
-- `gsap` + `@gsap/react`
-
-### Build
-✅ `npm run build` compila sin errores (0 type errors, 0 build errors)
-✅ Rutas existentes intactas: login, dashboard, conversations, settings
-✅ Animaciones degradan con `prefers-reduced-motion`
-✅ Responsive (mobile-first, simplifica animaciones en móvil)
-⚠️ Lint: 198 errores pre-existentes en server/ y dist/ (no relacionados)
-
-### Notas
-- Logo usado: `public/bookia-wordmark.svg` en navbar y footer
-- `public/bookia-icon.jpeg` y `public/bookia-logo.jpeg` existen pero no se usan (wordmark SVG es suficiente)
-- GSAP plugins usados: core + ScrollTrigger. Sin SplitText (no necesario con stagger nativo)
-- Sin tilt 3D magnético en cards (se omite por performance/atomicidad MVP — fácil de agregar después)
+_(llenar)_
