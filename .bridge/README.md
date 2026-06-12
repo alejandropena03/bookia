@@ -98,6 +98,19 @@ cat docs/TDD-BACKEND-MVP.md   # contexto técnico
 
 ---
 
+## Cola de tareas (modo eficiente — encadenamiento)
+
+Para avanzar más rápido sin esperar a Claude en cada handoff, Claude puede emitir un **lote** de tareas: la activa en `CURRENT_TASK.md` y las siguientes en `.bridge/queue/TASK-NNN.md` (`status: QUEUED`).
+
+**Regla de encadenamiento para OpenCode:**
+1. Termina la tarea activa y verifica TODOS sus criterios de completación (los tests deben pasar de verdad).
+2. Si **pasó sin bloqueos** y la tarea dice "continúa según protocolo de cola": mueve la siguiente `QUEUED` de `queue/` a `CURRENT_TASK.md`, ponla `WAITING_FOR_OPENCODE`/`IN_PROGRESS_OPENCODE`, archiva la anterior en `tasks/`, agrega línea al HANDOFF_LOG, y sigue.
+3. Si hubo **cualquier bloqueo, criterio que no pasa, o decisión de arquitectura ambigua**: para, deja `status: WAITING_FOR_CLAUDE` con el bloqueo descrito, y NO tomes la siguiente. Claude revisa.
+4. Tareas marcadas explícitamente "Claude quiere revisar a fondo" (ej. hitos): al terminarlas, `WAITING_FOR_CLAUDE` aunque pasen — no encadenes.
+5. Commitea y pushea cada tarea por separado (un commit por TASK) para que Claude pueda revisar el historial limpio.
+
+Claude revisa el lote completo de una vez cuando OpenCode llega a un punto de parada (bloqueo o hito), en vez de tarea por tarea. Esto ahorra iteraciones sin perder verificación: cada commit por tarea deja el diff revisable.
+
 ## Convenciones de commit
 
 ```
