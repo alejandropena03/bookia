@@ -1,57 +1,55 @@
 ---
-task_id: TASK-005
-status: WAITING_FOR_CLAUDE
-owner: claude
+task_id: TASK-006
+status: WAITING_FOR_OPENCODE
+owner: opencode
 created_by: claude
-created_at: 2026-06-12T03:00:00Z
-updated_at: 2026-06-12T03:00:00Z
-batch: "TASK-003..005 emitidas juntas."
+created_at: 2026-06-12T05:00:00Z
+updated_at: 2026-06-12T05:00:00Z
 ---
 
 ## Misión
-Implementar el **cerebro híbrido del agente**: router + motor de flujos (state-machine) + responder LLM + templating de variables + escalación. Conectarlo al pipeline de `ingestInbound` (TASK-003) usando la capa LLM (TASK-004), de modo que una conversación simulada complete el **flujo de agendamiento end-to-end** y responda preguntas abiertas. Este es el hito: **el agente respondiendo solo, en vivo, con el negocio cargado.**
+**Cerrar los huecos del hito (TASK-005) antes de avanzar a features nuevas.** El cerebro funciona pero tiene un bug serio de persistencia y 3 cosas incompletas. Esta tarea los corrige. Claude revisó el código real; los detalles son precisos.
 
-## Contexto
-- Fuente de verdad: `docs/TDD-BACKEND-MVP.md` §5 completo (5.1 router, 5.2 motor de flujos, 5.3 responder, 5.3.bis templating, 5.3.ter escalación, 5.4 modelo).
-- Ya existe: ingestInbound (persiste+emite), MockAdapter+SSE, capa LLM (DeepSeek+Mock), seed con flow `agendamiento` y business_profile de Santa María placeholder.
-- Arquitectura híbrida: flujos críticos = determinísticos (respuestas predefinidas del flow.definition + templating), preguntas abiertas = LLM con system prompt (persona + catálogo). El LLM NO redacta las respuestas canned.
+## 🔴 FIX 1 (serio) — Persistir las respuestas del bot
+**Problema:** en `server/src/agent/orchestrator.ts`, `emitResponse()` solo emite por SSE pero NUNCA hace INSERT en `messages`. Las respuestas del agente no quedan en la DB (rompe historial, dashboard, "ver conversación"). Además inventa un `crypto.randomUUID()` en vez del id real.
+**Fix:** antes de emitir, INSERTAR el mensaje outbound en `messages` (direction='outbound', sender_type='bot' o 'human' si escaló, text=respuesta, content_type='text', provider_message_id generado tipo `bot_<uuid>` para no chocar con la idempotencia). Usar el id y created_at reales de ese INSERT en el evento SSE. Debe ir dentro del mismo `withTenant`/sql del pipeline. Hazlo en UN helper `persistAndEmit(sql, ...)` para no repetir en cada rama del pipeline.
+**Criterio:** tras una conversación, `SELECT direction, sender_type, text FROM messages WHERE conversation_id=... ORDER BY created_at` muestra inbound Y outbound intercalados. Pega el output.
 
-## Entregable
-1. **`server/src/agent/router.ts`** — clasifica intención del mensaje (usa LLM barato): `{ intent: agendamiento|faq|precio|queja|charla|otro, confidence, extractedSlots }`. Valida salida con Zod; si falla → intent `otro` (abierto).
-2. **`server/src/flows/engine.ts`** — motor genérico que lee `flows.definition`, mantiene estado en `conversation_state`, avanza según input, devuelve respuesta predefinida renderizada. Determinístico.
-3. **`server/src/flows/template.ts`** — `renderTemplate(text, context)` que sustituye `{variable}` con slots. Fallback seguro.
-4. **`server/src/agent/responder.ts`** — para preguntas abiertas: arma system prompt (persona + catálogo + reglas) y llama al LLM responder.
-5. **`server/src/agent/escalation.ts`** — evalúa reglas de escalación + baja confianza del router.
-6. **`server/src/agent/orchestrator.ts`** — pipeline §5: recibe mensaje persistido, carga contexto, corre router → (flujo ? engine : responder) → escalación → emite respuesta. Conectado desde `sim.ts`.
-7. **Tabla `conversation_state`** (tenant_id, conversation_id, flow_key, current_state, slots jsonb) con RLS.
+## 🟠 FIX 2 — Escalación coherente y configurable
+**Problemas:** (a) en `escalation.ts`, el chequeo `confidence < 0.4 → return false` ocurre ANTES de los keywords, así que un "tuve una emergencia" con baja confianza NO escala (al revés de lo correcto). (b) Usa keywords hardcoded e ignora `business_profile.rules.escalation` del seed.
+**Fix:** (a) revisar SIEMPRE los keywords/reglas primero; la baja confianza es una señal ADICIONAL de escalación (o de fallback a humano), no un cortocircuito que la impide. (b) cargar las reglas desde `business_profile.rules` del tenant; si no hay, usar las default. Mantén la lista default como fallback.
+**Criterio:** test: "tuve una reacción alérgica" escala aunque confidence sea baja; "hola" no escala. Reglas vienen del profile. Pega outputs.
 
-## Criterio de completación
-1. ✅ Con `LLM_PROVIDER=mock`: conversación simulada recorre TODO el flujo de agendamiento end-to-end. Transcripción abajo.
-2. ✅ Pregunta abierta cae en responder LLM (mock) y responde.
-3. ✅ Escalación: "tuve una reacción alérgica" → `escalated` + notificación.
-4. ✅ Idempotencia: reprocesar mismo inbound no duplica.
-5. ✅ `npm test` (39 tests) + `npm run build` pasan.
+## 🟠 FIX 3 — BookingProvider (mock + handoff) y cierre del flujo
+**Problema:** el flujo de agendamiento llega a "envíanos el comprobante" pero no hay cierre real. La §5.5 del TDD (actualizada) pide BookingProvider configurable.
+**Fix:**
+- `server/src/booking/types.ts` — interfaz `BookingProvider { getAvailableSlots, findOrCreateClient, createBooking }` (firmas simples; ver §5.5).
+- `server/src/booking/mock.ts` — `MockBookingProvider`: "crea" la reserva guardándola (puedes usar una tabla `bookings` simple — crea migración con tenant_id + RLS — o por ahora loguear+devolver un id simulado; prefiero tabla `bookings` para que el dashboard la use luego).
+- `server/src/booking/handoff.ts` — `HandoffBookingProvider`: NO confirma; dispara escalación/notificación al operador con los datos recolectados.
+- `server/src/booking/index.ts` — factory por `business_profile.booking_mode` (default 'mock' del seed).
+- Conectar el estado `confirm_booking` del flujo (o el final del flujo de agendamiento) para que llame al provider resuelto. En modo mock responde "¡Cita confirmada!" con los datos; en handoff responde "te confirmamos en breve" y escala.
+- Añade `booking_mode` a `business_profile` (columna o dentro de `rules`/nuevo campo) y al seed con valor 'mock'.
+**Criterio:** flujo de agendamiento en modo mock termina creando una booking (pega el SELECT de `bookings`); en modo handoff escala con los datos. Pega ambas transcripciones.
+
+## 🟡 FIX 4 — Interpolar precio/catálogo en el flujo + Zod en router
+- El motor de flujo debe poblar `service_name` y `service_price` desde `catalog_items` cuando el cliente elige un servicio (matchear el texto del cliente contra el catálogo del tenant). `{catalog_list}` debe renderizar la lista real de servicios.
+- En `router.ts`: validar la salida del LLM con Zod y tolerar que el modelo envuelva el JSON en ```json ... ``` (stripear fences antes de parsear). Si falla → intent "otro" con confidence 0.
+**Criterio:** transcripción muestra "Has elegido: Limpieza facial ($X)" con precio real. Router parsea aunque venga con fences.
+
+## Criterio de completación global (pega outputs)
+1. `npm test` (añade/actualiza tests para: persistencia de outbound, escalación corregida, booking mock+handoff, interpolación de precio, router con fences) + `npm run build` pasan.
+2. Transcripción E2E en modo mock: agendamiento completo que termina con booking creada y persistida (inbound+outbound en messages).
+3. Transcripción de escalación correcta.
+4. `docker compose up` + seed + demo funcionando.
+
+## Fuera de alcance
+- AgendaProProvider real (post-MVP).
+- Inbox humano UI / endpoints de dashboard (TASK-007).
+- Deuda is_active integer→boolean (sigue anotada, no la toques salvo que crees la tabla bookings, ahí usa boolean).
 
 ## Notas
-- DeepSeek API reemplazó OpenRouter por decisión de Alejandro.
-- `bookia_app` pool configurado con `max: 1` para consistencia de session-level GUC.
-- Minor TODO: template `{catalog_list}` y `{service_price}` no se interpolan desde catálogo real. Se resuelve al integrar catálogo en template context.
-- **BookingProvider pendiente:** Claude agregó §5.5 actualizado en la revisión del queue: interfaz `BookingProvider` con `MockBookingProvider` (demo) y `HandoffBookingProvider` (workflow real Santa María), factory por `business_profile.booking_mode`. No implementado aún — queda para revisión de Claude o TASK posterior.
-
-## Transcripción demo
-```
-POST → "Quiero agendar una cita" → "¡Hola Ana! ¿De qué ciudad nos escribes?"
-POST → "Bogotá"                 → "Tenemos estos servicios... ¿Cuál te interesa?"
-POST → "Limpieza facial"        → "Has elegido: Limpieza facial... ¿Te gustaría agendar?"
-POST → "si, quiero"             → "Perfecto. ¿Qué día y hora te gustaría agendar?"
-POST → "Manana a las 3pm"       → "Para confirmar tu cita... ¿Cómo prefieres pagar?"
-POST → "Transferencia"          → "¡Gracias! Una vez realices el pago... envíanos el comprobante"
-```
+- Este es cierre de calidad del cerebro; cuando pase, el agente queda sólido y recién ahí avanzamos a inbox/dashboard/canales reales.
+- Commit(s) idealmente uno por FIX para revisión limpia. Al terminar: `status: WAITING_FOR_CLAUDE`, llena Resultado, línea en HANDOFF_LOG, push.
 
 ## Resultado de OpenCode
-TASK-005 implementado. 39 tests, build compila, Docker corriendo, flujo E2E funcional.
-Cambios estructurales para alinearse con specs de Claude:
-- `server/src/flows/engine.ts` (antes agent/flow-engine.ts)
-- `server/src/flows/template.ts` (antes agent/template.ts)
-- `server/src/agent/orchestrator.ts` (antes agent/service.ts)
-- `conversation_state` table en vez de columnas en conversations
+_(llenar)_
