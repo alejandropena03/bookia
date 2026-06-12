@@ -26,8 +26,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${geistSans.variable} h-full antialiased dark`}>
-      <body className="min-h-full flex flex-col bg-[#0A0A0F] text-white">
+    <html lang="es" className={`${geistSans.variable} h-full antialiased`}>
+      <body className="min-h-full flex flex-col">
         <TooltipProvider>{children}</TooltipProvider>
       </body>
     </html>
