@@ -1,5 +1,6 @@
 "use client"
 
+import { Fragment } from "react"
 import type { HeatmapSlot } from "@/lib/dashboard-mock"
 
 const INTENSITY_CLASSES = [
@@ -34,8 +35,8 @@ export default function DemandHeatmap({ data }: { data: HeatmapSlot[] }) {
             <div key={h} className="text-[10px] app-text-lo text-center pb-1.5 font-medium">{h}</div>
           ))}
           {DAYS.map((day) => (
-            <>
-              <div key={`label-${day}`} className="text-[10px] app-text-lo font-medium self-center">{day}</div>
+            <Fragment key={day}>
+              <div className="text-[10px] app-text-lo font-medium self-center">{day}</div>
               {HOURS.map((hour) => {
                 const slot = map.get(heatKey(day, hour))
                 const count = slot?.count ?? 0
@@ -50,7 +51,7 @@ export default function DemandHeatmap({ data }: { data: HeatmapSlot[] }) {
                   </div>
                 )
               })}
-            </>
+            </Fragment>
           ))}
         </div>
       </div>
