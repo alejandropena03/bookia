@@ -11,6 +11,10 @@ const envSchema = z.object({
   MODEL_RESPONDER: z.string().default("deepseek-v4-flash"),
   DEV_AUTH: z.coerce.boolean().default(true),
   AUTH_SECRET: z.string().default("dev-secret-not-used-in-mvp"),
+  WOMPI_PUBLIC_KEY: z.string().default(""),
+  WOMPI_PRIVATE_KEY: z.string().default(""),
+  WOMPI_EVENTS_KEY: z.string().default(""),
+  WOMPI_SANDBOX: z.coerce.boolean().default(true),
 });
 
 function parseEnv() {

@@ -159,6 +159,9 @@ export const bookings = pgTable("bookings", {
   data: jsonb("data").$type<Record<string, unknown>>().default({}).notNull(),
   reminderSentAt: timestamp("reminder_sent_at", { withTimezone: true }),
   reminderStatus: text("reminder_status").default("none").notNull(),
+  paymentStatus: text("payment_status").default("pending").notNull(),
+  paymentUrl: text("payment_url"),
+  paymentTransactionId: text("payment_transaction_id"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => [
   index("bookings_tenant_idx").on(table.tenantId),

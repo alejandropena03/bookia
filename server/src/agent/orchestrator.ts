@@ -6,6 +6,7 @@ import { evaluateEscalation } from "./escalation.js";
 import { getCannedResponse, generateLlmResponse, BusinessContext } from "./responder.js";
 import { classifyIntent } from "./router.js";
 import { getBookingProvider } from "../booking/index.js";
+import { getPaymentProvider } from "../payment/index.js";
 import { eventBus } from "../lib/event-bus.js";
 
 export interface AgentRequest {
@@ -136,6 +137,34 @@ async function tryExecuteFlow(
   }
 
   return { response: "", context: { flowKey: "", currentState: "", slots: {} }, executed: false, completed: false };
+}
+
+async function injectPaymentLink(
+  response: string,
+  currentState: string,
+  slots: Record<string, string>,
+  catalogItems: CatalogItem[]
+): Promise<string> {
+  if (currentState !== "payment_instructions" && currentState !== "ask_payment") return response;
+  try {
+    const provider = getPaymentProvider();
+    const svc = catalogItems.find((c) =>
+      slots.service?.toLowerCase().includes(c.name.toLowerCase()) ||
+      c.name.toLowerCase().includes(slots.service?.toLowerCase() ?? "")
+    );
+    const amount = svc ? parseFloat(svc.price) : 0;
+    if (amount <= 0) return response;
+    const result = await provider.createPaymentLink({
+      amount,
+      currency: "COP",
+      reference: `bookia_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      description: svc?.name ?? "Servicio",
+    });
+    if (result.url) {
+      return `💰 Para confirmar tu cita, realiza el pago de $${amount.toLocaleString("es-CO")} COP aquí:\n\n${result.url}\n\nUna vez confirmado el pago, te notificaremos automáticamente.`;
+    }
+  } catch {}
+  return response;
 }
 
 async function tryStartFlow(
@@ -277,8 +306,9 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
           return { text: bookingResult.text, messageId: msgId, route: "booking", escalated: bookingResult.escalated, escalationReason: bookingResult.escalationReason };
         }
       }
-      const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, resumeResult.response, "bot", "flow");
-      return { text: resumeResult.response, messageId: msgId, route: "flow", escalated: false };
+      const textWithPayment = await injectPaymentLink(resumeResult.response, resumeResult.context.currentState, resumeResult.context.slots, catalogItems);
+      const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, textWithPayment, "bot", "flow");
+      return { text: textWithPayment, messageId: msgId, route: "flow", escalated: false };
     }
 
     // 2. Classify intent
@@ -296,8 +326,9 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
     // 4. Try start a flow (generic — matches flow key to intent)
     const startResult = await tryStartFlow(sql, conversationId, routerResult.intent, catalogItems, contactName);
     if (startResult.executed) {
-      const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, startResult.response, "bot", "flow");
-      return { text: startResult.response, messageId: msgId, route: "flow", escalated: false };
+      const textWithPayment = await injectPaymentLink(startResult.response, startResult.context.currentState, startResult.context.slots, catalogItems);
+      const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, textWithPayment, "bot", "flow");
+      return { text: textWithPayment, messageId: msgId, route: "flow", escalated: false };
     }
 
     // 5. Try canned response (from DB)
