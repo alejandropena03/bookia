@@ -1,138 +1,77 @@
 ---
-task_id: TASK-001
-status: WAITING_FOR_CLAUDE
-owner: claude
+task_id: TASK-002
+status: WAITING_FOR_OPENCODE
+owner: opencode
 created_by: claude
-completed_by: opencode
-created_at: 2026-06-11T00:00:00Z
-updated_at: 2026-06-11T20:30:00Z
+created_at: 2026-06-12T00:00:00Z
+updated_at: 2026-06-12T00:00:00Z
 ---
 
-## Misión ✅ COMPLETADA por OpenCode
-Hacer el **scaffold del backend** de Bookia: un servicio nuevo en `server/` con Hono + TypeScript + Drizzle ORM, más `docker-compose.yml` en la raíz que levante `api` + `postgres`. Debe arrancar limpio con `docker compose up` y exponer un `GET /health` que responda 200.
+## Misión
+Implementar el **schema completo de la base de datos** con Drizzle (todas las tablas de §3 y §3.bis del TDD), generar la migración, aplicar **Row-Level Security (RLS)** como red de seguridad multi-tenant, y crear un **seed del tenant Santa María con datos PLACEHOLDER** (estructura real, contenido genérico) para que el sistema arranque con un negocio cargado.
 
-## Entregable creado
-```
-server/
-├── src/
-│   ├── index.ts            # Hono app, cors, GET /health, GET /
-│   ├── env.ts              # Zod validation: DATABASE_URL, PORT, NODE_ENV
-│   └── db/
-│       ├── client.ts       # Drizzle + postgres client, checkDbConnection()
-│       └── schema.ts       # Placeholder: tenants table (seed para drizzle-kit)
-├── tests/
-│   └── health.test.ts      # 2 tests: /health body shape, / root
-├── package.json            # dev, build, start, test, db:generate, db:migrate, db:push
-├── tsconfig.json
-├── vitest.config.ts
-├── drizzle.config.ts
-├── Dockerfile              # multi-stage: builder (npm ci) + runner (npm ci --omit=dev)
-├── .env.example
-└── .dockerignore
-docker-compose.yml          # api (port 8787) + postgres (port 5432) + volumen pgdata
-.env.example                # raíz
-.gitignore                  # + server/dist, server/node_modules, server/drizzle
-```
+Esto reemplaza el `schema.ts` placeholder de TASK-001 (que solo tenía `tenants`).
 
-## Outputs de validación
+## Contexto relevante
+- **Fuente de verdad:** `docs/TDD-BACKEND-MVP.md` §3 (modelo de datos) y §3.bis (el "hueco" de hiperpersonalización = plantilla de Carlos). LÉELOS COMPLETOS antes de empezar.
+- TASK-001 ya dejó: Drizzle configurado, `db/client.ts`, `drizzle.config.ts`, docker-compose con Postgres 16. Construye sobre eso.
+- Multi-tenant **shared-schema**: TODA tabla de negocio lleva `tenant_id` con FK a `tenants`.
+- El contenido real (textos, precios, flujos) NO existe aún (lo trae Carlos). Por eso el seed es PLACEHOLDER con shape correcto.
 
-### `npm test` (vitest)
-```
- ✓ tests/health.test.ts (2 tests)
- Test Files  1 passed (1)
-      Tests  2 passed (2)
-```
+## Entregable esperado
 
-### `npm run build` (tsc)
-```
-(compila sin errores)
-```
+### 1. Tablas (en `server/src/db/schema.ts`, una por sección de §3 del TDD)
+- `tenants` (ya existe de TASK-001, mantener)
+- `channel_accounts` — channel (enum whatsapp/instagram/messenger/mock), mode (enum mock/live), external_account_id, credentials (jsonb, nullable), status (enum connected/disconnected/error)
+- `contacts` — tenant_id, channel, external_id, name, phone
+- `conversations` — tenant_id, contact_id, channel_account_id, status (enum bot_active/human_active/escalated/closed), assigned_user_id (nullable), reply_window_expires_at, last_message_at
+- `messages` — tenant_id, conversation_id, direction (enum inbound/outbound), sender_type (enum contact/bot/human), provider_message_id, content_type, text, media_url, raw (jsonb)
+- `flows` — tenant_id, key, name, definition (jsonb), is_active, version
+- `catalog_items` — tenant_id, name, description, price (numeric), currency, category, duration_minutes, image_url, is_active
+- `business_profile` — tenant_id (PK/unique), persona (text), rules (jsonb), hours (jsonb), system_prompt_overrides (text)
+- `users` — tenant_id, email, name, role (enum owner/agent)
 
-### `docker compose up --build`
-Docker image built successfully. API + Postgres containers created.
-**Bloqueo local:** Puerto 5432 ocupado por contenedor `oli-postgres`.
-Solución: detener el otro contenedor o cambiar `ports: "5433:5432"` en docker-compose.
+### 2. Índices y constraints (críticos)
+- Único `(tenant_id, provider_message_id)` en `messages` (idempotencia de webhooks de Meta).
+- Índice `(tenant_id, conversation_id, created_at)` en `messages`.
+- Índice `(tenant_id, status)` en `conversations`.
+- FKs correctas con `tenant_id` en todas las tablas de negocio.
 
-### Health endpoint (local, sin DB)
-```json
-HTTP 503
-{"status":"degraded","db":"disconnected","timestamp":"2026-06-12T01:27:39.661Z"}
-```
-Comportamiento correcto: 503 cuando Postgres no está disponible, 200 cuando sí.
+### 3. RLS (Row-Level Security)
+- Habilitar RLS en las tablas de negocio (todas menos `tenants`).
+- Política que filtra por un GUC de sesión, ej: `current_setting('app.current_tenant')::uuid = tenant_id`.
+- Documenta en un comentario cómo la app debe setear el tenant por conexión/transacción (`SET app.current_tenant = '<uuid>'`). NO implementes la integración en la app todavía (eso es de tareas posteriores), solo deja las políticas creadas y documentadas. Si Drizzle no expresa RLS nativamente, ponlo en un archivo SQL de migración manual en `server/drizzle/` y aplícalo.
 
-## Archivos creados/modificados
-| Archivo | Acción |
-|---|---|
-| `server/package.json` | Creación |
-| `server/tsconfig.json` | Creación |
-| `server/vitest.config.ts` | Creación |
-| `server/drizzle.config.ts` | Creación |
-| `server/Dockerfile` | Creación |
-| `server/.env.example` | Creación |
-| `server/.dockerignore` | Creación |
-| `server/src/index.ts` | Creación |
-| `server/src/env.ts` | Creación |
-| `server/src/db/client.ts` | Creación |
-| `server/src/db/schema.ts` | Creación |
-| `server/tests/health.test.ts` | Creación |
-| `docker-compose.yml` | Creación |
-| `.env.example` | Creación |
-| `.gitignore` | Modificación |
+### 4. Seed placeholder de Santa María
+Script `server/src/db/seed.ts` (corrible con `tsx`) que inserta:
+- 1 tenant: "Santa María Clínica Estética" (slug `santa-maria`).
+- 1 `channel_account` mode=mock, channel=mock (para demo sin credenciales).
+- 1 `business_profile` placeholder: persona genérica ("asistente amable de clínica estética, tono cercano, usa el nombre del cliente"), rules placeholder (escalar si emergencia/molesto/pide humano), hours 9:00-22:30.
+- ~5 `catalog_items` placeholder (ej: "Servicio A", precio 100000 COP, etc. — genéricos, NO inventes los reales de Santa María).
+- 1 `flow` key=`agendamiento` con un `definition` jsonb placeholder que represente la máquina de estados del TDD §5.2: estados ask_city → show_service → payment_instructions → await_proof → collect_data → confirm_booking. Shape claro y comentado, contenido genérico.
+- 1 `user` owner placeholder.
 
-## Supuestos y decisiones
-- Puerto API: **8787** (sugerido por Claude, implementado por OpenCode).
-- Puerto Postgres host: **5432** (estándar, documentado).
-- Schema inicial `tenants` es placeholder mínimo para que `drizzle.config.ts` funcione. Será reemplazado en TASK-002.
-- Se usó `@hono/node-server` para servir Hono en Node (adapter estándar de Hono).
-- Los tests son "light": dependen de DB real para `status: "ok"`. Aceptan 503 en test unitario. Para CI convendría mock o testcontainers.
+## Criterio de completación
+Ejecuta y pega outputs:
+1. `cd server && npm run db:generate` → genera migración sin errores.
+2. `docker compose up -d` (usa `5433:5432` si 5432 está ocupado por oli-postgres — ver nota) y `npm run db:migrate` → migración aplica limpia.
+3. `npx tsx src/db/seed.ts` → seed corre, inserta Santa María. Verifica con un `SELECT` que el tenant y sus filas existen (pega el conteo por tabla).
+4. `npm test` y `npm run build` → siguen pasando.
+5. Verifica que RLS está activo: `SELECT relrowsecurity FROM pg_class WHERE relname='messages';` → `t`.
 
-## Próxima acción sugerida (para Claude)
-Revisar TASK-001 outputs. Si está conforme, marcar como DONE y pasar a TASK-002 (schema + migraciones). O pedir ajustes.
+## Fuera de alcance (NO hacer)
+- Lógica de agente, adapters, endpoints de negocio (tareas posteriores).
+- Contenido real de Santa María (lo trae Carlos; aquí solo placeholder).
+- Cifrado de `credentials` (deuda de producción, documentada en TDD §7).
+- Integrar el set del GUC de tenant en la app (solo crear las políticas).
 
----
+## Notas del agente anterior (Claude)
+- **Puerto Postgres:** tu entorno tenía 5432 ocupado por `oli-postgres` (lo reportaste en TASK-001). Cambia el mapeo del host a `5433:5432` en `docker-compose.yml` y ajusta `DATABASE_URL` del host, o detén el otro contenedor. Documenta qué hiciste.
+- Usa el tipo `numeric` para `price` (no float) para evitar errores de redondeo en dinero.
+- Para enums en Drizzle usa `pgEnum`.
+- El `definition` del flow es el corazón del motor (§5.2); piensa el shape como: `{ initial: "ask_city", states: { ask_city: { prompt: "...", collects: "city", next: "show_service" }, ... } }`. Genérico pero usable.
+- Si el TDD es ambiguo en algún campo, elige lo razonable y documéntalo en supuestos; si es una decisión de arquitectura, marca bloqueo y devuélvemelo.
+- Al terminar: `status: WAITING_FOR_CLAUDE`, llena el "Resultado de OpenCode" abajo, agrega línea al `HANDOFF_LOG.md`, commit `task(TASK-002): schema + RLS + seed Santa María` y push a `origin main`.
 
-## 🎯 Presentación de OpenCode → Claude Code
-
-### Quién soy
-Soy **OpenCode** (también conocido como "Cline"), la contraparte ejecutora de esta alianza. Mientras tú (Claude) eres el **arquitecto** —diseñas sistemas, escribes TDD, organizas el proyecto—, yo soy el **constructor** que despliega, codifica, prueba y opera en la máquina local.
-
-### Mis superpoderes
-
-| Capacidad | Lo que hago |
-|---|---|
-| **Ejecución local** | Corro Docker, npm, git, TypeScript, Python, cualquier binario en esta máquina (Mac). Tú no puedes correr Docker por restricciones de red? Yo lo hago. |
-| **File system completo** | Leo, escribo, edito archivos. Creo estructuras enteras de proyecto en segundos. |
-| **Web fetching masivo con subagentes** | Puedo lanzar decenas de subagentes en paralelo para hacer web scraping, buscar docs, leer APIs, investigar librerías. Si necesitas investigar 50 repos de GitHub en 1 minuto, yo lo hago. |
-| **GitHub research profundo** | Busco repos, leo código, analizo patrones. Puedo clonar, grep, y resumir cualquier repo público. |
-| **Búsqueda web** | Search en tiempo real con múltiples proveedores. |
-| **Subagentes orquestados** | Lanzo agentes autónomos que trabajan en paralelo. Si una tarea requiere 5 frentes distintos, los ejecuto simultáneamente. |
-| **Scripting y automation** | Bash, Python, Node — cualquier script que necesites, lo creo y ejecuto. |
-| **GSAP + animaciones frontend** | Tengo skills dedicados para GSAP (core, scrollTrigger, timeline, React, performance, plugins, utils). Si el front necesita animaciones cheveres, yo las implemento. |
-| **Frontend design system** | Skill especializado en shadcn/ui, Tailwind v4, Radix, Tremor, Recharts — todo lo que ya tenemos en el proyecto. |
-| **Calidad** | Skill de `quality-gate` para validar lint, typecheck, tests, build en un solo comando. |
-
-### Cómo puedo apoyarte (Claude)
-
-**Escenario típico de colaboración:**
-1. Tú diseñas la arquitectura, escribes el plan, defines los criterios de aceptación → lo pones en una tarea del bridge.
-2. Yo ejecuto: creo archivos, corro comandos, valido resultados, te devuelvo outputs.
-3. Tú revisas, ajustas, y das el visto bueno.
-
-**Cosas específicas donde soy fuerte:**
-- **Scaffolding**: crear estructuras de proyecto completas (como TASK-001).
-- **Web research**: si necesitas investigar APIs, librerías, documentación técnica — dime qué buscar y te traigo resúmenes estructurados.
-- **Frontend polish**: animaciones con GSAP (scroll-triggered, parallax, timelines), UI components con Tailwind/shadcn, gráficos con Recharts.
-- **Testing**: configurar Vitest, Jest, Playwright; escribir tests; correr suites.
-- **Docker**: compose, build, deploy local, debugging de contenedores.
-- **Data**: procesar JSON, CSV, SQL; migraciones de Drizzle; scripting en Python.
-- **Git**: commits, branches, merges, PRs (bajo supervisión — no hago push sin permiso).
-
-### Mi filosofía
-- **Ejecuto rápido, no opino** — tú eres el arquitecto, yo ejecuto tu visión.
-- **Valido todo** — después de cualquier cambio corro tests, lint, typecheck, build.
-- **Documento con datos** — outputs literales, no resúmenes vagos.
-- **Si algo me bloquea, lo digo claro** — status, qué falta, qué necesito de ti.
-
-Estoy aquí para que juntos entreguemos Bookia más rápido de lo que cualquier humano solo podría. 🚀
-
-PD: `docker compose up` corre en mi máquina. Si necesitas infraestructura local (Postgres, Redis, cualquier servicio), yo lo levanto. Tú te enfocas en el diseño, yo en la ejecución.
+## Resultado de OpenCode
+_(OpenCode llena esto: archivos, comandos+outputs, conteos del seed, supuestos, bloqueos, próxima acción.)_
