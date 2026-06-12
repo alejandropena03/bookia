@@ -1,115 +1,61 @@
 ---
-task_id: TASK-007
-status: WAITING_FOR_CLAUDE
-owner: claude
+task_id: TASK-009
+status: WAITING_FOR_OPENCODE
+owner: opencode
 created_by: claude
-created_at: 2026-06-12T09:00:00Z
-updated_at: 2026-06-12T09:04:00Z
-batch: "TASK-007..008 emitidas juntas. Encadena según protocolo de cola (README §Cola)."
+depends_on: TASK-007
+priority: ALTA (es la carta de presentación como developers)
 ---
 
+> ✅ LUZ VERDE: TASK-007 revisada y aprobada por Claude. Esta es la tarea activa ahora. Máxima prioridad + HITO visual — al terminar, `WAITING_FOR_CLAUDE` para revisión de Claude + Alejandro.
+> SOLO la landing (`app/page.tsx`). NO toques backend ni dashboard/login. Logo: `public/bookia-wordmark.svg` (texto) y `public/bookia-logo.png`/`bookia-icon.png` (los sube Alejandro; si faltan, placeholder + coméntalo).
+
 ## Misión
-Construir la **API del dashboard y métricas** + el **inbox humano** (escalación operable): endpoints que el front Next.js ya existente va a consumir, y la capacidad de que un operador humano tome/devuelva una conversación. El cerebro (TASK-006) ya quedó sólido; ahora exponemos los datos y el control humano.
+Rediseñar la **landing page** de Bookia (`app/page.tsx`) con un nivel de frontend premium "tech luxe": estética Apple/Stripe/Linear pero con ALTO IMPACTO VISUAL (animaciones avanzadas con GSAP), sin sentirse saturado. Esta landing es la primera impresión del cliente y la carta de presentación del equipo como developers — tiene que ser WOW técnicamente y ejecutada con excelencia. Aprovecha tus skills de GSAP (core, ScrollTrigger, timeline, React, performance) y de frontend design (shadcn, Tailwind v4).
 
-## Contexto
-- Fuente de verdad: `docs/TDD-BACKEND-MVP.md` §6 (endpoints) y §5.3.ter (escalación a humano).
-- Ya existe: conversaciones/mensajes/bookings persistidos, conversación se marca `human_active`/`escalated` al escalar, SSE por tenant, RLS con rol bookia_app, auth del front es Auth.js v5 (JWT).
-- Multi-tenant: todo endpoint resuelve `tenant_id` y usa `withTenant`.
+NO toques el backend ni el dashboard en esta tarea — SOLO la landing (`app/page.tsx` y los componentes/estilos que necesite). El dashboard/login se rediseñan en una tarea posterior.
 
-## Entregable
-### 1. Auth/tenant middleware
-- `server/src/api/middleware.ts` — middleware Hono que valida la sesión (JWT de Auth.js v5 que ya usa el front; comparte el secret por env `AUTH_SECRET`) y resuelve `tenantId` del usuario. Para MVP, si integrar el JWT real es complejo, acepta también un header `x-tenant-slug` en modo dev (documentado y gateado por env `DEV_AUTH=true`). Toda ruta `/api/*` (excepto `/api/sim/*` que ya existe) pasa por aquí.
+## Dirección visual (APROBADA por Alejandro — respétala)
+- **Estilo:** "tech luxe" — premium, sofisticado, tecnológicamente avanzado. Referencias: Apple (product pages), Stripe, Linear, Vercel. EVITAR: corporativo, cargado, genérico, parecerse a Amazon/MercadoLibre.
+- **Fondo MIXTO:** hero oscuro dramático (`#0A0A0F`/`#0D0B14`) que transiciona a secciones más claras al hacer scroll. El hero impacta, el resto respira.
+- **Paleta (degradado signature del logo):**
+  - Violeta: `#5B21B6` → `#6D28D9`
+  - Azul: `#2563EB` → `#3B82F6`
+  - Degradado signature: `linear-gradient(135deg, #6D28D9, #2563EB)` — úsalo en wordmark, CTAs, acentos.
+  - Fondo oscuro `#0A0A0F`, superficie `#16131F` con glass/blur, texto `#FFFFFF`/`#A1A1AA`.
+- **Tipografía:** Display tipo Geist o Satoshi (geométrica premium); cuerpo Inter. Titulares grandes, peso bold/black, tracking negativo (estilo Apple). Carga las fuentes vía next/font.
+- **Logo:** wordmark en `public/bookia-wordmark.svg` (texto SVG, se ve bien con la fuente cargada). El ícono del calendario: Alejandro guardará `public/bookia-logo.png` y/o `public/bookia-icon.png` — úsalos. Si no están aún, deja el `<img>` apuntando a esas rutas con un placeholder y coméntalo.
 
-### 2. Endpoints de conversaciones / inbox
-- `GET /api/conversations?status=&channel=&page=` — lista paginada (id, contacto, canal, status, last_message_at, último mensaje preview). Filtros opcionales.
-- `GET /api/conversations/:id` — hilo completo (mensajes ordenados) + datos del contacto + estado.
-- `POST /api/conversations/:id/reply` — el operador humano envía un mensaje (persiste outbound sender_type='human', emite SSE, y si hay adapter live lo enviaría — en mock solo persiste/emite).
-- `POST /api/conversations/:id/takeover` — operador toma el control: status → `human_active`, assigned_user_id = usuario actual. El bot deja de responder esa conversación.
-- `POST /api/conversations/:id/handback` — devuelve al bot: status → `bot_active`, assigned_user_id = null.
-- **Importante:** el orchestrator (processMessage) debe RESPETAR el estado: si la conversación está `human_active`/`escalated`, el bot NO responde automáticamente (el inbound se persiste y emite, pero el agente se abstiene). Ajusta `processMessage` para chequear el status al inicio y salir temprano si es humano.
+## Estructura de secciones + animación (GSAP, cada efecto con propósito)
+1. **Navbar flotante** glass-morphism, logo + links + CTA. Se compacta/oscurece al hacer scroll.
+2. **Hero (oscuro):** wordmark + headline potente (ej: "Tu negocio responde solo. 24/7.") + subhead + CTA. Fondo con degradado animado tipo aurora/mesh en movimiento lento (canvas o CSS animado, performante). Texto entra con reveal escalonado (SplitText o stagger). Glow sutil en el logo/CTA.
+3. **Demo del agente en vivo (momento estrella):** mockup de chat (WhatsApp-like) donde se ve al agente de una clínica estética respondiendo. Al hacer scroll, los mensajes aparecen "escribiéndose" en tiempo real (typing effect + stagger). Este es el corazón del pitch: "míralo responder solo".
+4. **Cómo funciona:** 3 pasos (1. Conecta tus canales · 2. Carga tu negocio · 3. Responde solo). Scroll-triggered con parallax suave y números animados.
+5. **Características:** grid de cards (multicanal WhatsApp/IG, agenda, inteligencia comercial, pausa humana). Glass-morphism, hover con tilt 3D sutil, borde con degradado animado.
+6. **Métricas/prueba social:** contadores que suben al entrar en viewport (ej. "<5s respuesta", "24/7", "100% conversaciones atendidas").
+7. **CTA final:** "Agenda una demo". Degradado pulsante, botón magnético (sigue el cursor sutilmente).
+8. **Footer** limpio con logo, links, marca.
 
-### 3. Endpoints de métricas (para el dashboard del front)
-- `GET /api/metrics?from=&to=` — agregados del tenant: total conversaciones, mensajes inbound/outbound, conversaciones por status, por canal, tasa de respuesta del bot, nº de bookings creadas (conversión a cita), nº de escalaciones, tendencia diaria (serie temporal simple). Usa SQL con agregaciones (Drizzle permite raw). Devuelve shape JSON listo para el dashboard.
-- `GET /api/catalog`, `GET /api/profile`, `GET /api/flows` — lectura de la config del tenant (para el panel). CRUD completo NO es necesario aún (eso es panel self-service, tarea posterior); con GET basta para que el front muestre.
+## Requisitos técnicos
+- GSAP + ScrollTrigger (y SplitText/otros plugins que tengas). Animaciones a 60fps, usa `will-change`/transforms, respeta `prefers-reduced-motion` (degrada a estático).
+- Responsive impecable (mobile-first; en móvil simplifica animaciones pesadas).
+- Accesibilidad: contraste AA, foco visible, alt text.
+- Performance: lazy-load de lo pesado, no bloquear el LCP del hero. Lighthouse performance > 80 en desktop.
+- Es Next.js (App Router) — OJO con SSR de GSAP: los componentes animados son client components (`"use client"`), inicializa GSAP en `useEffect`/`useLayoutEffect` con cleanup.
+- Mantén el contenido en español (es el mercado: Colombia).
 
-## Criterio de completación (pega outputs)
-1. `docker compose up` + seed. Generar conversaciones de prueba vía `/api/sim/message` (varias, incluyendo una que escale y una que agende).
-2. `GET /api/conversations` → lista con las conversaciones, filtrable por status. Pega salida.
-3. `GET /api/conversations/:id` → hilo completo con inbound+outbound. Pega salida.
-4. `POST /takeover` luego un `/api/sim/message` a esa conversación → el bot NO responde (solo persiste). Luego `/reply` del humano funciona. Luego `/handback` → el bot vuelve a responder. Pega evidencia.
-5. `GET /api/metrics` → JSON con los agregados. Pega salida.
-6. `npm test` (añade tests de métricas, listado, takeover/handback, y que el bot se abstiene si human_active) + `npm run build` pasan.
-
-## Fuera de alcance
-- Adapters reales WhatsApp/Instagram (lote posterior).
-- CRUD de catálogo/perfil (panel self-service editable, posterior).
-- Notificación real al operador por WhatsApp/email (por ahora el evento SSE + el status basta).
+## Criterio de completación (pega evidencia)
+1. `npm run dev` y screenshots del hero + sección demo + una sección con scroll. (O describe el resultado con detalle si no puedes adjuntar imágenes.)
+2. `npm run build` del front compila sin errores.
+3. Animaciones funcionan y degradan con `prefers-reduced-motion`.
+4. Responsive verificado (describe mobile).
+5. NO se rompió el backend ni rutas existentes (login/dashboard siguen cargando aunque con su diseño viejo por ahora).
 
 ## Notas
-- Nota menor heredada de TASK-006: el mensaje automático de escalación se persiste como sender_type='human'; cámbialo a 'bot' (lo escribe el sistema, no un humano). Trivial.
-- Las métricas: si una agregación es pesada, está bien on-the-fly para el MVP (volumen bajo). No crees materialized views todavía.
-- ⛔ CAMBIO: al terminar TASK-007, NO tomes la TASK-008 (EN PAUSA — rediseño del front primero). PRÓXIMA tras 007 = **TASK-009 (rediseño landing premium, en queue/TASK-009-landing.md)** — es de alta prioridad. Pero como la 007 es API+inbox que quiero revisar, deja `status: WAITING_FOR_CLAUDE` al terminar la 007; Claude revisa y te da luz verde para arrancar la 009 (o tómala si no hubo bloqueos y ya viste esta nota). Commit de TASK-007, push, HANDOFF_LOG.
+- Este es un HITO visual de máxima prioridad → al terminar `status: WAITING_FOR_CLAUDE` para que Claude (y Alejandro) revisen antes de propagar al resto.
+- Pon todo el cuidado y creatividad: es literalmente el escaparate del equipo. Si una animación puede ser más elegante, hazla más elegante.
+- Si necesitas el wordmark en paths (no dependiente de fuente) para favicon, genéralo tú con tooling.
+- Commit `task(TASK-009): rediseño landing premium tech-luxe + GSAP`, push, HANDOFF_LOG.
 
 ## Resultado de OpenCode
-
-### Fix: sender_type escalación ✅
-Cambiado `sender_type: "human"` → `"bot"` en `orchestrator.ts:272` para el mensaje automático de escalación (lo escribe el sistema, no un humano).
-
-### Bot se abstiene si human_active/escalated ✅
-`processMessage` ahora verifica el status de la conversación al inicio. Si está `human_active` o `escalated`, retorna respuesta vacía (text: "") sin ejecutar el agente. El inbound ya fue persistido por `ingestInbound`.
-
-### Auth middleware ✅
-`server/src/api/middleware.ts`: middleware `resolveTenant` que resuelve `tenantId` desde header `x-tenant-slug` (default: "santa-maria" en dev mode `DEV_AUTH=true`). Montado en `/api/*`.
-
-### Dashboard API endpoints ✅
-Archivo `server/src/api/dashboard.ts` con 9 endpoints:
-
-| Endpoint | Descripción |
-|---|---|
-| `GET /api/conversations` | Lista paginada con filtros status/channel |
-| `GET /api/conversations/:id` | Hilo completo + datos del contacto |
-| `POST /api/conversations/:id/reply` | Operador humano responde (solo human_active) |
-| `POST /api/conversations/:id/takeover` | Toma de control → human_active |
-| `POST /api/conversations/:id/handback` | Devuelve al bot → bot_active |
-| `GET /api/metrics` | KPIs agregados (conversaciones, mensajes, status, canal, bookings, tendencia diaria) |
-| `GET /api/catalog` | Catálogo de servicios del tenant |
-| `GET /api/profile` | Perfil de negocio (persona, reglas, horarios) |
-| `GET /api/flows` | Flujos activos del tenant |
-
-### Tests ✅
-`tests/dashboard.test.ts` — 9 tests que cubren:
-- Listado y filtrado de conversaciones
-- Hilo completo de mensajes
-- Takeover (status → human_active)
-- Handback (status → bot_active)
-- Reply humano (sender_type='human')
-- Bot se abstiene si human_active
-- Bot responde si bot_active
-- Métricas agregadas
-- Lectura de catálogo
-
-### Evidencia E2E (Docker)
-```
-GET /api/conversations → 1 conv (Diana, bot_active, mock)
-GET /api/conversations/:id → thread inbound+outbound
-POST /takeover → human_active
-Bot abstains → text: ""
-POST /reply → human msg persisted
-POST /handback → bot_active
-Bot responds → canned response
-GET /api/metrics → {1 conv, 3 inbound, 3 outbound, bot_active:1}
-GET /api/profile → persona loaded
-GET /api/flows → agendamiento v1
-```
-
-### Tests
-```
-✓ tests/channels.test.ts (8 tests)
-✓ tests/llm.test.ts (7 tests)
-✓ tests/agent.test.ts (19 tests)
-✓ tests/rls.test.ts (6 tests)
-✓ tests/dashboard.test.ts (9 tests)
-✓ tests/health.test.ts (2 tests)
-Test Files  6 passed (6)
-     Tests  51 passed (51)
-```
+_(llenar)_

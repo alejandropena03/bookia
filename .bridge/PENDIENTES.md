@@ -12,6 +12,7 @@ Lista viva de pendientes que cualquiera de los dos agentes puede agregar/atender
 - [ ] Cifrado de credenciales en reposo (deuda para fase producción).
 - [ ] **Deuda menor (TASK-002):** `flows.is_active` y `catalog_items.is_active` son `integer` (0/1); migrar a `boolean` cuando se toquen esas tablas en una tarea futura.
 - [ ] **Integrar `SET app.current_tenant` en el middleware** de la app cuando haya endpoints autenticados (el RLS depende de que la app setee el GUC por request/transacción).
+- [ ] **DEUDA CRÍTICA producción (TASK-007):** el middleware `resolveTenant` solo resuelve tenant si `DEV_AUTH=true`. En producción (`DEV_AUTH=false`) NO valida JWT real ni rechaza requests sin auth — deja pasar sin tenantId. Implementar validación real del JWT de Auth.js v5 (compartir AUTH_SECRET) y rechazar (401) si no hay sesión válida ANTES de exponer en producción.
 
 ## De negocio (no técnicos, contexto)
 - [ ] Firmar NDA antes de conectar datos reales del cliente.
