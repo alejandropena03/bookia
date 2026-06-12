@@ -1,7 +1,7 @@
 import { LlmProvider, LlmCompleteParams, LlmResult, Msg } from "./types.js";
 
 const DEEPSEEK_BASE = "https://api.deepseek.com/v1";
-const DEFAULT_MODEL = "deepseek-chat";
+const DEFAULT_MODEL = "deepseek-v4-flash";
 
 interface DeepSeekMessage {
   role: string;
