@@ -22,6 +22,7 @@ export default function DemoLive() {
   ])
   const [input, setInput] = useState("")
   const [sending, setSending] = useState(false)
+  const [demoConvId, setDemoConvId] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   const scrollDown = useCallback(() => {
@@ -37,10 +38,13 @@ export default function DemoLive() {
     const unsub = subscribeToSSE((data: any) => {
       const text = data?.message?.text ?? data?.text ?? ""
       if (!text) return
+      // filter to only show messages from this demo's conversation
+      const convId = data?.message?.conversationId ?? data?.conversationId
+      if (demoConvId && convId && convId !== demoConvId) return
       setMessages((prev) => [...prev, { id: `bot-${++msgId}`, text, sender: "bot" }])
     })
     return unsub
-  }, [open])
+  }, [open, demoConvId])
 
   async function handleSend() {
     const text = input.trim()
@@ -49,7 +53,8 @@ export default function DemoLive() {
     setSending(true)
     setMessages((prev) => [...prev, { id: `user-${++msgId}`, text, sender: "user" }])
     try {
-      await sendSimMessage(text)
+      const { conversationId } = await sendSimMessage(text)
+      setDemoConvId(conversationId)
     } catch {
       setMessages((prev) => [...prev, { id: `bot-${++msgId}`, text: "(Error conectando al backend)", sender: "bot" }])
     }

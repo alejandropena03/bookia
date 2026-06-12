@@ -1,68 +1,53 @@
 ---
-task_id: TASK-013
-status: WAITING_FOR_CLAUDE
-owner: claude
+task_id: TASK-014
+status: WAITING_FOR_OPENCODE
+owner: opencode
 created_by: claude
-depends_on: TASK-012
-created_at: 2026-06-12T20:00:00Z
-updated_at: 2026-06-12T21:00:00Z
+depends_on: TASK-013
+created_at: 2026-06-12T21:30:00Z
+updated_at: 2026-06-12T21:30:00Z
 priority: ALTA
-batch: "TASK-012..014 — conectar producto end-to-end. TASK-012 DONE. TASK-013 DONE. TASK-014 en queue."
+batch: "TASK-012..014 — conectar producto end-to-end. TASK-012 DONE. TASK-013 DONE (con fix Claude). TASK-014 activa = HITO FINAL."
 ---
 
 ## Misión
-**Conectar TODO el front al backend real**, reemplazando los datos mock por la API, e implementar el **panel de demo en vivo** (mensaje simulado → agente responde por SSE en tiempo real). Al terminar, el dashboard, las conversaciones y el inbox muestran datos REALES del backend.
+**Verificación end-to-end + datos de muestra para la demo.** Dejar Bookia funcionando como un todo coherente: poblar datos de muestra realistas para Santa María (para que el dashboard de inteligencia muestre números convincentes con data REAL, no vacíos), y validar el flujo completo de punta a punta.
+
+## Contexto
+- TASK-012 DONE: `GET /api/metrics/intelligence` calcula insights reales desde DB.
+- TASK-013 DONE: Front conectado al backend real. Dashboard consume `/api/metrics/intelligence`, conversaciones y detalle son reales, demo en vivo (botón flotante violeta) envía `POST /api/sim/message` y recibe respuesta del agente por SSE en tiempo real.
+- Fix Claude en TASK-013: `DemoLive` ahora filtra SSE por `conversationId` para no mezclar threads en el chat de demo.
+- Con solo el seed mínimo actual, el dashboard de inteligencia se ve casi vacío. Hay que poblar datos de muestra para que la demo impacte.
+
+## Entregable
+1. **Script de datos de muestra** (`server/src/db/seed-demo.ts` o ampliar el seed): genera para Santa María un volumen realista de conversaciones/mensajes/bookings DISTRIBUIDOS en el tiempo (últimos 30 días), con:
+   - Variedad de canales (whatsapp/instagram/facebook).
+   - Conversaciones en distintos estados (bot_active, human_active, escalated, closed).
+   - Bookings con distintos servicios y precios del catálogo Santa María (para que KPIs de dinero den montos realistas — estamos hablando de servicios de $150K a $350K COP).
+   - Mensajes en distintas horas/días (para que el heatmap tenga forma, picos tarde-noche que se ven bien).
+   - Algunas conversaciones con mensajes de "precio" / "cuánto cuesta" sin booking (para "dinero sobre la mesa" y el embudo con caída visible).
+   - Corre idempotente (no duplica si se re-ejecuta; o limpia y resiembra los datos demo).
+2. **Validación E2E** (ejecutar y pegar evidencia):
+   - `docker compose up` + migrate + seed + seed-demo.
+   - Front levantado, dashboard muestra insights con datos de muestra (describe los montos, embudo con % de caída, heatmap con forma).
+   - Demo en vivo: enviar mensaje simulado nuevo → agente responde → aparece en conversación, dashboard sube al refrescar.
+   - Conversaciones lista/detalle, takeover/handback funcionan contra datos reales.
+3. **README-DEMO.md** (en la raíz o en docs/): pasos exactos para levantar todo y dar la demo (docker up, seeds, front dev, qué mostrar). Para que cualquiera del equipo pueda demostrarlo sin fricción.
+
+## Criterio de completación (pega evidencia)
+1. Output de seed-demo corriendo. Dashboard con datos de muestra (describe los números clave: ingreso, embudo, heatmap, ROI).
+2. Demo en vivo funcionando E2E.
+3. `npm test` + `npm run build` (front y server) pasan.
+4. README-DEMO con los pasos.
+
+## Fuera de alcance
+- Credenciales reales de Meta / canales reales.
+- AgendaPro real, TikTok.
+
+## Notas
+- Objetivo: al terminar, Alejandro puede hacer `docker compose up` + seeds + `npm run dev` y mostrar Bookia funcionando con el negocio de Santa María "vivo": dashboard con inteligencia real y el agente respondiendo en la demo. Ese es el producto "esperando credenciales".
+- **HITO FINAL de esta fase** → al terminar: `status: WAITING_FOR_CLAUDE`. Claude hace revisión final del producto completo.
+- Commit: `task(TASK-014): datos de muestra + verificación E2E`, push, actualizar HANDOFF_LOG.
 
 ## Resultado de OpenCode
-
-### Archivos creados/modificados
-```
-A  lib/api.ts                     — cliente backend tipado (147 líneas, 13 funciones)
-A  app/providers.tsx              — QueryClientProvider wrapper
-A  components/dashboard/DemoLive.tsx — demo en vivo con SSE (botón flotante + modal chat)
-M  .env                          — +NEXT_PUBLIC_API_URL
-M  app/(dashboard)/layout.tsx     — QueryProvider + DemoLive
-M  app/(dashboard)/dashboard/page.tsx — useQuery con fallback mock
-M  app/(dashboard)/conversations/page.tsx — useQuery a backend real
-M  app/(dashboard)/conversations/[id]/page.tsx — use(list params) + useQuery detail
-M  app/(dashboard)/settings/page.tsx — +profile/catalog desde backend + sección servicios
-```
-
-### Conexiones implementadas
-
-| Página | Antes (mock) | Ahora (backend) |
-|---|---|---|
-| **Dashboard** | `getDashboardData()` (mock) | `GET /api/metrics/intelligence` con fallback mock si backend no responde. Refetch cada 30s. Indicador de carga. |
-| **Conversaciones** | `getConversations()` (JSON file) | `GET /api/conversations` con refetch cada 15s. Adapta shape del backend al formato ConversationsInbox. |
-| **Conversación detalle** | `getConversationById()` (JSON file) | `GET /api/conversations/:id` + list combinados. Usa `use()` de React porque params es Promise en Next.js 16. |
-| **Settings** | useState estático | `GET /api/profile` + `GET /api/catalog`. Muestra persona/booking_mode del backend y servicios con precios. |
-| **Demo en vivo** | No existía | Componente `DemoLive` con botón flotante (esquina inf-der). Modal chat: input → `POST /api/sim/message` → respuesta SSE en tiempo real con typing indicator. |
-
-### Demo en vivo (el corazón del pitch)
-- Botón flotante violeta con ícono `Bot` en todas las páginas del dashboard
-- Modal tipo chat con header gradient-brand, fondo con gradiente sutil
-- Envía mensaje → `POST /api/sim/message` al backend real
-- Recibe respuesta del agente vía `EventSource` en `/api/sim/stream`
-- Typing indicator animado (3 puntitos rebotando)
-- Mensajes de usuario a la derecha (brand-bg), bot a la izquierda (card)
-
-### TanStack Query
-- `QueryProvider` creado en `app/providers.tsx` con staleTime 30s, retry 1
-- Envuelve TODO el dashboard layout (no afecta landing oscura)
-- Queries: `["intelligence"]`, `["conversations"]`, `["conversation", id]`, `["profile"]`, `["catalog"]`
-
-### API Client (`lib/api.ts`)
-- Base URL: `NEXT_PUBLIC_API_URL` (default `http://localhost:8787`)
-- Header `x-tenant-slug: santa-maria` modo dev
-- 13 funciones: getIntelligence, listConversations, getConversation, replyConversation, takeover, handback, getCatalog, getProfile, sendSimMessage, subscribeToSSE
-- Tipado estricto con interfaces de backend
-
-### Build
-- `npm run build` (frontend): Next.js ✅
-- `npm run build` (server): tsc ✅
-
-### Notas
-- Demo en vivo es el momento clave del pitch: muestra el backend real respondiendo
-- AUTH: se usa modo dev (x-tenant-slug) — deuda JWT documentada
-- Settings PUT no implementado en backend — solo lectura (documentado en UI)
-- Las rutas API mock de Next.js (`app/api/conversations`, `app/api/metrics`) siguen existiendo pero no se usan desde el front
+_(llenar)_
