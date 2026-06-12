@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState } from "react"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
+import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 
@@ -38,16 +39,25 @@ export default function Navbar() {
       ref={navRef}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
-          ? "bg-[#0A0A0F]/80 backdrop-blur-xl border-b border-white/[0.06] py-3"
+          ? "bg-[#08070C]/80 backdrop-blur-2xl border-b border-white/[0.06] py-3"
           : "bg-transparent py-5"
       }`}
     >
       <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5 group" aria-label="Bookia inicio">
-          <img
+          <Image
+            src="/bookia-icon.jpeg"
+            alt=""
+            width={28}
+            height={28}
+            className="rounded-lg ring-1 ring-white/10"
+          />
+          <Image
             src="/bookia-wordmark.svg"
             alt="Bookia"
-            className="h-7 w-auto"
+            width={96}
+            height={28}
+            className="h-6 w-auto"
           />
         </Link>
 
@@ -56,7 +66,7 @@ export default function Navbar() {
             <a
               key={link.href}
               href={link.href}
-              className="text-sm text-white/60 hover:text-white/90 transition-colors duration-300"
+              className="text-sm text-mid hover:text-hi transition-colors duration-300"
             >
               {link.label}
             </a>
@@ -64,7 +74,7 @@ export default function Navbar() {
         </div>
 
         <Link href="/login">
-          <Button className="bg-gradient-to-r from-[#6D28D9] to-[#2563EB] hover:from-[#7C3AED] hover:to-[#3B82F6] text-white text-sm px-5 h-9 rounded-xl shadow-lg shadow-[#6D28D9]/20 hover:shadow-[#6D28D9]/30 transition-all duration-300">
+          <Button className="bg-gradient-to-r from-[#7C3AED] to-[#2563EB] hover:from-[#8B5CF6] hover:to-[#3B82F6] text-white text-sm px-5 h-9 rounded-xl shadow-lg shadow-[#6D28D9]/20 hover:shadow-[#6D28D9]/30 transition-all duration-300">
             Acceder
           </Button>
         </Link>

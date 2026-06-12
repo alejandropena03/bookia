@@ -90,7 +90,6 @@ export default function HowItWorks() {
       ref={sectionRef}
       className="relative py-28 px-4 bg-gradient-to-b from-[#0F0C18] to-[#0A0A0F] overflow-hidden"
     >
-      {/* Divisor luminoso superior — separa secciones con un hilo de luz (premium) */}
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#7C3AED]/40 to-transparent" />
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-[400px] h-[400px] rounded-full bg-[#2563EB]/5 blur-[120px]" />
@@ -99,19 +98,19 @@ export default function HowItWorks() {
 
       <div className="relative z-10 max-w-5xl mx-auto">
         <div ref={headingRef} className="text-center mb-20">
-          <span className="how-line inline-block px-3 py-1 rounded-full border border-white/[0.06] bg-white/[0.02] text-white/30 text-[11px] tracking-widest uppercase mb-5">
+          <span className="how-line inline-block px-3 py-1 rounded-full border border-white/[0.06] bg-white/[0.02] text-lo text-[11px] tracking-widest uppercase mb-5">
             Cómo funciona
           </span>
-          <h2 className="how-line text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-[-0.03em] mb-4">
+          <h2 className="how-line text-3xl sm:text-4xl md:text-5xl font-bold text-hi tracking-[-0.03em] mb-4">
             Tres pasos. Sin fricción.
           </h2>
-          <p className="how-line text-white/40 text-lg max-w-xl mx-auto">
+          <p className="how-line text-mid text-lg max-w-xl mx-auto">
             De la conexión a la primera cita agendada en minutos, no en días.
           </p>
         </div>
 
         <div ref={stepsRef} className="grid md:grid-cols-3 gap-6">
-          {STEPS.map((step, i) => {
+          {STEPS.map((step) => {
             const Icon = step.icon
             return (
               <div
@@ -122,12 +121,12 @@ export default function HowItWorks() {
                   <div className="flex items-center gap-3 mb-6">
                     <span className="text-3xl font-bold text-white/10 tracking-tight">{step.number}</span>
                     <div className="w-px h-8 bg-white/[0.06]" />
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#6D28D9]/20 to-[#2563EB]/20 flex items-center justify-center group-hover:from-[#6D28D9]/30 group-hover:to-[#2563EB]/30 transition-all duration-500">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7C3AED]/20 to-[#2563EB]/20 flex items-center justify-center group-hover:from-[#7C3AED]/30 group-hover:to-[#2563EB]/30 transition-all duration-500">
                       <Icon className="w-5 h-5 text-white/60 group-hover:text-white/80 transition-all duration-500" />
                     </div>
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-3">{step.title}</h3>
-                  <p className="text-white/40 text-sm leading-relaxed">{step.desc}</p>
+                  <h3 className="text-lg font-semibold text-hi mb-3">{step.title}</h3>
+                  <p className="text-mid text-sm leading-relaxed">{step.desc}</p>
                 </div>
               </div>
             )

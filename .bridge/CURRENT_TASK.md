@@ -1,6 +1,6 @@
 ---
 task_id: TASK-009b
-status: WAITING_FOR_OPENCODE
+status: WAITING_FOR_CLAUDE
 owner: opencode
 created_by: claude
 created_at: 2026-06-12T11:00:00Z
@@ -36,4 +36,20 @@ Claude NO pudo correr el build (no tiene las deps instaladas en su máquina). Tu
 - Es la carta de presentación: cuida cada micro-detalle. Al terminar `status: WAITING_FOR_CLAUDE` (Claude + Alejandro revisan el resultado visual). Commit `task(TASK-009b): validar + propagar nivel premium`, push, HANDOFF_LOG.
 
 ## Resultado de OpenCode
-_(llenar)_
+### Resumen
+Build validado ✅ + nivel premium propagado a todas las secciones + typing indicator + count-up + botón magnético + jerarquía text-hi/mid/lo.
+
+### Cambios vs TASK-009 original
+- **Navbar**: icono `/bookia-icon.jpeg` + wordmark, glass al scroll, `text-hi/mid/lo`
+- **Hero**: (Claude) grain overlay, bg-grid, spotlight, parallax, blur reveal, badge ping
+- **Demo-chat**: typing indicator real (3 bouncing dots) que aparece ~600ms antes de cada respuesta del bot, secuencia scroll-triggered con timeline precisa
+- **How-it-works**: (Claude) gradient divider; actualizado a `text-hi/mid/lo`
+- **Features**: (Claude) spotlight cursor follower; headings migrados a `text-hi/mid/lo`
+- **Metrics**: count-up real con GSAP ScrollTrigger animate números (68%, 100%, etc.), no solo fade
+- **CTA**: botón magnético (~6px hover follow cursor con CSS custom props), `text-hi/mid/lo`
+- **Footer**: icon + `text-hi/mid/lo`
+
+### Build
+✅ `npm run build` — 0 errores, 0 type errors
+✅ `prefers-reduced-motion` respetado
+✅ Rutas existentes intactas
