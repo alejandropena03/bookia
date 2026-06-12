@@ -88,8 +88,10 @@ export default function HowItWorks() {
     <section
       id="como-funciona"
       ref={sectionRef}
-      className="relative py-28 px-4 bg-[#0D0B14] overflow-hidden"
+      className="relative py-28 px-4 bg-gradient-to-b from-[#0F0C18] to-[#0A0A0F] overflow-hidden"
     >
+      {/* Divisor luminoso superior — separa secciones con un hilo de luz (premium) */}
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#7C3AED]/40 to-transparent" />
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-[400px] h-[400px] rounded-full bg-[#2563EB]/5 blur-[120px]" />
         <div className="absolute bottom-0 right-1/4 w-[300px] h-[300px] rounded-full bg-[#6D28D9]/5 blur-[100px]" />
