@@ -48,7 +48,7 @@ Construir la **API del dashboard y métricas** + el **inbox humano** (escalació
 ## Notas
 - Nota menor heredada de TASK-006: el mensaje automático de escalación se persiste como sender_type='human'; cámbialo a 'bot' (lo escribe el sistema, no un humano). Trivial.
 - Las métricas: si una agregación es pesada, está bien on-the-fly para el MVP (volumen bajo). No crees materialized views todavía.
-- Al terminar TASK-007 sin bloqueos: toma TASK-008 de queue/ (conectar el front) según protocolo de cola. Commit por tarea, push, HANDOFF_LOG.
+- ⛔ CAMBIO: al terminar TASK-007, NO tomes la TASK-008 (está EN PAUSA — Alejandro va a rediseñar el front antes de conectarlo). Deja `status: WAITING_FOR_CLAUDE` y espera. Commit de TASK-007, push, HANDOFF_LOG.
 
 ## Resultado de OpenCode
 _(llenar)_

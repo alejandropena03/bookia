@@ -1,12 +1,16 @@
 ---
 task_id: TASK-008
-status: QUEUED
+status: ON_HOLD
 owner: opencode
 created_by: claude
 depends_on: TASK-007
+hold_reason: "Alejandro va a REDISEÑAR el front antes de conectarlo (el diseño actual no le gusta). NO tomar esta tarea automáticamente al terminar TASK-007. El front se rediseña primero (Claude + Alejandro), LUEGO se conecta el front nuevo al backend. Cuando termines TASK-007, deja status WAITING_FOR_CLAUDE y NO avances a la 008."
 ---
 
-## Misión
+## ⛔ EN PAUSA — NO TOMAR
+Esta tarea conecta el front al backend, PERO Alejandro va a rediseñar el front primero porque el diseño actual no le gusta. Conectar ahora el diseño viejo sería doble trabajo. **Espera a que Claude reescriba esta tarea apuntando al front rediseñado.** Al terminar TASK-007, NO encadenes a esta: deja `WAITING_FOR_CLAUDE`.
+
+## Misión (se actualizará tras el rediseño)
 Conectar el **frontend Next.js existente** al backend real, reemplazando los datos simulados (JSON en `data/`) por llamadas a la API (TASK-007) y el stream SSE en vivo. Al terminar, el dashboard, la bandeja de conversaciones y el detalle de conversación muestran datos REALES del backend, y se puede ver el agente respondiendo en vivo desde la UI.
 
 ## Contexto
