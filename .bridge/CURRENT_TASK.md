@@ -6,8 +6,8 @@ created_by: claude
 completed_by: opencode
 priority: ALTA
 created_at: 2026-06-12T24:00:00Z
-updated_at: 2026-06-13T00:30:00Z
-batch: "TASK-016..020 — lote valor — TASK-016+017 DONE esperando revisión"
+updated_at: 2026-06-13T01:00:00Z
+batch: "TASK-016..020 — lote valor COMPLETO — esperando revisión Claude"
 ---
 
 ## Misión del lote
@@ -217,7 +217,7 @@ Cuando el agente escala a humano hoy, el operador entra sin contexto. Los mejore
 - El orden de la cola es estricto. TASK-017 y TASK-020 son hitos — parar y esperar revisión de Claude.
 - Commits: `task(TASK-016): recordatorios anti-no-show`, `task(TASK-017): wompi pagos`, etc.
 
-## Resultado de OpenCode (TASK-016 + TASK-017)
+## Resultado de OpenCode (LOTE TASK-016..020 COMPLETO)
 
 ### TASK-016 ✅ — Recordatorios anti-no-show
 - **Worker:** `server/src/workers/reminder.ts` — busca bookings `confirmed/scheduled` con datetime entre NOW()+24h y +26h, envía recordatorio vía pipeline del agente, marca `reminder_status='sent'`
@@ -236,8 +236,26 @@ Cuando el agente escala a humano hoy, el operador entra sin contexto. Los mejore
 - **Orquestrador:** `injectPaymentLink()` intercepta estado `payment_instructions` → si hay provider con URL → envía link. Si no → prompt manual actual
 - **Sin Wompi configurado:** comportamiento actual intacto (manual)
 
+### TASK-018 ✅ — Re-engagement leads fríos
+- **Worker:** `workers/reengagement.ts` — busca `conversation_state.current_state='precio'` sin booking, envía secuencia días 1/7/30
+- **Migración 0006:** `reengagement_step`, `last_reengagement_at` en `conversation_state`
+- **Endpoint:** `POST /api/workers/reengagement/run`
+
+### TASK-019 ✅ — CRM post-servicio + recompra
+- **Worker:** `workers/crm.ts` — post-servicio 7 días (reseña Google Maps), recompra 90 días
+- **Migración 0007:** `post_service_sent_at` (bookings), `repurchase_sent_at` (contacts), `google_maps_url` (business_profile)
+- **Endpoint:** `POST /api/workers/crm/run`
+
+### TASK-020 ✅ — Handoff con resumen automático (HITO)
+- **`agent/summarizer.ts`** — llama LLM con últimos 20 mensajes, genera resumen estructurado (qué quiere, qué se ofreció, por qué escaló, tono)
+- **Migración 0008:** `handoff_summary` text en conversations
+- **Orquestrador:** cuando `evaluateEscalation` → true, genera resumen y lo persiste
+- **API:** `GET /api/conversations/:id` retorna `handoff_summary`
+- **Costo:** ~$0.001 por resumen con DeepSeek Flash
+
 ### Evidencia
 ```
 ✓ 58/58 tests (7 suites)
 ✓ tsc --noEmit sin errores
+✓ next build exitoso (front + server)
 ```
