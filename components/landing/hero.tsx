@@ -35,11 +35,8 @@ export default function Hero() {
           .fromTo(".hero-cta-item",
             { y: 20, opacity: 0 },
             { y: 0, opacity: 1, stagger: 0.1, duration: 0.6 }, "-=0.4")
-          .fromTo(".hero-stat",
-            { y: 16, opacity: 0 },
-            { y: 0, opacity: 1, stagger: 0.08, duration: 0.6 }, "-=0.3")
       } else {
-        gsap.set([".hero-badge", ".hero-headline", ".hero-sub", ".hero-cta-item", ".hero-stat"],
+        gsap.set([".hero-badge", ".hero-headline", ".hero-sub", ".hero-cta-item"],
           { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" })
       }
 
@@ -93,7 +90,7 @@ export default function Hero() {
       <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#08070C] to-transparent pointer-events-none" />
       <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#0A0A0F] to-transparent pointer-events-none" />
 
-      <div className="hero-content relative z-10 max-w-[1100px] mx-auto px-6 text-center pt-28 pb-20">
+      <div className="hero-content relative z-10 max-w-[1100px] mx-auto px-6 text-center pt-24 pb-16">
         <div className="hero-badge inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-white/10 bg-white/[0.04] backdrop-blur-sm text-mid text-sm tracking-wide mb-7 opacity-0">
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60 animate-ping" />
@@ -134,21 +131,9 @@ export default function Hero() {
           </a>
         </div>
 
-        <div className="hero-cta-item opacity-0 mt-14">
+        <div className="hero-cta-item opacity-0 mt-12">
+          <p className="text-xs uppercase tracking-widest text-lo mb-4">Conecta tus canales</p>
           <ChannelLogos />
-        </div>
-
-        <div className="mt-12 flex flex-wrap justify-center gap-10 sm:gap-16">
-          {[
-            { v: "24/7", l: "responde a toda hora" },
-            { v: "Segundos", l: "en responder cada mensaje" },
-            { v: "0", l: "mensajes sin responder" },
-          ].map((s) => (
-            <div key={s.l} className="hero-stat text-center opacity-0">
-              <div className="text-4xl sm:text-5xl font-bold text-hi tracking-tight">{s.v}</div>
-              <div className="text-sm sm:text-base text-lo mt-2">{s.l}</div>
-            </div>
-          ))}
         </div>
       </div>
     </section>
