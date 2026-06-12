@@ -70,7 +70,7 @@ export default function Cta() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,#2563EB/5%,transparent_60%)]" />
       </div>
 
-      <div ref={contentRef} className="relative z-10 max-w-2xl mx-auto text-center">
+      <div ref={contentRef} className="relative z-10 max-w-3xl mx-auto text-center">
         <span className="cta-line inline-block px-3 py-1 rounded-full border border-white/[0.06] bg-white/[0.02] text-lo text-[11px] tracking-widest uppercase mb-6">
           ¿Listo para transformar tu negocio?
         </span>
@@ -90,7 +90,7 @@ export default function Cta() {
             <Button
               ref={buttonRef}
               size="lg"
-              className="bg-gradient-to-r from-[#7C3AED] to-[#2563EB] hover:from-[#8B5CF6] hover:to-[#3B82F6] text-white px-10 h-13 text-base rounded-xl shadow-2xl shadow-[#6D28D9]/30 animate-pulse-glow transition-transform duration-200"
+              className="bg-gradient-to-r from-[#7C3AED] to-[#2563EB] hover:from-[#8B5CF6] hover:to-[#3B82F6] text-white px-10 h-14 text-lg rounded-xl shadow-2xl shadow-[#6D28D9]/30 animate-pulse-glow transition-transform duration-200"
               style={{ transform: "translate(var(--tx, 0), var(--ty, 0))" }}
             >
               Quiero una demo <ArrowRight className="ml-2 w-4 h-4" />
@@ -100,7 +100,7 @@ export default function Cta() {
             <Button
               size="lg"
               variant="outline"
-              className="px-8 h-13 text-base rounded-xl border-white/12 bg-white/[0.03] text-mid hover:bg-white/[0.07] hover:text-hi backdrop-blur-sm transition-all duration-300"
+              className="px-8 h-14 text-lg rounded-xl border-white/12 bg-white/[0.03] text-mid hover:bg-white/[0.07] hover:text-hi backdrop-blur-sm transition-all duration-300"
             >
               Escríbenos
             </Button>

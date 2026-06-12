@@ -55,12 +55,12 @@ export default function Navbar() {
           />
         </Link>
 
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-10">
           {NAV_LINKS.map((link) => (
             <a
               key={link.href}
               href={link.href}
-              className="text-sm text-mid hover:text-hi transition-colors duration-300"
+              className="text-base text-mid hover:text-hi transition-colors duration-300"
             >
               {link.label}
             </a>
@@ -68,7 +68,7 @@ export default function Navbar() {
         </div>
 
         <Link href="/login">
-          <Button className="bg-gradient-to-r from-[#7C3AED] to-[#2563EB] hover:from-[#8B5CF6] hover:to-[#3B82F6] text-white text-sm px-5 h-9 rounded-xl shadow-lg shadow-[#6D28D9]/20 hover:shadow-[#6D28D9]/30 transition-all duration-300">
+          <Button className="bg-gradient-to-r from-[#7C3AED] to-[#2563EB] hover:from-[#8B5CF6] hover:to-[#3B82F6] text-white text-base px-6 h-11 rounded-xl shadow-lg shadow-[#6D28D9]/20 hover:shadow-[#6D28D9]/30 transition-all duration-300">
             Acceder
           </Button>
         </Link>

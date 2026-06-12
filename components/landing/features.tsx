@@ -16,7 +16,7 @@ const FEATURES = [
   {
     icon: Calendar,
     title: "Agenda conectada",
-    desc: "Las citas se sincronizan con tu calendario en tiempo real. Sin doble digitación, sin errores de scheduling.",
+    desc: "Las citas se sincronizan con tu calendario en tiempo real, sin doble digitación ni cruces de horarios.",
   },
   {
     icon: BarChart3,
@@ -31,7 +31,7 @@ const FEATURES = [
   {
     icon: Bell,
     title: "Recordatorios automáticos",
-    desc: "Reduce no-shows hasta un 70% con recordatorios vía WhatsApp 24h y 2h antes de cada cita.",
+    desc: "Reduce los no-shows con recordatorios automáticos por WhatsApp 24h y 2h antes de cada cita.",
   },
   {
     icon: Globe,
@@ -97,7 +97,7 @@ export default function Features() {
             Todo lo que necesitas
           </h2>
           <p className="text-mid text-lg max-w-xl mx-auto">
-            Cada funcionalidad diseñada para que nunca pierdas una venta.
+            Cada funcionalidad diseñada para que dejes de perder ventas por no responder a tiempo.
           </p>
         </div>
 

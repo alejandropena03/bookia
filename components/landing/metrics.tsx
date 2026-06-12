@@ -8,10 +8,10 @@ import { Timer, Users, Zap, CheckCircle2 } from "lucide-react"
 gsap.registerPlugin(ScrollTrigger)
 
 const METRICS = [
-  { icon: Timer, value: "<5s", num: 5, label: "Tiempo de respuesta promedio", suffix: "s" },
-  { icon: Users, value: "68%", num: 68, label: "Tasa de conversión a cita", suffix: "%" },
-  { icon: Zap, value: "24/7", num: 100, label: "Disponibilidad continua", suffix: "" },
-  { icon: CheckCircle2, value: "100%", num: 100, label: "Conversaciones atendidas", suffix: "%" },
+  { icon: Zap, value: "24/7", num: 0, label: "Responde a toda hora, todos los días", suffix: "" },
+  { icon: Users, value: "3", num: 3, label: "Canales: WhatsApp, Instagram y Facebook", suffix: "" },
+  { icon: Timer, value: "Segundos", num: 0, label: "Responde apenas llega el mensaje", suffix: "" },
+  { icon: CheckCircle2, value: "Cero", num: 0, label: "Mensajes sin responder", suffix: "" },
 ]
 
 function AnimatedMetric({
@@ -28,7 +28,8 @@ function AnimatedMetric({
     const el = valueRef.current
     if (!el || prefersReduced) return
 
-    if (metric.value.includes("<")) {
+    // Solo animar count-up si el valor es puramente numérico; el resto se muestra estático
+    if (metric.num <= 0 || !/^\d+$/.test(metric.value)) {
       el.textContent = metric.value
       return
     }
