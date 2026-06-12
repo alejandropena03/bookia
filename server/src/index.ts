@@ -6,6 +6,7 @@ import { checkDbConnection } from "./db/client.js";
 import { sim } from "./api/sim.js";
 import { webhooks } from "./api/webhooks.js";
 import { dashboard } from "./api/dashboard.js";
+import { workers } from "./api/workers.js";
 import { resolveTenant } from "./api/middleware.js";
 
 const app = new Hono();
@@ -31,6 +32,7 @@ app.use("/api/*", resolveTenant);
 
 app.route("/api/sim", sim);
 app.route("/api", dashboard);
+app.route("/api/workers", workers);
 app.route("/webhooks", webhooks);
 
 if (process.env.NODE_ENV !== "test") {

@@ -75,8 +75,8 @@ describe("Dashboard & Inbox API", () => {
 
     // Business profile for metrics
     await setupSql`
-      INSERT INTO business_profile (tenant_id, persona, rules, hours)
-      VALUES (${tenantId}, 'Test', '{}'::jsonb, '{}'::jsonb)
+      INSERT INTO business_profile (tenant_id, persona, rules, hours, canned_responses)
+      VALUES (${tenantId}, 'Test', '{}'::jsonb, '{}'::jsonb, ${setupSql.json({ charla: "¡Hola {nombre}! Soy el asistente virtual. ¿En qué puedo ayudarte hoy? 😊" })})
     `;
 
     // Catalog item for catalog endpoint

@@ -136,6 +136,15 @@ export const businessProfile = pgTable("business_profile", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const workerLogs = pgTable("worker_logs", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  worker: text("worker").notNull(),
+  startedAt: timestamp("started_at", { withTimezone: true }).defaultNow().notNull(),
+  finishedAt: timestamp("finished_at", { withTimezone: true }),
+  status: text("status").default("running").notNull(),
+  summary: jsonb("summary").$type<Record<string, unknown>>().default({}).notNull(),
+});
+
 export const bookings = pgTable("bookings", {
   id: uuid("id").defaultRandom().primaryKey(),
   tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
@@ -148,6 +157,8 @@ export const bookings = pgTable("bookings", {
   status: text("status").default("pending").notNull(),
   bookingProviderRef: text("booking_provider_ref"),
   data: jsonb("data").$type<Record<string, unknown>>().default({}).notNull(),
+  reminderSentAt: timestamp("reminder_sent_at", { withTimezone: true }),
+  reminderStatus: text("reminder_status").default("none").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => [
   index("bookings_tenant_idx").on(table.tenantId),
