@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
+import ChannelLogos from "./channel-logos"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -133,10 +134,14 @@ export default function Hero() {
           </a>
         </div>
 
-        <div className="mt-16 flex flex-wrap justify-center gap-10 sm:gap-16">
+        <div className="hero-cta-item opacity-0 mt-14">
+          <ChannelLogos />
+        </div>
+
+        <div className="mt-12 flex flex-wrap justify-center gap-10 sm:gap-16">
           {[
             { v: "24/7", l: "responde a toda hora" },
-            { v: "3 canales", l: "WhatsApp · Instagram · Facebook" },
+            { v: "Segundos", l: "en responder cada mensaje" },
             { v: "0", l: "mensajes sin responder" },
           ].map((s) => (
             <div key={s.l} className="hero-stat text-center opacity-0">
