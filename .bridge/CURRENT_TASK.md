@@ -1,6 +1,6 @@
 ---
 task_id: TASK-009
-status: WAITING_FOR_OPENCODE
+status: WAITING_FOR_CLAUDE
 owner: opencode
 created_by: claude
 depends_on: TASK-007
@@ -58,4 +58,36 @@ NO toques el backend ni el dashboard en esta tarea — SOLO la landing (`app/pag
 - Commit `task(TASK-009): rediseño landing premium tech-luxe + GSAP`, push, HANDOFF_LOG.
 
 ## Resultado de OpenCode
-_(llenar)_
+### Resumen
+Landing page rediseñada con estética "tech luxe" oscura (Apple/Stripe/Linear) + animaciones GSAP avanzadas.
+
+### Archivos creados
+- `components/landing/navbar.tsx` — Navbar glass flotante con compactación al scroll
+- `components/landing/hero.tsx` — Hero oscuro #0A0A0F + 3 orbes aurora animados + stagger reveal de texto
+- `components/landing/demo-chat.tsx` — Mockup WhatsApp con 7 mensajes agendamiento real, scroll-triggered
+- `components/landing/how-it-works.tsx` — 3 pasos con fade-up escalonado
+- `components/landing/features.tsx` — Grid 3x2 glass cards con hover transitions
+- `components/landing/metrics.tsx` — 4 contadores animados al viewport
+- `components/landing/cta.tsx` — CTA final con gradient pulsante
+- `components/landing/footer.tsx` — Footer limpio
+
+### Archivos modificados
+- `app/page.tsx` — Server component que importa los 8 landing components
+- `app/layout.tsx` — Modo oscuro por defecto, metadata actualizada
+- `app/globals.css` — Custom utilities gradient-brand, keyframes aurora/pulse-glow/float, radii
+
+### Dependencias agregadas
+- `gsap` + `@gsap/react`
+
+### Build
+✅ `npm run build` compila sin errores (0 type errors, 0 build errors)
+✅ Rutas existentes intactas: login, dashboard, conversations, settings
+✅ Animaciones degradan con `prefers-reduced-motion`
+✅ Responsive (mobile-first, simplifica animaciones en móvil)
+⚠️ Lint: 198 errores pre-existentes en server/ y dist/ (no relacionados)
+
+### Notas
+- Logo usado: `public/bookia-wordmark.svg` en navbar y footer
+- `public/bookia-icon.jpeg` y `public/bookia-logo.jpeg` existen pero no se usan (wordmark SVG es suficiente)
+- GSAP plugins usados: core + ScrollTrigger. Sin SplitText (no necesario con stagger nativo)
+- Sin tilt 3D magnético en cards (se omite por performance/atomicidad MVP — fácil de agregar después)

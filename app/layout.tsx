@@ -9,8 +9,15 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Bookia — Agenda automática con IA",
-  description: "Convierte conversaciones de WhatsApp, Instagram y Facebook en citas agendadas automáticamente.",
+  title: "Bookia — Tu negocio responde solo. 24/7.",
+  description:
+    "Conecta WhatsApp, Instagram y Facebook con IA para convertir conversaciones en citas agendadas automáticamente. Sin errores, sin demoras.",
+  openGraph: {
+    title: "Bookia — Agenda automática con IA",
+    description:
+      "Convierte conversaciones de WhatsApp, Instagram y Facebook en citas agendadas automáticamente.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -19,8 +26,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${geistSans.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-[#F8FAFC] text-[#0F172A]">
+    <html lang="es" className={`${geistSans.variable} h-full antialiased dark`}>
+      <body className="min-h-full flex flex-col bg-[#0A0A0F] text-white">
         <TooltipProvider>{children}</TooltipProvider>
       </body>
     </html>
