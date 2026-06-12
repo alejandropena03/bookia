@@ -107,7 +107,7 @@ export default function Hero() {
         </h1>
 
         <p className="hero-sub text-lg sm:text-xl text-mid max-w-2xl mx-auto leading-relaxed opacity-0">
-          Bookia responde tus conversaciones de WhatsApp, Instagram y Facebook
+          Bookia responde tus conversaciones de WhatsApp, Instagram, Facebook y TikTok
           en segundos y agenda las citas por ti.
           <span className="text-hi"> Atiende, agenda y nunca duerme.</span>
         </p>
@@ -136,7 +136,7 @@ export default function Hero() {
         <div className="mt-16 flex flex-wrap justify-center gap-10 sm:gap-16">
           {[
             { v: "24/7", l: "responde a toda hora" },
-            { v: "3 canales", l: "WhatsApp · Instagram · Facebook" },
+            { v: "4 canales", l: "WhatsApp · Instagram · Facebook · TikTok" },
             { v: "0", l: "mensajes sin responder" },
           ].map((s) => (
             <div key={s.l} className="hero-stat text-center opacity-0">

@@ -9,9 +9,9 @@ gsap.registerPlugin(ScrollTrigger)
 
 const FEATURES = [
   {
-    icon: MessageCircle,
-    title: "WhatsApp + Messenger",
-    desc: "Conecta tus canales de mensajería favoritos. Bookia centraliza todas las conversaciones en un solo inbox inteligente.",
+    icon: Globe,
+    title: "Multicanal",
+    desc: "WhatsApp, Instagram, Facebook y TikTok en un solo inbox. Tus clientes te escriben donde sea y Bookia responde con la misma calidad.",
   },
   {
     icon: Calendar,
@@ -34,9 +34,9 @@ const FEATURES = [
     desc: "Reduce los no-shows con recordatorios automáticos por WhatsApp 24h y 2h antes de cada cita.",
   },
   {
-    icon: Globe,
-    title: "Instagram & Facebook",
-    desc: "Tus clientes te escriben donde sea. Bookia responde con la misma calidad e inteligencia en todos los canales.",
+    icon: MessageCircle,
+    title: "Responde con tu tono",
+    desc: "Bookia aprende la personalidad y las respuestas de tu negocio. Cada mensaje suena como tu equipo, no como un robot.",
   },
 ]
 
