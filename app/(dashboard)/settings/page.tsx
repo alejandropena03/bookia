@@ -85,10 +85,12 @@ export default function SettingsPage() {
                 </div>
               </div>
               <Tooltip>
-                <TooltipTrigger>
-                  <Button size="sm" disabled className="text-xs h-8 bg-gray-100 text-gray-400 cursor-not-allowed">
-                    Conectar
-                  </Button>
+                <TooltipTrigger asChild>
+                  <span className="inline-flex">
+                    <Button size="sm" disabled className="text-xs h-8 bg-gray-100 text-gray-400 cursor-not-allowed pointer-events-none">
+                      Conectar
+                    </Button>
+                  </span>
                 </TooltipTrigger>
                 <TooltipContent>
                   <div className="flex items-center gap-1.5">

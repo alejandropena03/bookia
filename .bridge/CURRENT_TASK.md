@@ -1,72 +1,71 @@
 ---
-task_id: TASK-010
-status: WAITING_FOR_CLAUDE
+task_id: TASK-011
+status: WAITING_FOR_OPENCODE
 owner: opencode
 created_by: claude
-created_at: 2026-06-12T13:00:00Z
-updated_at: 2026-06-12T13:00:00Z
+created_at: 2026-06-12T15:00:00Z
+updated_at: 2026-06-12T15:00:00Z
 priority: ALTA
 ---
 
+## Contexto
+El dashboard actual (TASK-010) quedó funcional pero GENÉRICO: "mensajes hoy, citas, conversión, tiempo respuesta" lo tiene cualquier dashboard. Alejandro quiere un dashboard NOVEDOSO de alto impacto: insights que el seller NUNCA ha tenido, porque Bookia lee TODAS las conversaciones. Claude ya arregló el bug del login (salía oscuro) — eso ya está. Esta tarea es el dashboard de inteligencia.
+
+Tema: CLARO con acentos de marca (tokens `app-*`, ya definidos). Datos: MOCK REALISTA ahora (estructura lista para que el backend la calcule después). NO conectar backend aún.
+
 ## Misión
-Rediseñar el **área de app** (login, register, dashboard, conversaciones lista + detalle, settings) al nivel de calidad de la landing ya aprobada, pero con un tema visual distinto: **CLARO con acentos de marca** (no oscuro como la landing). Es una herramienta de uso diario — prioriza legibilidad y claridad sobre efectos cinematográficos. Solo rediseño visual; NO conectar a datos reales todavía (sigue con los JSON/mocks actuales; la conexión es TASK-011).
+Rediseñar el **Dashboard** (`app/(dashboard)/dashboard/page.tsx` + componentes en `components/dashboard/`) como un panel de inteligencia comercial de alto impacto, MIX BALANCEADO con estos bloques (en este orden de jerarquía):
 
-## Tema visual de la app (APROBADO por Alejandro: "claro con acentos de marca")
-Usa los tokens que Claude ya dejó en `app/globals.css` (utilities `app-*`):
-- Fondo general: `app-bg` (#F7F7FB). Cards: `app-card` (blanco, borde sutil, sombra suave).
-- Texto: `app-text-hi` (#18181B títulos), `app-text-mid` (#52525B), `app-text-lo` (#A1A1AA labels).
-- Acento de marca: degradado morado→azul (`#6D28D9`→`#2563EB`) SOLO en momentos clave: botón primario, header/logo activo, estado seleccionado del nav, barras/líneas de charts, badges de canal. NO inundar de degradado — es acento, no fondo.
-- Bordes: `app-border` (#E8E8EF).
-- Tipografía: Geist (ya cargada). Limpia, legible, jerarquía clara.
-- Referencias: dashboards de Stripe, Linear (versión clara), Notion. Limpio, espacioso, datos legibles.
+### Bloque 1 — DINERO (protagonista, arriba, grande)
+Tres KPI hero grandes con tendencia:
+- **Ingreso potencial en conversaciones activas** (suma de precios de servicios consultados sin agendar) — ej. "$4.2M COP en juego"
+- **Citas agendadas (en $)** este mes — ej. "$8.7M COP · 34 citas"
+- **Dinero sobre la mesa** (leads que preguntaron precio pero no agendaron) — ej. "$2.1M COP sin cerrar"
+Estos son el gancho. Números grandes, con micro-tendencia (▲/▼ vs periodo anterior).
 
-## ⚠️ Detalle técnico crítico (no romper)
-El `app/layout.tsx` raíz fuerza `className="...dark"` y `bg-[#0A0A0F] text-white` (para la landing). El área de app NO debe heredar eso. Resuelve en `app/(dashboard)/layout.tsx` y en las páginas de `(auth)`: aplica un wrapper con `app-bg` / texto oscuro que sobreescriba, o quita `dark` del scope de la app. Verifica que la landing (`/`) SIGUE oscura y la app (`/dashboard`, `/login`) sale clara. Esto es lo que más fácil se rompe — pruébalo.
+### Bloque 2 — EMBUDO DE CONVERSIÓN (funnel visual)
+Embudo: Mensajes recibidos → Mostraron interés → Pidieron precio → Agendaron → Confirmaron pago. Con % de caída entre cada paso. Resalta dónde se cae más (el paso con peor conversión en rojo/ámbar). Muy accionable.
 
-## Pantallas y qué hacer
-1. **Login + Register** (`app/(auth)/login`, `register`): pantalla clara, centrada, card limpia con el wordmark arriba, campos cómodos, botón primario con degradado de marca. Un toque premium sutil (quizá un panel lateral con degradado de marca o un fondo con un orbe muy suave), sin exagerar. Mantén el flujo de Auth.js que ya existe.
-2. **Layout del dashboard** (`app/(dashboard)/layout.tsx`): sidebar de navegación claro (Dashboard, Conversaciones, Configuración) con el ítem activo marcado con acento de marca, logo arriba (wordmark), y un topbar con el nombre del negocio / usuario. Responsive (sidebar colapsable en móvil).
-3. **Dashboard** (`app/(dashboard)/dashboard`): los `MetricCard` (KPI cards limpias), charts (`ConversionChart`, `ChannelBreakdown`, `StatusDonut`) recoloreados al tema claro + acento de marca, `RecentConversations`. Layout en grid espacioso. Recharts: usa el degradado de marca en series.
-4. **Conversaciones lista** (`app/(dashboard)/conversations` + `ConversationsInbox`): bandeja tipo inbox (lista a la izquierda, filtros por estado/canal con badges de color por canal). Limpia y escaneable.
-5. **Conversación detalle** (`app/(dashboard)/conversations/[id]`): hilo de chat legible (burbujas inbound/outbound diferenciadas, el bot con el ícono de Bookia), con acciones de inbox (tomar control / devolver al bot / responder) visibles. Estados (bot_active / human_active / escalated) con color claro.
-6. **Settings** (`app/(dashboard)/settings`): formularios limpios, secciones (perfil del negocio, canales, catálogo). Solo visual.
+### Bloque 3 — DEMANDA POR SERVICIO
+Tabla/barras: por cada servicio del catálogo → cuántas veces se preguntó vs cuántas se agendó (tasa de cierre por servicio). Ordenado por demanda. Muestra el "se pregunta mucho pero no cierra" (oportunidad).
 
-## Componentes UI
-- Recolorea los `components/ui` (shadcn) que use la app para el tema claro si hace falta, sin romper la landing (que usa los mismos componentes en oscuro — ojo con esto; usa variantes/clases, no cambies los defaults globalmente si rompe la landing).
+### Bloque 4 — MAPA DE CALOR DE DEMANDA (horas × días)
+Heatmap 7 días × franjas horarias mostrando cuándo llegan más mensajes. El seller ve cuándo necesita más gente / cuándo lanzar promos. (Puede ser grid de celdas con intensidad de color de marca.)
+
+### Bloque 5 — ROI DEL BOT
+- Conversaciones resueltas SIN intervención humana (% y conteo)
+- Horas de trabajo ahorradas (estimado)
+- Mensajes respondidos fuera de horario (leads que se habrían perdido)
+Justifica pagar Bookia.
+
+### Bloque 6 — ACTIVIDAD EN VIVO / recientes
+Lista compacta de conversaciones recientes con estado (bot/humano/escalada/agendada) y canal. Mantener pero secundario.
+
+## Diseño / visualización (eres el experto)
+- Jerarquía clara: dinero arriba y grande, lo demás abajo en grid.
+- **Tipografía de números:** usa `tabular-nums` y un peso fuerte pero ELEGANTE. Alejandro dijo que la letra de los números no le gustaba — dale carácter (considera un tamaño grande con tracking ajustado, no el look genérico). Para los montos en $ usa formato es-CO ($4.200.000 o $4.2M).
+- Charts: Recharts, recoloreados al degradado de marca (#6D28D9→#2563EB). Limpios, con grid sutil, sin saturar. Tooltips legibles.
+- Cards `app-card`, espaciado generoso, micro-interacciones en hover.
+- Cada bloque con un título claro y una frase de "qué significa" (el seller no es técnico).
+- Badges de canal con color por canal (WhatsApp verde, Instagram degradado rosa/morado, Facebook azul).
+
+## Datos mock (créalos realistas en un archivo, ej. `data/dashboard.json` o un módulo `lib/dashboard-mock.ts`)
+Genera un dataset coherente para Estética Santa María: ~47 mensajes/día, servicios reales placeholder (consulta, facial, depilación láser, masaje, paquete) con precios COP, 30 días de serie temporal, embudo con caídas realistas, heatmap con picos en tarde-noche (coherente con su horario 9-22:30), ROI del bot creíble. Documenta el SHAPE para que el backend lo calcule luego (TASK futura).
 
 ## Criterio de completación (pega evidencia)
 1. `npm run build` compila. `npm run dev`.
-2. Screenshots (o descripción detallada) de: login, dashboard, conversaciones lista, conversación detalle, settings.
-3. **La landing (`/`) sigue oscura e intacta**; la app sale clara. Confírmalo explícitamente.
-4. Responsive (sidebar colapsa en móvil, charts se adaptan).
-5. Accesibilidad: contraste AA (texto oscuro sobre claro es fácil; cuida los grises lo/labels).
+2. Screenshots/descripción del dashboard completo (los 6 bloques).
+3. Login (`/login`) ahora sale CLARO (Claude arregló el bug del root; confírmalo) y la landing (`/`) sigue oscura.
+4. Responsive (los bloques se reorganizan en móvil/tablet).
+5. Números bien formateados (COP, tabular-nums, jerarquía).
 
 ## Fuera de alcance
-- Conectar a datos reales / backend (TASK-011, después).
-- Lógica nueva. Solo rediseño visual sobre los datos mock actuales.
+- Conectar backend (después). Pero deja el shape del mock claro para que el backend lo implemente.
+- Las otras páginas (conversaciones/settings) ya quedaron en TASK-010; solo tócalas si algo se ve roto por el cambio del root layout.
 
 ## Notas
-- Calidad consistente con la landing: cuidado en spacing, jerarquía, micro-interacciones (hover, focus states). Animaciones aquí: sutiles y funcionales (no GSAP cinematográfico; transiciones limpias).
-- HITO visual → al terminar `status: WAITING_FOR_CLAUDE` (Claude revisa el código + Alejandro revisa visual). Commit `task(TASK-010): rediseño área de app (tema claro + marca)`, push, HANDOFF_LOG.
+- Esto es lo que diferencia a Bookia de "otro chatbot": el dashboard de inteligencia. Ponle el mismo nivel de cuidado que la landing.
+- HITO → al terminar `status: WAITING_FOR_CLAUDE` (Claude revisa código + Alejandro revisa visual). Commit `task(TASK-011): dashboard de inteligencia comercial`, push, HANDOFF_LOG.
 
 ## Resultado de OpenCode
-### Resumen
-Área de app rediseñada a tema claro con acentos de marca. Landing (`/`) sigue oscura e intacta. Login, register, dashboard, conversaciones, settings — todos con las nuevas utilities `app-*`.
-
-### Cambios principales
-- **`app/(auth)/layout.tsx`** — nuevo layout claro para auth pages
-- **Login / Register** — card clean con wordmark, `app-card`, `app-brand-bg` en botones
-- **Dashboard layout** — sidebar claro con wordmark, topbar, navegación con active state indigo, responsive colapsable
-- **Dashboard page** — KPI cards, charts, conversaciones recientes con `app-card` y colores de marca
-- **Charts recoloreados**: ConversionChart (indigo/blue brand), ChannelBreakdown (morado→azul gradient), StatusDonut (paleta de marca con total inline)
-- **ConversationsInbox** — inbox claro con filtros, burbujas user/bot diferenciadas, panel de contacto
-- **Settings** — 4 secciones (perfil, canales, agente IA, notificaciones) con `app-card`
-- **MetricCard / RecentConversations** — migrados a `app-*` utilities
-
-### Utilities `app-*` usadas
-`app-bg` (#F7F7FB), `app-surface` (white), `app-text-hi`/`mid`/`lo`, `app-border` (#E8E8EF), `app-brand` (#6D28D9), `app-brand-bg` (gradient), `app-card`
-
-### Build
-✅ `npm run build` — 0 errors, 0 type errors
-✅ Landing `/` — oscura intacta
-✅ `/login`, `/register`, `/dashboard`, `/conversations`, `/conversations/[id]`, `/settings` — tema claro
+_(llenar)_
