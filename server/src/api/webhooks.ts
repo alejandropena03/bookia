@@ -43,9 +43,10 @@ webhooks.post("/:channel", async (c) => {
       return c.json({ error: "Wompi not configured" }, 501);
     }
 
-    const crypto = await import("crypto");
-    const computed = crypto.createHash("sha256").update(rawBody + env.WOMPI_EVENTS_KEY).digest("hex");
-    if (computed !== checksum) {
+    const { getPaymentProvider } = await import("../payment/index.js");
+    const { WompiProvider } = await import("../payment/wompi.js");
+    const provider = getPaymentProvider();
+    if (!(provider instanceof WompiProvider) || !provider.verifyWebhookSignature(rawBody, checksum)) {
       return c.json({ error: "Invalid signature" }, 401);
     }
 

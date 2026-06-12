@@ -71,7 +71,19 @@ export class WompiProvider implements PaymentProvider {
   }
 
   verifyWebhookSignature(body: string, headerChecksum: string): boolean {
-    const computed = crypto.createHash("sha256").update(body + this.eventsKey).digest("hex");
-    return computed === headerChecksum;
+    // Wompi checksum: SHA256 of concatenated event property values (sorted by key) + events_key
+    // Ref: https://docs.wompi.co/docs/en/widget-checkout-web#integridad
+    // In sandbox, Wompi may send checksum as SHA256(rawBody + events_key) — we try both
+    try {
+      const event = JSON.parse(body);
+      const data = event?.data ?? {};
+      // Standard Wompi: concat sorted top-level data values + events_key
+      const props = Object.keys(data).sort().map((k) => String(data[k])).join("");
+      const standard = crypto.createHash("sha256").update(props + this.eventsKey).digest("hex");
+      if (standard === headerChecksum) return true;
+    } catch {}
+    // Fallback: raw body concat (sandbox / legacy)
+    const fallback = crypto.createHash("sha256").update(body + this.eventsKey).digest("hex");
+    return fallback === headerChecksum;
   }
 }
