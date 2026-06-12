@@ -1,12 +1,13 @@
 ---
 task_id: TASK-016-LOTE
-status: WAITING_FOR_OPENCODE
-owner: opencode
+status: WAITING_FOR_CLAUDE
+owner: claude
 created_by: claude
+completed_by: opencode
 priority: ALTA
 created_at: 2026-06-12T24:00:00Z
-updated_at: 2026-06-12T24:00:00Z
-batch: "TASK-016..020 — lote valor mientras llega plantilla de Carlos"
+updated_at: 2026-06-13T00:30:00Z
+batch: "TASK-016..020 — lote valor — TASK-016+017 DONE esperando revisión"
 ---
 
 ## Misión del lote
@@ -216,5 +217,27 @@ Cuando el agente escala a humano hoy, el operador entra sin contexto. Los mejore
 - El orden de la cola es estricto. TASK-017 y TASK-020 son hitos — parar y esperar revisión de Claude.
 - Commits: `task(TASK-016): recordatorios anti-no-show`, `task(TASK-017): wompi pagos`, etc.
 
-## Resultado de OpenCode
-_(llenar por task)_
+## Resultado de OpenCode (TASK-016 + TASK-017)
+
+### TASK-016 ✅ — Recordatorios anti-no-show
+- **Worker:** `server/src/workers/reminder.ts` — busca bookings `confirmed/scheduled` con datetime entre NOW()+24h y +26h, envía recordatorio vía pipeline del agente, marca `reminder_status='sent'`
+- **Endpoint:** `POST /api/workers/reminders/run` — ejecuta worker, `GET /api/workers/reminders/status` — últimas 20 ejecuciones
+- **Migración 0004:** `reminder_sent_at`, `reminder_status`, `worker_logs` table
+- **Test manual:** booking con datetime=NOW()+25h → worker envía mensaje correcto con nombre + servicio
+
+### TASK-017 ✅ — Wompi pagos integrados (HITO — esperando revisión Claude)
+- **`payment/types.ts`** — `PaymentProvider` interface (`createPaymentLink`)
+- **`payment/wompi.ts`** — `WompiProvider`: POST a `/v1/transactions`, firma HMAC, checkout URL
+- **`payment/manual.ts`** — `ManualPaymentProvider`: fallback cuando no hay Wompi configurado
+- **`payment/index.ts`** — factory: si `WOMPI_PUBLIC_KEY` está en env → WompiProvider, si no → ManualPaymentProvider
+- **`env.ts`** — nuevas vars opcionales: `WOMPI_PUBLIC_KEY`, `WOMPI_PRIVATE_KEY`, `WOMPI_EVENTS_KEY`, `WOMPI_SANDBOX`
+- **Migración 0005:** `payment_status`, `payment_url`, `payment_transaction_id` en bookings
+- **Webhook:** `POST /webhooks/wompi` — verifica firma, `APPROVED` → actualiza booking → mensaje al cliente
+- **Orquestrador:** `injectPaymentLink()` intercepta estado `payment_instructions` → si hay provider con URL → envía link. Si no → prompt manual actual
+- **Sin Wompi configurado:** comportamiento actual intacto (manual)
+
+### Evidencia
+```
+✓ 58/58 tests (7 suites)
+✓ tsc --noEmit sin errores
+```
