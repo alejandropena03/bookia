@@ -35,7 +35,8 @@ Implementar el **cerebro híbrido del agente**: router + motor de flujos (state-
 ## Notas
 - DeepSeek API reemplazó OpenRouter por decisión de Alejandro.
 - `bookia_app` pool configurado con `max: 1` para consistencia de session-level GUC.
-- Minor TODO: template `{catalog_list}` y `{service_price}` no se interpolan desde catálogo real. Se resuelve al integrar catálogo en template context en TASK-006/007.
+- Minor TODO: template `{catalog_list}` y `{service_price}` no se interpolan desde catálogo real. Se resuelve al integrar catálogo en template context.
+- **BookingProvider pendiente:** Claude agregó §5.5 actualizado en la revisión del queue: interfaz `BookingProvider` con `MockBookingProvider` (demo) y `HandoffBookingProvider` (workflow real Santa María), factory por `business_profile.booking_mode`. No implementado aún — queda para revisión de Claude o TASK posterior.
 
 ## Transcripción demo
 ```
