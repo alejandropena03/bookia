@@ -6,6 +6,7 @@ reviewed_by: claude
 priority: ALTA
 created_at: 2026-06-12T22:30:00Z
 updated_at: 2026-06-12T23:45:00Z
+queue: TASK-016-features-propuesta
 ---
 
 ## Estado
@@ -25,5 +26,5 @@ Cuando llegue la plantilla de Carlos → `npm run import:tenant -- --slug=santa-
 ## Fix Claude (post-revisión)
 Double query en orchestrator.ts: `hoursRaw` se consultaba dos veces (una en loadBusinessContext, otra extra). Eliminada la query redundante — `hoursRaw` ahora vive en `BusinessContext` y se reutiliza.
 
-## Próxima tarea
-Sin tarea activa. Esperando plantilla real de Carlos para correr `npm run import:tenant`.
+## Propuesta de próximos features
+En `queue/TASK-016-features-propuesta.md`: 4 features para cerrar loop de valor (pasarela pagos Wompi, recordatorios inteligentes, re-engagement leads, CRM cumpleaños). Pendiente discusión.
