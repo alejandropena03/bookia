@@ -7,6 +7,7 @@ export interface BusinessContext {
   catalog: string;
   rules: string;
   hours: string;
+  hoursRaw: Record<string, { open: string | null; close: string | null }>;
   systemPromptOverrides: string | null;
   cannedResponses: Record<string, string>;
   offHoursMessage: string | null;

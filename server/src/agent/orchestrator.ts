@@ -45,6 +45,7 @@ async function loadBusinessContext(tenantId: string, sql: any): Promise<Business
     catalog: catalog || "(Sin servicios cargados)",
     rules: typeof profile?.rules === "object" ? JSON.stringify(profile.rules) : (profile?.rules ?? "Sin reglas especiales"),
     hours: typeof profile?.hours === "object" ? JSON.stringify(profile.hours) : (profile?.hours ?? "Horario no especificado"),
+    hoursRaw: (profile?.hours as Record<string, { open: string | null; close: string | null }>) ?? {},
     bookingMode: profile?.booking_mode ?? "mock",
     escalationConfig: profile?.rules as Record<string, unknown> | null ?? null,
     systemPromptOverrides: profile?.system_prompt_overrides ?? null,
@@ -245,8 +246,7 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
     const bizContext = await loadBusinessContext(req.tenantId, sql);
 
     // Check if out of hours
-    const hoursRaw = await sql`SELECT hours FROM business_profile WHERE tenant_id = ${req.tenantId} LIMIT 1`;
-    if (hoursRaw[0]?.hours && isOutOfHours(hoursRaw[0].hours as Record<string, { open: string | null; close: string | null }>)) {
+    if (Object.keys(bizContext.hoursRaw).length > 0 && isOutOfHours(bizContext.hoursRaw)) {
       const offMsg = bizContext.offHoursMessage ?? "Gracias por escribirnos. Te responderemos en nuestro horario de atención.";
       const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, offMsg, "bot", "canned");
       return { text: offMsg, messageId: msgId, route: "canned", escalated: false };
