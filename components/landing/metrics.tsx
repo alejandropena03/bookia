@@ -9,7 +9,7 @@ gsap.registerPlugin(ScrollTrigger)
 
 const METRICS = [
   { icon: Zap, value: "24/7", num: 0, label: "Responde a toda hora, todos los días", suffix: "" },
-  { icon: Users, value: "4", num: 4, label: "Canales: WhatsApp, Instagram, Facebook y TikTok", suffix: "" },
+  { icon: Users, value: "3", num: 3, label: "Canales activos + TikTok próximamente", suffix: "" },
   { icon: Timer, value: "Segundos", num: 0, label: "Responde apenas llega el mensaje", suffix: "" },
   { icon: CheckCircle2, value: "Cero", num: 0, label: "Mensajes sin responder", suffix: "" },
 ]

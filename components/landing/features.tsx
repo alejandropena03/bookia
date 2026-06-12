@@ -11,7 +11,7 @@ const FEATURES = [
   {
     icon: Globe,
     title: "Multicanal",
-    desc: "WhatsApp, Instagram, Facebook y TikTok en un solo inbox. Tus clientes te escriben donde sea y Bookia responde con la misma calidad.",
+    desc: "WhatsApp, Instagram y Facebook en un solo inbox —y TikTok muy pronto. Tus clientes te escriben donde sea y Bookia responde con la misma calidad.",
   },
   {
     icon: Calendar,
