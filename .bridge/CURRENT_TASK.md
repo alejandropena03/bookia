@@ -1,65 +1,52 @@
 ---
-task_id: TASK-012
-status: WAITING_FOR_CLAUDE
-owner: claude
+task_id: TASK-013
+status: WAITING_FOR_OPENCODE
+owner: opencode
 created_by: claude
-created_at: 2026-06-12T19:00:00Z
-updated_at: 2026-06-12T19:30:00Z
+depends_on: TASK-012
+created_at: 2026-06-12T20:00:00Z
+updated_at: 2026-06-12T20:00:00Z
 priority: ALTA
-batch: "TASK-012..014 — conectar producto end-to-end. Encadena según protocolo de cola; 014 es hito → revisión Claude."
+batch: "TASK-012..014 — conectar producto end-to-end. TASK-012 DONE. TASK-013 activa. TASK-014 en queue."
 ---
 
 ## Misión
-**Backend: calcular los insights de inteligencia comercial REALES** que hoy el dashboard muestra con mock (`lib/dashboard-mock.ts`). Crear un endpoint que produzca EXACTAMENTE el shape `DashboardData` que el front ya consume, calculado desde la DB real (conversaciones, mensajes, bookings, catálogo).
+**Conectar TODO el front al backend real**, reemplazando los datos mock por la API, e implementar el **panel de demo en vivo** (mensaje simulado → agente responde por SSE en tiempo real). Al terminar, el dashboard, las conversaciones y el inbox muestran datos REALES del backend.
 
 ## Contexto
-- El front (dashboard de inteligencia, TASK-011) ya tiene los componentes y consume el tipo `DashboardData` de `lib/dashboard-mock.ts`. Lee ESE archivo para ver el shape exacto (kpis, funnel, services, heatmap, roi, recentActivity) — el endpoint debe devolver ese mismo shape para que el front no cambie su estructura.
-- Backend ya tiene: `/metrics` básico (conversaciones, mensajes, estados, canales, bookings, tendencia). Amplía o crea `/metrics/intelligence` con los insights ricos.
-- Tablas disponibles: conversations, messages, bookings, catalog_items, conversation_state, contacts. Todo bajo `withTenant` (RLS).
+- TASK-012 COMPLETADA: `GET /api/metrics/intelligence` existe y retorna shape `DashboardData` real desde DB (7 tests pasan).
+- Backend corre en `localhost:8787` (Hono). Endpoints disponibles: `/api/conversations`, `/api/conversations/:id`, `/reply`, `/takeover`, `/handback`, `/api/metrics`, `/api/metrics/intelligence`, `/api/catalog`, `/api/profile`, `/api/flows`, `/api/sim/message`, SSE `/api/sim/stream`.
+- Front: Next.js, TanStack Query v5 ya instalado. Auth middleware del backend acepta `x-tenant-slug` en modo dev (DEV_AUTH=true).
+- El dashboard de inteligencia (TASK-011) consume `DashboardData` de `lib/dashboard-mock.ts` → reemplazar con llamada real.
 
-## Criterio de completación (pega evidencia)
-1. `docker compose up` + seed. Poblar algunas conversaciones/bookings vía `/api/sim/message` para tener datos.
-2. `curl /api/metrics/intelligence` (con header de tenant) → JSON con el shape `DashboardData` completo, calculado de la DB. Pega la salida.
-3. Tests: al menos uno por sección (kpis, funnel, services, heatmap, roi) con datos sembrados → valores esperados.
-4. `npm test` + `npm run build` pasan.
+## Entregable
+1. **`app/lib/api.ts`** — cliente tipado del backend (base `NEXT_PUBLIC_API_URL`, default `http://localhost:8787`). Incluye header `x-tenant-slug: santa-maria` en dev. Funciones: `getIntelligence`, `listConversations`, `getConversation`, `replyConversation`, `takeover`, `handback`, `getCatalog`, `getProfile`, `sendSimMessage`, y helper para SSE.
+2. **Dashboard de inteligencia** → consume `/api/metrics/intelligence` vía TanStack Query (reemplaza `getDashboardData()` del mock). Si el backend no responde → fallback al mock con `console.warn`.
+3. **Conversaciones lista + detalle** → `/api/conversations` y `/:id`. Acciones takeover/handback/reply cableadas a sus endpoints.
+4. **Panel de demo en vivo** (lo más importante para vender):
+   - Un input para enviar mensaje simulado (POST `/api/sim/message` con tenantSlug `santa-maria`).
+   - La conversación se actualiza EN VIVO vía SSE (`/api/sim/stream`): llega el mensaje del cliente y aparece la respuesta del agente en tiempo real.
+   - Puede vivir en `/conversations` (abrir conversación como cliente) o en ruta dedicada `/demo`. Elige lo más limpio, documéntalo.
+5. **Settings** → leer profile/catalog reales (GET). Solo-lectura si el backend no tiene PUT (documenta la deuda).
+6. Loading/error states decentes (skeletons o spinners del tema claro, no pantallas en blanco).
+
+## Criterio de completación
+1. `docker compose up` (backend) + `npm run dev` (front) corriendo juntos sin errores.
+2. Dashboard muestra insights calculados por backend (no el mock). Describe qué datos aparecen.
+3. Bandeja muestra conversaciones reales; abrir una muestra el hilo real.
+4. **Demo en vivo:** enviar mensaje simulado → respuesta del agente llega por SSE. Describe el flujo. ESTE es el momento clave del pitch.
+5. Takeover/handback desde UI cambian estado y se reflejan.
+6. `npm run build` del front compila sin errores.
+
+## Fuera de alcance
+- Rediseño visual (ya aprobado).
+- Adapters reales de canal (después).
+
+## Notas
+- NO rompas el auth de Auth.js del front. Usa modo dev `x-tenant-slug` y documéntalo como deuda JWT.
+- La demo en vivo debe sentirse fluida — es el corazón del pitch.
+- **HITO:** al terminar → status `WAITING_FOR_CLAUDE` (NO encadenar a 014 automáticamente; Claude revisa la conexión completa primero).
+- Commit: `task(TASK-013): conectar front al backend + demo en vivo`, push, actualizar HANDOFF_LOG.
 
 ## Resultado de OpenCode
-
-### Implementación
-```
-server/src/metrics/intelligence.ts  — lógica de cálculo (160 líneas)
-server/src/api/dashboard.ts        — GET /api/metrics/intelligence (+2 import)
-server/tests/intelligence.test.ts  — 7 tests (kpis, funnel, services, heatmap, roi, recent, empty tenant)
-```
-
-### GET /api/metrics/intelligence
-Endpoint que produce el shape `DashboardData` exacto. Calcula desde DB real:
-
-| Sección | Cálculo |
-|---|---|
-| **KPIs** | Ingreso potencial: catalog_items.price de servicios en conversation_state.slots sin booking. Citas: SUM bookings.service_price (scheduled/confirmed). Dinero sobre mesa: estado 'precio' sin booking. Trends vs período anterior (30d). |
-| **Funnel** | 5 etapas: mensajes inbound → >1 intercambio → keywords precio/slots → booking creado → booking confirmed. % de caída con peor etapa marcada. |
-| **Services** | Por catalog_item activo: inquiries (slots + mensajes con match de nombre) vs bookings (service_name ILIKE). Tasa de cierre. |
-| **Heatmap** | 7 días × 7 franjas (9-22:30). Mensajes inbound agrupados por DOW×hora. Intensidad 0-4 por quintiles. |
-| **ROI** | Resueltas sin humana (status closed/bot_active, nunca human/escalated). Horas ahorradas: outbound_bot × 4min. Fuera de horario: antes 9AM o después 22:30. Valor estimado: horas × $120K/hora. |
-| **Recent** | Últimas 6 conversaciones con contacto, canal, estado, último mensaje. |
-
-### Tests (7/7 pasan)
-- **kpis**: verifica valores numéricos y que títulos contengan texto esperado
-- **funnel**: 5 etapas con conteos >= 1 (datos sembrados tienen 2 conversations con mensajes)
-- **services**: Depilación láser ($350K) con inquiries ≥1, Consulta ($150K) con bookings ≥1
-- **heatmap**: 49 entries (7×7), intensidad 0-4, al menos una con count > 0
-- **roi**: propiedades presentes, valores >= 0
-- **recent**: hasta 6 items, todas las propiedades presentes
-- **empty tenant**: tenant sin datos devuelve ceros sin romper (kpis $0, funnel 0, services vacío, heatmap todo 0, roi 0, recent vacío)
-
-### Build
-- `npm run build` (server): tsc ✅
-- `npm run build` (frontend): Next.js ✅
-
-### Notas
-- Heurísticas documentadas con comentarios en el código (aproximaciones MVP, OK).
-- Shape idéntico a `lib/dashboard-mock.ts` (mismos campos, mismos formatos).
-- RLS respetado (todas las queries dentro de `withTenant`).
-- 2 fallos pre-existentes NO relacionados: dashboard.test.ts (FK en setup, 9 skipped) y rls.test.ts (UPDATE cross-tenant, bug conocido).
-- La nota sobre "tomar TASK-013 de queue" no se ejecutó porque TASK-013 no está en el queue (solo TASK-013.md y TASK-014.md en queue/). Se deja para Claude decidir el orden.
+_(llenar)_
