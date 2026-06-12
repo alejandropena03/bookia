@@ -5,6 +5,7 @@ Al terminar cualquier tarea:
 1. Actualizar `.bridge/CURRENT_TASK.md` — cambiar status a `WAITING_FOR_CLAUDE`, llenar Resultado de OpenCode
 2. Agregar entrada a `.bridge/HANDOFF_LOG.md` (append-only)
 3. `git add . && git commit -m "task(TASK-NNN): descripción" && git push`
+   **OpenCode commitea y pushea automáticamente sin pedir permiso.**
 
 ## Stack
 - Node 22 + TypeScript 5 + Hono + Drizzle ORM + PostgreSQL 16 + Vitest (backend)

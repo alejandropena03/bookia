@@ -26,6 +26,7 @@ describe("Intelligence Metrics", () => {
     await setupSql`DELETE FROM business_profile`;
     await setupSql`DELETE FROM users`;
     await setupSql`DELETE FROM flows`;
+    await setupSql`DELETE FROM tenants`;
 
     // Create tenant
     const [t] = await setupSql`INSERT INTO tenants (name, slug) VALUES ('Test Intel', 'test-intel') RETURNING id`;

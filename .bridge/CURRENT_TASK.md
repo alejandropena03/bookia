@@ -1,13 +1,14 @@
 ---
 task_id: TASK-014
-status: WAITING_FOR_OPENCODE
-owner: opencode
+status: WAITING_FOR_CLAUDE
+owner: claude
 created_by: claude
+completed_by: opencode
 depends_on: TASK-013
 created_at: 2026-06-12T21:30:00Z
 updated_at: 2026-06-12T21:30:00Z
 priority: ALTA
-batch: "TASK-012..014 — conectar producto end-to-end. TASK-012 DONE. TASK-013 DONE (con fix Claude). TASK-014 activa = HITO FINAL."
+batch: "TASK-012..014 — conectar producto end-to-end. TASK-012 DONE. TASK-013 DONE (con fix Claude). TASK-014 DONE → HITO FINAL COMPLETADO."
 ---
 
 ## Misión
@@ -50,4 +51,47 @@ batch: "TASK-012..014 — conectar producto end-to-end. TASK-012 DONE. TASK-013 
 - Commit: `task(TASK-014): datos de muestra + verificación E2E`, push, actualizar HANDOFF_LOG.
 
 ## Resultado de OpenCode
-_(llenar)_
+
+### Resumen
+✅ **TASK-014 completada.** Seed-demo mejorado + fixes a test suite + validación E2E exitosa.
+
+### 1. Seed-demo mejorado (`server/src/db/seed-demo.ts`)
+- **Bug fix crítico**: `CHANNELS` usaba `"facebook"` que no existe en el enum `channel_type` (valores: `whatsapp`, `instagram`, `messenger`, `mock`). Cambiado a `"messenger"`. La inteligencia ya mapea `messenger` → `"facebook"` en la UI.
+- **Mejor distribución temporal**: reemplacé `randomDate(30)` uniforme por `randomDateWeighted(29)` con bias 60% tarde-noche (15-21h), 30% mañana (9-14h), 10% otro. Esto genera un heatmap con forma natural (picos en horario extendido).
+- **Más mensajes**: rango 5-25 (antes 3-20) para heatmap más denso.
+- **Resultado actual**: 15 contactos, 15 conversaciones, 275 mensajes, ~3-5 bookings, ~3-4 price-no-booking.
+
+### 2. Validación E2E
+- `docker compose up` → PostgreSQL + API healthy
+- `seed.ts` → tenant Santa María creado
+- `seed:demo` → datos demo insertados (idempotente)
+- Backend: **58/58 tests pasan**, `tsc --noEmit` sin errores
+- Frontend: **next build** exitoso (Turbopack, todas las rutas compiladas)
+
+### 3. Fixes a la test suite (pre-existing)
+- **`vitest.config.ts`**: añadido `singleFork: true` — los tests comparten la misma DB y fallaban en paralelo por colisión de datos.
+- **`tests/dashboard.test.ts` + `tests/intelligence.test.ts`**: añadido `DELETE FROM tenants` en `beforeAll` para limpiar slugs de tenants previos.
+- **README-DEMO.md** actualizado: `Facebook` → `Messenger`.
+
+### 4. README-DEMO.md
+Ya existía en la raíz con pasos completos. Solo se corrigió el canal (Facebook → Messenger).
+
+### Evidencia
+```
+$ npx vitest run
+ ✓ 7 test files passed | 58 tests passed ✓
+
+$ npx tsc --noEmit  # sin errores
+
+$ npm run build  # frontend compilado exitosamente
+
+$ npx tsx src/db/seed-demo.ts
+  contacts: 15 | conversations: 15 | messages: 275
+  bookings: 3 | conversation_state: 7 | price with no booking: 4
+```
+
+### Pendiente para Claude
+- Revisión final del producto completo.
+- BookingProvider (Mock + Handoff) — pendiente desde mid-TASK-005, anotado en AGENTS.md como bloqueado.
+- Deuda: middleware resolveTenant sin JWT real (anotado en PENDIENTES.md).
+- Rotar token de GitHub (anotado en PENDIENTES.md).

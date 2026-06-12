@@ -70,6 +70,9 @@ describe("RLS multi-tenant isolation", () => {
 
   it("tenant 1 cannot UPDATE a row to tenant 2's tenant_id", async () => {
     await appSql`SELECT set_config('app.current_tenant', ${tenant1Id}, false)`;
+    // WITH CHECK catches the cross-tenant UPDATE: the row IS visible to
+    // tenant 1 (USING policy passes) but changing tenant_id to tenant 2's
+    // violates the WITH CHECK policy
     await expect(
       appSql`UPDATE catalog_items SET tenant_id = ${tenant2Id} WHERE name = 'Item A1'`
     ).rejects.toThrow();

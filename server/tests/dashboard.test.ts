@@ -25,6 +25,7 @@ describe("Dashboard & Inbox API", () => {
     await setupSql`DELETE FROM business_profile`;
     await setupSql`DELETE FROM catalog_items`;
     await setupSql`DELETE FROM flows`;
+    await setupSql`DELETE FROM tenants`;
 
     // Create tenant
     const [t] = await setupSql`INSERT INTO tenants (name, slug) VALUES ('Test Dashboard', 'test-dash') RETURNING id`;
