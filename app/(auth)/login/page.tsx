@@ -4,10 +4,10 @@ import { useState } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { CheckCircle2, Eye, EyeOff } from "lucide-react"
+import Image from "next/image"
+import { Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -33,32 +33,26 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
-              <CheckCircle2 className="w-6 h-6 text-white" />
-            </div>
-            <span className="font-bold text-2xl text-[#0F172A]">Bookia</span>
+          <Link href="/" className="inline-flex items-center gap-2.5">
+            <Image src="/bookia-wordmark.svg" alt="Bookia" width={120} height={32} className="h-7 w-auto" />
           </Link>
-          <p className="text-[#64748B] mt-3 text-sm">Ingresa a tu cuenta</p>
+          <p className="app-text-mid mt-3 text-sm">Ingresa a tu cuenta</p>
         </div>
 
-        {/* Demo badge */}
-        <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4 mb-6 text-center">
-          <p className="text-sm text-indigo-700 font-medium mb-1">Credenciales de demo</p>
-          <Badge variant="outline" className="text-xs font-mono border-indigo-200 text-indigo-600">admin@bookia.co</Badge>
-          <span className="mx-2 text-indigo-400">/</span>
-          <Badge variant="outline" className="text-xs font-mono border-indigo-200 text-indigo-600">bookia2024</Badge>
-        </div>
+        <div className="app-card p-8 space-y-5">
+          <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-3 text-center">
+            <p className="text-xs app-text-mid font-medium mb-1">Credenciales de demo</p>
+            <code className="text-xs font-mono app-brand font-semibold">admin@bookia.co</code>
+            <span className="mx-2 text-indigo-300">/</span>
+            <code className="text-xs font-mono app-brand font-semibold">bookia2024</code>
+          </div>
 
-        {/* Form */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="text-sm font-medium text-[#0F172A] block mb-2">Email</label>
+              <label className="text-sm font-medium app-text-hi block mb-1.5">Email</label>
               <Input
                 type="email"
                 placeholder="tu@negocio.co"
@@ -68,7 +62,7 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-[#0F172A] block mb-2">Contraseña</label>
+              <label className="text-sm font-medium app-text-hi block mb-1.5">Contraseña</label>
               <div className="relative">
                 <Input
                   type={showPassword ? "text" : "password"}
@@ -80,28 +74,22 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B]"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 app-text-lo hover:app-text-mid"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-600">
-                {error}
-              </div>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-sm text-red-600">{error}</div>
             )}
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full h-11 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium"
-            >
+            <Button type="submit" disabled={loading} className="w-full h-11 app-brand-bg font-medium">
               {loading ? "Ingresando..." : "Ingresar"}
             </Button>
           </form>
-          <p className="text-center text-sm text-[#64748B] mt-6">
+          <p className="text-center text-sm app-text-mid">
             ¿No tienes cuenta?{" "}
-            <Link href="/register" className="text-indigo-600 hover:text-indigo-700 font-medium">
+            <Link href="/register" className="app-brand font-medium hover:opacity-80">
               Regístrate
             </Link>
           </p>

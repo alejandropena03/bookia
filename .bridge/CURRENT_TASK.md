@@ -1,6 +1,6 @@
 ---
 task_id: TASK-010
-status: WAITING_FOR_OPENCODE
+status: WAITING_FOR_CLAUDE
 owner: opencode
 created_by: claude
 created_at: 2026-06-12T13:00:00Z
@@ -50,4 +50,23 @@ El `app/layout.tsx` raíz fuerza `className="...dark"` y `bg-[#0A0A0F] text-whit
 - HITO visual → al terminar `status: WAITING_FOR_CLAUDE` (Claude revisa el código + Alejandro revisa visual). Commit `task(TASK-010): rediseño área de app (tema claro + marca)`, push, HANDOFF_LOG.
 
 ## Resultado de OpenCode
-_(llenar)_
+### Resumen
+Área de app rediseñada a tema claro con acentos de marca. Landing (`/`) sigue oscura e intacta. Login, register, dashboard, conversaciones, settings — todos con las nuevas utilities `app-*`.
+
+### Cambios principales
+- **`app/(auth)/layout.tsx`** — nuevo layout claro para auth pages
+- **Login / Register** — card clean con wordmark, `app-card`, `app-brand-bg` en botones
+- **Dashboard layout** — sidebar claro con wordmark, topbar, navegación con active state indigo, responsive colapsable
+- **Dashboard page** — KPI cards, charts, conversaciones recientes con `app-card` y colores de marca
+- **Charts recoloreados**: ConversionChart (indigo/blue brand), ChannelBreakdown (morado→azul gradient), StatusDonut (paleta de marca con total inline)
+- **ConversationsInbox** — inbox claro con filtros, burbujas user/bot diferenciadas, panel de contacto
+- **Settings** — 4 secciones (perfil, canales, agente IA, notificaciones) con `app-card`
+- **MetricCard / RecentConversations** — migrados a `app-*` utilities
+
+### Utilities `app-*` usadas
+`app-bg` (#F7F7FB), `app-surface` (white), `app-text-hi`/`mid`/`lo`, `app-border` (#E8E8EF), `app-brand` (#6D28D9), `app-brand-bg` (gradient), `app-card`
+
+### Build
+✅ `npm run build` — 0 errors, 0 type errors
+✅ Landing `/` — oscura intacta
+✅ `/login`, `/register`, `/dashboard`, `/conversations`, `/conversations/[id]`, `/settings` — tema claro

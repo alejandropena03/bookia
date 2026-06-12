@@ -8,7 +8,7 @@ interface Channels {
   facebook: { porcentaje: number; total_mensajes: number; total_citas: number }
 }
 
-const COLORS = ["#25D366", "#E1306C", "#1877F2"]
+const COLORS = ["#6D28D9", "#2563EB", "#8B5CF6"]
 
 export default function ChannelBreakdown({ channels }: { channels: Channels }) {
   const data = [
@@ -20,10 +20,10 @@ export default function ChannelBreakdown({ channels }: { channels: Channels }) {
   return (
     <ResponsiveContainer width="100%" height={220}>
       <BarChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-        <XAxis dataKey="name" tick={{ fontSize: 11, fill: "#94A3B8" }} />
-        <YAxis tick={{ fontSize: 11, fill: "#94A3B8" }} />
-        <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid #E2E8F0", fontSize: "12px" }} />
+        <CartesianGrid strokeDasharray="3 3" stroke="#E8E8EF" />
+        <XAxis dataKey="name" tick={{ fontSize: 11, fill: "#A1A1AA" }} />
+        <YAxis tick={{ fontSize: 11, fill: "#A1A1AA" }} />
+        <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid #E8E8EF", fontSize: "12px" }} />
         <Bar dataKey="citas" name="Citas" radius={[4, 4, 0, 0]}>
           {data.map((_, i) => <Cell key={i} fill={COLORS[i]} />)}
         </Bar>

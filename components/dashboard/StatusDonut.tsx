@@ -1,8 +1,8 @@
 "use client"
 
-import { PieChart, Pie, Cell, Legend, Tooltip, ResponsiveContainer } from "recharts"
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts"
 
-const COLORS = ["#10B981", "#4F46E5", "#F59E0B", "#EF4444"]
+const COLORS = ["#6D28D9", "#2563EB", "#A78BFA", "#C4B5FD"]
 const LABELS: Record<string, string> = {
   agendada: "Agendada",
   en_curso: "En curso",
@@ -19,8 +19,13 @@ export default function StatusDonut({ data }: { data: Record<string, number> }) 
         <Pie data={chartData} cx="50%" cy="45%" innerRadius={55} outerRadius={80} dataKey="value" paddingAngle={3}>
           {chartData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
         </Pie>
-        <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid #E2E8F0", fontSize: "12px" }} />
-        <Legend wrapperStyle={{ fontSize: "12px" }} />
+        <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid #E8E8EF", fontSize: "12px" }} />
+        <text x="50%" y="48%" textAnchor="middle" fontSize={12} fill="#52525B" fontWeight={500}>
+          Total
+        </text>
+        <text x="50%" y="58%" textAnchor="middle" fontSize={16} fill="#18181B" fontWeight={700}>
+          {chartData.reduce((s, d) => s + d.value, 0)}
+        </text>
       </PieChart>
     </ResponsiveContainer>
   )

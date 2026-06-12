@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { CheckCircle2 } from "lucide-react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -32,22 +32,19 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center">
-              <CheckCircle2 className="w-6 h-6 text-white" />
-            </div>
-            <span className="font-bold text-2xl text-[#0F172A]">Bookia</span>
+          <Link href="/" className="inline-flex items-center gap-2.5">
+            <Image src="/bookia-wordmark.svg" alt="Bookia" width={120} height={32} className="h-7 w-auto" />
           </Link>
-          <p className="text-[#64748B] mt-3 text-sm">Crea tu cuenta gratis</p>
+          <p className="app-text-mid mt-3 text-sm">Crea tu cuenta gratis</p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+        <div className="app-card p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="text-sm font-medium text-[#0F172A] block mb-2">Nombre del negocio</label>
+              <label className="text-sm font-medium app-text-hi block mb-1.5">Nombre del negocio</label>
               <Input
                 placeholder="Ej: Estética Santa María"
                 value={form.businessName}
@@ -57,7 +54,7 @@ export default function RegisterPage() {
               {errors.businessName && <p className="text-xs text-red-500 mt-1">{errors.businessName}</p>}
             </div>
             <div>
-              <label className="text-sm font-medium text-[#0F172A] block mb-2">Email</label>
+              <label className="text-sm font-medium app-text-hi block mb-1.5">Email</label>
               <Input
                 type="email"
                 placeholder="tu@negocio.co"
@@ -68,7 +65,7 @@ export default function RegisterPage() {
               {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
             </div>
             <div>
-              <label className="text-sm font-medium text-[#0F172A] block mb-2">Contraseña</label>
+              <label className="text-sm font-medium app-text-hi block mb-1.5">Contraseña</label>
               <Input
                 type="password"
                 placeholder="Mínimo 6 caracteres"
@@ -79,11 +76,11 @@ export default function RegisterPage() {
               {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
             </div>
             <div>
-              <label className="text-sm font-medium text-[#0F172A] block mb-2">Tipo de negocio</label>
+              <label className="text-sm font-medium app-text-hi block mb-1.5">Tipo de negocio</label>
               <select
                 value={form.businessType}
                 onChange={(e) => setForm({ ...form, businessType: e.target.value })}
-                className="w-full h-11 px-3 rounded-md border border-input bg-background text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                className="w-full h-11 px-3 rounded-xl border app-border bg-white text-sm app-text-hi focus:outline-none focus:ring-2 focus:ring-[#6D28D9]/20 focus:border-[#6D28D9]"
               >
                 <option value="">Selecciona una opción</option>
                 <option value="clinica_estetica">Clínica estética</option>
@@ -96,14 +93,14 @@ export default function RegisterPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-11 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium"
+              className="w-full h-11 app-brand-bg font-medium"
             >
               {loading ? "Creando cuenta..." : "Crear cuenta gratis"}
             </Button>
           </form>
-          <p className="text-center text-sm text-[#64748B] mt-6">
+          <p className="text-center text-sm app-text-mid mt-6">
             ¿Ya tienes cuenta?{" "}
-            <Link href="/login" className="text-indigo-600 hover:text-indigo-700 font-medium">
+            <Link href="/login" className="app-brand font-medium hover:opacity-80">
               Ingresar
             </Link>
           </p>
