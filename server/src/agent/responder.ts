@@ -1,6 +1,6 @@
 import { getLlm } from "./llm/index.js";
 import { env } from "../env.js";
-import { renderTemplate } from "./template.js";
+import { renderTemplate } from "../flows/template.js";
 
 export interface BusinessContext {
   persona: string;

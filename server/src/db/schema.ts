@@ -1,5 +1,5 @@
 import {
-  pgTable, pgEnum, uuid, text, timestamp, jsonb, numeric, integer, uniqueIndex, index
+  pgTable, pgEnum, uuid, text, timestamp, jsonb, numeric, integer, uniqueIndex, index, boolean
 } from "drizzle-orm/pg-core";
 
 // ── Enums ──
@@ -12,6 +12,7 @@ export const conversationStatusEnum = pgEnum("conversation_status", ["bot_active
 export const messageDirectionEnum = pgEnum("message_direction", ["inbound", "outbound"]);
 export const senderTypeEnum = pgEnum("sender_type", ["contact", "bot", "human"]);
 export const userRoleEnum = pgEnum("user_role", ["owner", "agent"]);
+export const bookingModeEnum = pgEnum("booking_mode", ["mock", "handoff"]);
 
 // ── Tables ──
 
@@ -127,7 +128,25 @@ export const businessProfile = pgTable("business_profile", {
   persona: text("persona").notNull(),
   rules: jsonb("rules").$type<Record<string, unknown>>().default({}).notNull(),
   hours: jsonb("hours").$type<Record<string, unknown>>().default({}).notNull(),
+  bookingMode: bookingModeEnum("booking_mode").default("mock").notNull(),
   systemPromptOverrides: text("system_prompt_overrides"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const bookings = pgTable("bookings", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  conversationId: uuid("conversation_id").notNull().references(() => conversations.id, { onDelete: "cascade" }),
+  contactId: uuid("contact_id").notNull().references(() => contacts.id, { onDelete: "cascade" }),
+  serviceName: text("service_name").notNull(),
+  servicePrice: text("service_price"),
+  city: text("city"),
+  datetime: text("datetime"),
+  status: text("status").default("pending").notNull(),
+  bookingProviderRef: text("booking_provider_ref"),
+  data: jsonb("data").$type<Record<string, unknown>>().default({}).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  index("bookings_tenant_idx").on(table.tenantId),
+]);

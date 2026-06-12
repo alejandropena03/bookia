@@ -1,5 +1,12 @@
+import { z } from "zod";
 import { getLlm } from "./llm/index.js";
 import { env } from "../env.js";
+
+const RouterResultSchema = z.object({
+  intent: z.enum(["agendamiento", "precio", "faq", "queja", "charla", "otro"]),
+  confidence: z.number().min(0).max(1),
+  extractedSlots: z.record(z.string()).default({}),
+});
 
 export interface RouterResult {
   intent: string;
@@ -16,8 +23,12 @@ Clasifica el mensaje del cliente en UNA de estas intenciones:
 - "charla": saludo, agradecimiento, conversación casual
 - "otro": no encaja en ninguna anterior
 
-Responde SOLO con JSON:
+Responde SOLO con JSON SIN markdown fences:
 {"intent": "...", "confidence": 0.xx, "extractedSlots": {"...": "..."}}`;
+
+function stripFences(text: string): string {
+  return text.replace(/```(?:json)?\s*/gi, "").replace(/```\s*$/g, "").trim();
+}
 
 export async function classifyIntent(text: string): Promise<RouterResult> {
   const llm = getLlm();
@@ -30,12 +41,9 @@ export async function classifyIntent(text: string): Promise<RouterResult> {
   });
 
   try {
-    const parsed = JSON.parse(result.text);
-    return {
-      intent: parsed.intent ?? "otro",
-      confidence: parsed.confidence ?? 0,
-      extractedSlots: parsed.extractedSlots ?? {},
-    };
+    const cleaned = stripFences(result.text);
+    const parsed = RouterResultSchema.parse(JSON.parse(cleaned));
+    return parsed;
   } catch {
     return { intent: "otro", confidence: 0, extractedSlots: {} };
   }

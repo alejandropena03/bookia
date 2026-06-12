@@ -160,10 +160,22 @@ describe("evaluateFlow", () => {
 });
 
 describe("evaluateEscalation", () => {
-  it("escalates on keyword match", () => {
+  it("escalates on keyword match (high confidence)", () => {
     const result = evaluateEscalation("Necesito hablar con un humano", 1);
     expect(result.shouldEscalate).toBe(true);
     expect(result.reason).toContain("humano");
+  });
+
+  it("escalates on keyword match even with LOW confidence (fixed order)", () => {
+    const result = evaluateEscalation("tuve una reacción alérgica", 0.15);
+    expect(result.shouldEscalate).toBe(true);
+    expect(result.reason).toContain("Reacción");
+  });
+
+  it("escalates on emergency keyword with low confidence", () => {
+    const result = evaluateEscalation("emergencia, me duele mucho", 0.1);
+    expect(result.shouldEscalate).toBe(true);
+    expect(result.reason).toContain("Emergencia");
   });
 
   it("does not escalate normal messages", () => {
@@ -171,9 +183,17 @@ describe("evaluateEscalation", () => {
     expect(result.shouldEscalate).toBe(false);
   });
 
-  it("does not escalate on low confidence (no force)", () => {
-    const result = evaluateEscalation("xyz", 0.3);
+  it("returns low confidence signal (not escalation) for gibberish", () => {
+    const result = evaluateEscalation("xyz123", 0.2);
     expect(result.shouldEscalate).toBe(false);
+    expect(result.reason).toBe("confianza_baja");
+  });
+
+  it("uses custom rules from config", () => {
+    const config = { rules: { escalation: [{ keyword: "descuento", reason: "Cliente pidió descuento" }] } };
+    const result = evaluateEscalation("¿me dan un descuento?", 0.9, config);
+    expect(result.shouldEscalate).toBe(true);
+    expect(result.reason).toContain("descuento");
   });
 });
 

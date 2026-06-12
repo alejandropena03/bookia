@@ -1,4 +1,4 @@
-import { renderTemplate } from "../flows/template.js";
+import { renderTemplate } from "./template.js";
 
 export interface FlowDefinition {
   initial: string;
@@ -25,6 +25,31 @@ export interface FlowResult {
   completed: boolean;
 }
 
+export interface CatalogItem {
+  name: string;
+  price: string;
+  currency: string;
+}
+
+function buildTemplateContext(slots: Record<string, string>, catalogItems?: CatalogItem[]): Record<string, string> {
+  const catalog = catalogItems ?? [];
+  const selectedName = slots.service || slots.service_name || "";
+  const selected = catalog.find((c) => selectedName.toLowerCase().includes(c.name.toLowerCase()) || c.name.toLowerCase().includes(selectedName.toLowerCase()));
+
+  return {
+    ...slots,
+    nombre: slots.nombre || "",
+    city: slots.city || slots.ciudad || "",
+    service_name: selected?.name ?? slots.service_name ?? slots.service ?? "",
+    service_price: selected ? `${selected.price} ${selected.currency}` : slots.service_price ?? "",
+    datetime: slots.datetime || "",
+    client_name: slots.client_name || slots.clientData || "",
+    catalog_list: catalog.length > 0
+      ? catalog.map((c) => `- ${c.name}: ${c.price} ${c.currency}`).join("\n")
+      : slots.catalog_list || "(Sin servicios disponibles)",
+  };
+}
+
 export function getNextState(definition: FlowDefinition, currentState: string, input: string): { next: string | null; completed: boolean } {
   const state = definition.states[currentState];
   if (!state) return { next: null, completed: true };
@@ -43,7 +68,12 @@ export function getNextState(definition: FlowDefinition, currentState: string, i
   return { next, completed: next === null || next === "farewell" || !definition.states[next] };
 }
 
-export function evaluateFlow(definition: FlowDefinition, context: FlowContext, input: string): FlowResult {
+export function evaluateFlow(
+  definition: FlowDefinition,
+  context: FlowContext,
+  input: string,
+  catalogItems?: CatalogItem[]
+): FlowResult {
   const state = definition.states[context.currentState];
   if (!state) {
     return {
@@ -64,40 +94,17 @@ export function evaluateFlow(definition: FlowDefinition, context: FlowContext, i
 
   if (!next || completed) {
     const farewell = definition.states[next ?? "farewell"];
-    if (farewell) {
-      const templateContext = {
-        ...newSlots,
-        nombre: newSlots.nombre || "",
-        city: newSlots.city || newSlots.ciudad || "",
-        service_name: newSlots.service_name || newSlots.service || "",
-        service_price: newSlots.service_price || "",
-        datetime: newSlots.datetime || "",
-        client_name: newSlots.client_name || newSlots.clientData || "",
-      };
-      return {
-        response: renderTemplate(farewell.prompt, templateContext),
-        context: { ...context, currentState: next ?? "farewell", slots: newSlots },
-        completed: true,
-      };
-    }
+    const targetState = farewell ?? state;
+    const templateContext = buildTemplateContext(newSlots, catalogItems);
     return {
-      response: renderTemplate(state.prompt, newSlots),
-      context: { ...context, currentState: state.next ?? "farewell", slots: newSlots },
+      response: renderTemplate(targetState.prompt, templateContext),
+      context: { ...context, currentState: next ?? "farewell", slots: newSlots },
       completed: true,
     };
   }
 
   const nextState = definition.states[next];
-  const templateContext = {
-    ...newSlots,
-    nombre: newSlots.nombre || "",
-    city: newSlots.city || newSlots.ciudad || "",
-    service_name: newSlots.service_name || newSlots.service || "",
-    service_price: newSlots.service_price || "",
-    datetime: newSlots.datetime || "",
-    client_name: newSlots.client_name || "",
-  };
-
+  const templateContext = buildTemplateContext(newSlots, catalogItems);
   const response = nextState ? renderTemplate(nextState.prompt, templateContext) : state.prompt;
 
   return {
@@ -107,7 +114,7 @@ export function evaluateFlow(definition: FlowDefinition, context: FlowContext, i
   };
 }
 
-export function startFlow(definition: FlowDefinition, contactName?: string): FlowResult {
+export function startFlow(definition: FlowDefinition, contactName?: string, catalogItems?: CatalogItem[]): FlowResult {
   const initial = definition.states[definition.initial];
   if (!initial) {
     return {
@@ -123,7 +130,8 @@ export function startFlow(definition: FlowDefinition, contactName?: string): Flo
     slots: { nombre: contactName ?? "" },
   };
 
-  const response = renderTemplate(initial.prompt, context.slots);
+  const templateContext = buildTemplateContext(context.slots, catalogItems);
+  const response = renderTemplate(initial.prompt, templateContext);
   return {
     response,
     context,

@@ -65,6 +65,6 @@ export async function ingestInbound(normalized: NormalizedInboundMessage) {
       });
     }
 
-    return { duplicated: false, conversationId: conv.id, messageId: msg.id };
+    return { duplicated: false, conversationId: conv.id, messageId: msg.id, contactId: contact.id };
   });
 }

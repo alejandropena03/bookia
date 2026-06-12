@@ -35,6 +35,7 @@ sim.post("/message", async (c) => {
     tenantId: tenant.id,
     tenantSlug: body.tenantSlug,
     conversationId: persistResult.conversationId,
+    contactId: persistResult.contactId,
     contactName: body.name,
     text: body.text,
   });
