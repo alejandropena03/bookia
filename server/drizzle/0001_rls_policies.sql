@@ -12,11 +12,24 @@
 --     INSERT/UPDATE con un tenant_id ajeno. Sin él, un tenant podría escribir
 --     filas para otro tenant.
 --  2. FORCE ROW LEVEL SECURITY: por defecto el DUEÑO de la tabla bypassa RLS.
---     Si la app se conecta con el rol dueño (caso común en dev), el RLS NO
---     aplicaría. FORCE lo aplica también al dueño. (Ojo: el seed/migraciones
---     deben correr con un rol que setee app.current_tenant o con BYPASSRLS.)
+--     FORCE lo aplica también al dueño. NOTA: SUPERUSER y roles con BYPASSRLS
+--     SIEMPRE bypassan RLS, incluso con FORCE. Por eso creamos un rol app
+--     limitado (bookia_app).
 --  3. current_setting(..., true): el segundo arg 'true' evita que reviente si
 --     el GUC no está seteado (devuelve NULL → no matchea → 0 filas, fail-safe).
+
+-- Create a non-privileged application role for runtime (bypasses RLS if superuser)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'bookia_app') THEN
+    CREATE ROLE bookia_app LOGIN PASSWORD 'bookia_app_pass' NOINHERIT;
+  END IF;
+END
+$$;
+
+-- Grant schema and table permissions to bookia_app
+GRANT USAGE ON SCHEMA public TO bookia_app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO bookia_app;
 
 -- Enable + FORCE RLS on all business tables (everything except `tenants`)
 ALTER TABLE channel_accounts ENABLE ROW LEVEL SECURITY;

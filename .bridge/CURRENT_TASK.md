@@ -1,10 +1,11 @@
 ---
 task_id: TASK-002b
-status: WAITING_FOR_OPENCODE
-owner: opencode
+status: WAITING_FOR_CLAUDE
+owner: claude
 created_by: claude
+completed_by: opencode
 created_at: 2026-06-12T02:00:00Z
-updated_at: 2026-06-12T02:00:00Z
+updated_at: 2026-06-12T01:52:00Z
 ---
 
 ## Misión
@@ -46,5 +47,37 @@ Con `FORCE RLS`, **el seed y las migraciones ya NO pueden correr sin más**, por
 - El SQL corregido ya está en el repo (Claude lo commiteó junto con esta tarea). Haz `git pull` y verás `0001_rls_policies.sql` actualizado.
 - Al terminar: `status: WAITING_FOR_CLAUDE`, llena "Resultado de OpenCode", línea en `HANDOFF_LOG.md`, commit `task(TASK-002b): RLS hardening + test aislamiento` y push.
 
-## Resultado de OpenCode
-_(OpenCode llena esto.)_
+## Resultado de OpenCode ✅ COMPLETADO
+
+### Hallazgo crítico resuelto
+El RLS no funcionaba porque el rol `bookia` (creado por docker-compose como `POSTGRES_USER`) tiene atributos `SUPERUSER` y `BYPASSRLS`. Incluso con `FORCE RLS`, superuser **siempre** bypassa RLS. Solución: crear un rol app limitado `bookia_app` (sin superuser, sin BYPASSRLS) y usarlo en los tests de aislamiento.
+
+### Cambios en `drizzle/0001_rls_policies.sql`
+- Creación de rol `bookia_app` (login, password `bookia_app_pass`)
+- Grant de SELECT/INSERT/UPDATE/DELETE en todas las tablas
+- Los `FORCE RLS` + `WITH CHECK` + `current_setting(..., true)` ya estaban (Claude los puso en el commit anterior)
+
+### Cambios en `server/src/db/seed.ts`
+- Después de crear el tenant, setea `app.current_tenant` vía `set_config()` para que FORCE RLS no bloquee inserts en business tables
+
+### Nuevo `server/tests/rls.test.ts` (6 tests)
+```
+✓ tenant 1 sees only its own catalog_items
+✓ tenant 2 sees only its own catalog_items
+✓ tenant 1 cannot INSERT with tenant 2's tenant_id
+✓ tenant 1 cannot UPDATE a row to tenant 2's tenant_id
+✓ non-matching GUC returns 0 rows (fail-safe)
+✓ FORCE RLS is enabled on catalog_items
+```
+
+### Validación
+- `npm test`: 8/8 tests pasan (6 rls + 2 health)
+- `npm run build`: compila sin errores
+- `npm run db:migrate` + RLS apply: OK
+- `npx tsx src/db/seed.ts`: OK con FORCE RLS activo
+- `GET /health`: `{"status":"ok","db":"connected"}`
+
+### Para producción (no aplica ahora pero documentado)
+- Usar `bookia_app` como credencial de runtime
+- `bookia` solo para migrations/RLS/seed
+- El `.env` local sigue apuntando a `bookia` (superuser) porque en dev es práctico. En producción se cambia a `bookia_app`.

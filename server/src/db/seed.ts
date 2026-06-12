@@ -1,4 +1,4 @@
-import { db } from "./client.js";
+import { db, queryClient } from "./client.js";
 import { tenants, channelAccounts, businessProfile, catalogItems, flows, users } from "./schema.js";
 import { sql } from "drizzle-orm";
 
@@ -12,6 +12,10 @@ async function seed() {
     status: "active",
   }).returning();
   console.log(`✓ Tenant created: ${tenant.name} (${tenant.id})`);
+
+  // Set GUC for RLS (tenants table has no RLS, but business tables do with FORCE RLS)
+  await queryClient`SELECT set_config('app.current_tenant', ${tenant.id}, true)`;
+  console.log(`  → app.current_tenant set to ${tenant.id}`);
 
   // ── 2. Channel account: mock (demo sin credenciales) ──
   const [channelAccount] = await db.insert(channelAccounts).values({
