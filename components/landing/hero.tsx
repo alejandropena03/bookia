@@ -92,8 +92,8 @@ export default function Hero() {
       <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#08070C] to-transparent pointer-events-none" />
       <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#0A0A0F] to-transparent pointer-events-none" />
 
-      <div className="hero-content relative z-10 max-w-5xl mx-auto px-5 text-center pt-28 pb-24">
-        <div className="hero-badge inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-white/10 bg-white/[0.04] backdrop-blur-sm text-mid text-xs tracking-wide mb-9 opacity-0">
+      <div className="hero-content relative z-10 max-w-[1100px] mx-auto px-6 text-center pt-36 pb-28">
+        <div className="hero-badge inline-flex items-center gap-2.5 px-5 py-2 rounded-full border border-white/10 bg-white/[0.04] backdrop-blur-sm text-mid text-sm tracking-wide mb-10 opacity-0">
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60 animate-ping" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
@@ -101,47 +101,47 @@ export default function Hero() {
           Agente de IA para negocios que viven de responder y agendar
         </div>
 
-        <h1 className="text-[2.75rem] sm:text-6xl md:text-7xl lg:text-[5.5rem] font-bold leading-[0.92] tracking-[-0.045em] text-hi mb-7">
+        <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-[7.5rem] font-bold leading-[0.9] tracking-[-0.05em] text-hi mb-9">
           <span className="hero-headline block opacity-0">Convierte cada mensaje</span>
-          <span className="hero-headline block gradient-brand opacity-0 pb-2">en una cita.</span>
+          <span className="hero-headline block gradient-brand opacity-0 pb-3">en una cita.</span>
         </h1>
 
-        <p className="hero-sub text-lg sm:text-xl text-mid max-w-2xl mx-auto leading-relaxed opacity-0">
+        <p className="hero-sub text-xl sm:text-2xl text-mid max-w-3xl mx-auto leading-relaxed opacity-0">
           Bookia responde tus conversaciones de WhatsApp, Instagram y Facebook
           en segundos, agenda las citas por ti y te muestra cómo crece tu negocio.
           <span className="text-hi"> Humano, pero sin errores. 24/7.</span>
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-3.5 justify-center items-center mt-11">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-12">
           <Link href="/login" className="hero-cta-item opacity-0">
             <Button
               size="lg"
-              className="group bg-gradient-to-r from-[#7C3AED] to-[#2563EB] hover:from-[#8B5CF6] hover:to-[#3B82F6] text-white px-8 h-12 text-base rounded-xl shadow-2xl shadow-[#6D28D9]/30 animate-pulse-glow transition-all"
+              className="group bg-gradient-to-r from-[#7C3AED] to-[#2563EB] hover:from-[#8B5CF6] hover:to-[#3B82F6] text-white px-10 h-14 text-lg rounded-2xl shadow-2xl shadow-[#6D28D9]/30 animate-pulse-glow transition-all"
             >
               Ver demo en vivo
-              <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+              <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
             </Button>
           </Link>
           <a href="#como-funciona" className="hero-cta-item opacity-0">
             <Button
               size="lg"
               variant="outline"
-              className="px-8 h-12 text-base rounded-xl border-white/12 bg-white/[0.03] text-mid hover:bg-white/[0.07] hover:text-hi backdrop-blur-sm transition-all duration-300"
+              className="px-10 h-14 text-lg rounded-2xl border-white/12 bg-white/[0.03] text-mid hover:bg-white/[0.07] hover:text-hi backdrop-blur-sm transition-all duration-300"
             >
               Cómo funciona
             </Button>
           </a>
         </div>
 
-        <div className="mt-20 flex flex-wrap justify-center gap-10 sm:gap-20">
+        <div className="mt-24 flex flex-wrap justify-center gap-12 sm:gap-24">
           {[
             { v: "<5s", l: "tiempo de respuesta" },
             { v: "68%", l: "conversación a cita" },
             { v: "24/7", l: "atención automática" },
           ].map((s) => (
             <div key={s.l} className="hero-stat text-center opacity-0">
-              <div className="text-3xl sm:text-4xl font-bold text-hi tabular-nums tracking-tight">{s.v}</div>
-              <div className="text-xs sm:text-sm text-lo mt-1.5">{s.l}</div>
+              <div className="text-4xl sm:text-5xl font-bold text-hi tabular-nums tracking-tight">{s.v}</div>
+              <div className="text-sm sm:text-base text-lo mt-2">{s.l}</div>
             </div>
           ))}
         </div>

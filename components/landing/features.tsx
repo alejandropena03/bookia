@@ -80,7 +80,7 @@ export default function Features() {
     <section
       id="caracteristicas"
       ref={sectionRef}
-      className="relative py-28 px-4 bg-[#0A0A0F] overflow-hidden"
+      className="relative py-32 px-6 sm:px-10 bg-[#0A0A0F] overflow-hidden"
     >
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#7C3AED]/30 to-transparent" />
       <div className="absolute inset-0 pointer-events-none">
@@ -88,12 +88,12 @@ export default function Features() {
         <div className="absolute bottom-1/4 -right-20 w-[400px] h-[400px] rounded-full bg-[#2563EB]/8 blur-[120px]" />
       </div>
 
-      <div className="relative z-10 max-w-5xl mx-auto">
+      <div className="relative z-10 max-w-[1280px] mx-auto">
         <div className="text-center mb-16">
           <span className="inline-block px-3 py-1 rounded-full border border-white/[0.06] bg-white/[0.02] text-lo text-[11px] tracking-widest uppercase mb-5">
             Características
           </span>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-hi tracking-[-0.03em] mb-4">
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-hi tracking-[-0.03em] mb-4">
             Todo lo que necesitas
           </h2>
           <p className="text-mid text-lg max-w-xl mx-auto">

@@ -88,7 +88,7 @@ export default function HowItWorks() {
     <section
       id="como-funciona"
       ref={sectionRef}
-      className="relative py-28 px-4 bg-gradient-to-b from-[#0F0C18] to-[#0A0A0F] overflow-hidden"
+      className="relative py-32 px-6 sm:px-10 bg-gradient-to-b from-[#0F0C18] to-[#0A0A0F] overflow-hidden"
     >
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#7C3AED]/40 to-transparent" />
       <div className="absolute inset-0 pointer-events-none">
@@ -96,12 +96,12 @@ export default function HowItWorks() {
         <div className="absolute bottom-0 right-1/4 w-[300px] h-[300px] rounded-full bg-[#6D28D9]/5 blur-[100px]" />
       </div>
 
-      <div className="relative z-10 max-w-5xl mx-auto">
+      <div className="relative z-10 max-w-[1280px] mx-auto">
         <div ref={headingRef} className="text-center mb-20">
           <span className="how-line inline-block px-3 py-1 rounded-full border border-white/[0.06] bg-white/[0.02] text-lo text-[11px] tracking-widest uppercase mb-5">
             Cómo funciona
           </span>
-          <h2 className="how-line text-3xl sm:text-4xl md:text-5xl font-bold text-hi tracking-[-0.03em] mb-4">
+          <h2 className="how-line text-4xl sm:text-5xl md:text-6xl font-bold text-hi tracking-[-0.03em] mb-4">
             Tres pasos. Sin fricción.
           </h2>
           <p className="how-line text-mid text-lg max-w-xl mx-auto">

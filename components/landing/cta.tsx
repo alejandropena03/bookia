@@ -63,7 +63,7 @@ export default function Cta() {
   return (
     <section
       ref={sectionRef}
-      className="relative py-28 px-4 bg-[#0A0A0F] overflow-hidden"
+      className="relative py-32 px-6 sm:px-10 bg-[#0A0A0F] overflow-hidden"
     >
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[#7C3AED]/10 blur-[160px]" />
@@ -75,7 +75,7 @@ export default function Cta() {
           ¿Listo para transformar tu negocio?
         </span>
 
-        <h2 className="cta-line text-3xl sm:text-4xl md:text-5xl font-bold text-hi tracking-[-0.03em] mb-6">
+        <h2 className="cta-line text-4xl sm:text-5xl md:text-6xl font-bold text-hi tracking-[-0.03em] mb-6">
           Agenda una demo
           <br />
           <span className="gradient-brand">y descubre el cambio</span>

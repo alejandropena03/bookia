@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef, useEffect } from "react"
+import Image from "next/image"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
@@ -29,9 +30,13 @@ const CHAT_ITEMS: ChatItem[] = [
 
 function BotAvatar() {
   return (
-    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#2563EB] flex items-center justify-center shrink-0 shadow-lg shadow-[#6D28D9]/20">
-      <span className="text-white text-[10px] font-bold">B</span>
-    </div>
+    <Image
+      src="/bookia-icon.jpeg"
+      alt="Bookia"
+      width={28}
+      height={28}
+      className="w-7 h-7 rounded-full shrink-0 shadow-lg shadow-[#6D28D9]/20 ring-1 ring-white/10 object-cover"
+    />
   )
 }
 
@@ -143,7 +148,7 @@ export default function DemoChat() {
   return (
     <section
       ref={sectionRef}
-      className="relative py-28 px-4 bg-gradient-to-b from-[#08070C] to-[#0D0B14] overflow-hidden"
+      className="relative py-32 px-6 sm:px-10 bg-gradient-to-b from-[#08070C] to-[#0D0B14] overflow-hidden"
     >
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#2563EB]/30 to-transparent" />
       <div className="absolute inset-0 pointer-events-none">
@@ -155,7 +160,7 @@ export default function DemoChat() {
           <span className="demo-line inline-block px-3 py-1 rounded-full border border-white/[0.06] bg-white/[0.02] text-lo text-[11px] tracking-widest uppercase mb-5">
             Demo en vivo
           </span>
-          <h2 className="demo-line text-3xl sm:text-4xl md:text-5xl font-bold text-hi tracking-[-0.03em] mb-4">
+          <h2 className="demo-line text-4xl sm:text-5xl md:text-6xl font-bold text-hi tracking-[-0.03em] mb-4">
             Míralo responder solo
           </h2>
           <p className="demo-line text-mid text-lg max-w-xl mx-auto">
@@ -172,7 +177,7 @@ export default function DemoChat() {
                 <div className="w-2.5 h-2.5 rounded-full bg-white/20" />
               </div>
               <div className="flex items-center gap-2 ml-2">
-                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#2563EB]" />
+                <Image src="/bookia-icon.jpeg" alt="Bookia" width={20} height={20} className="w-5 h-5 rounded-full ring-1 ring-white/10 object-cover" />
                 <span className="text-mid text-xs font-medium">Bookia AI · Clínica Santa María</span>
               </div>
               <div className="ml-auto text-white/20 text-xs">●●●</div>

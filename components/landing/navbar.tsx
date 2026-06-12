@@ -43,7 +43,7 @@ export default function Navbar() {
           : "bg-transparent py-5"
       }`}
     >
-      <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
+      <div className="max-w-[1400px] mx-auto px-6 sm:px-10 flex items-center justify-between">
         <Link href="/" className="flex items-center group" aria-label="Bookia inicio">
           <Image
             src="/bookia-wordmark.svg"

@@ -108,14 +108,14 @@ export default function Metrics() {
   return (
     <section
       ref={sectionRef}
-      className="relative py-24 px-4 bg-gradient-to-b from-[#0A0A0F] to-[#0D0B14] overflow-hidden"
+      className="relative py-28 px-6 sm:px-10 bg-gradient-to-b from-[#0A0A0F] to-[#0D0B14] overflow-hidden"
     >
       <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#2563EB]/30 to-transparent" />
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-gradient-to-br from-[#6D28D9]/8 to-[#2563EB]/8 blur-[180px]" />
       </div>
 
-      <div ref={countersRef} className="relative z-10 max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
+      <div ref={countersRef} className="relative z-10 max-w-[1100px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-10">
         {METRICS.map((metric) => (
           <AnimatedMetric key={metric.label} metric={metric} prefersReduced={prefersReduced} />
         ))}
