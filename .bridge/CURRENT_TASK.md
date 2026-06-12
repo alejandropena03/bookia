@@ -259,3 +259,11 @@ Cuando el agente escala a humano hoy, el operador entra sin contexto. Los mejore
 ✓ tsc --noEmit sin errores
 ✓ next build exitoso (front + server)
 ```
+
+---
+
+### 🗂️ Propuesta en cola: TASK-021-produccion-aws
+Alejandro dejó planteado para producción (cuando el cliente dé luz verde):
+- Infra: AWS Lightsail (VPS) + Cloudflare (dominio) + AWS SES (email)
+- Feature: Canal email para confirmaciones, recordatorios, facturas
+- Discutir cuando corresponda
