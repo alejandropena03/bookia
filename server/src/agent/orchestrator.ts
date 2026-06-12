@@ -237,6 +237,12 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
   return withTenant(req.tenantId, async (sql) => {
     const { text, conversationId, contactName, tenantSlug } = req;
 
+    // Check if conversation is human-controlled — bot abstains
+    const [convStatus] = await sql`SELECT status FROM conversations WHERE id = ${conversationId} LIMIT 1`;
+    if (convStatus && (convStatus.status === "human_active" || convStatus.status === "escalated")) {
+      return { text: "", messageId: "", route: "flow", escalated: false };
+    }
+
     // Load reusable data
     const bizContext = await loadBusinessContext(req.tenantId, sql);
     const catalogItems: CatalogItem[] = await sql`
@@ -269,7 +275,7 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
     if (escalation.shouldEscalate) {
       await sql`UPDATE conversations SET status = 'human_active' WHERE id = ${conversationId}`;
       const text_ = "Tu consulta será atendida por un asesor humano en breve.";
-      const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, text_, "human", "escalated");
+      const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, text_, "bot", "escalated");
       return { text: text_, messageId: msgId, route: "escalated", escalated: true, escalationReason: escalation.reason };
     }
 

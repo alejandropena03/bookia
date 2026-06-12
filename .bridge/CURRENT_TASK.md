@@ -1,10 +1,10 @@
 ---
 task_id: TASK-007
-status: WAITING_FOR_OPENCODE
-owner: opencode
+status: WAITING_FOR_CLAUDE
+owner: claude
 created_by: claude
 created_at: 2026-06-12T09:00:00Z
-updated_at: 2026-06-12T09:00:00Z
+updated_at: 2026-06-12T09:04:00Z
 batch: "TASK-007..008 emitidas juntas. Encadena según protocolo de cola (README §Cola)."
 ---
 
@@ -51,4 +51,65 @@ Construir la **API del dashboard y métricas** + el **inbox humano** (escalació
 - ⛔ CAMBIO: al terminar TASK-007, NO tomes la TASK-008 (está EN PAUSA — Alejandro va a rediseñar el front antes de conectarlo). Deja `status: WAITING_FOR_CLAUDE` y espera. Commit de TASK-007, push, HANDOFF_LOG.
 
 ## Resultado de OpenCode
-_(llenar)_
+
+### Fix: sender_type escalación ✅
+Cambiado `sender_type: "human"` → `"bot"` en `orchestrator.ts:272` para el mensaje automático de escalación (lo escribe el sistema, no un humano).
+
+### Bot se abstiene si human_active/escalated ✅
+`processMessage` ahora verifica el status de la conversación al inicio. Si está `human_active` o `escalated`, retorna respuesta vacía (text: "") sin ejecutar el agente. El inbound ya fue persistido por `ingestInbound`.
+
+### Auth middleware ✅
+`server/src/api/middleware.ts`: middleware `resolveTenant` que resuelve `tenantId` desde header `x-tenant-slug` (default: "santa-maria" en dev mode `DEV_AUTH=true`). Montado en `/api/*`.
+
+### Dashboard API endpoints ✅
+Archivo `server/src/api/dashboard.ts` con 9 endpoints:
+
+| Endpoint | Descripción |
+|---|---|
+| `GET /api/conversations` | Lista paginada con filtros status/channel |
+| `GET /api/conversations/:id` | Hilo completo + datos del contacto |
+| `POST /api/conversations/:id/reply` | Operador humano responde (solo human_active) |
+| `POST /api/conversations/:id/takeover` | Toma de control → human_active |
+| `POST /api/conversations/:id/handback` | Devuelve al bot → bot_active |
+| `GET /api/metrics` | KPIs agregados (conversaciones, mensajes, status, canal, bookings, tendencia diaria) |
+| `GET /api/catalog` | Catálogo de servicios del tenant |
+| `GET /api/profile` | Perfil de negocio (persona, reglas, horarios) |
+| `GET /api/flows` | Flujos activos del tenant |
+
+### Tests ✅
+`tests/dashboard.test.ts` — 9 tests que cubren:
+- Listado y filtrado de conversaciones
+- Hilo completo de mensajes
+- Takeover (status → human_active)
+- Handback (status → bot_active)
+- Reply humano (sender_type='human')
+- Bot se abstiene si human_active
+- Bot responde si bot_active
+- Métricas agregadas
+- Lectura de catálogo
+
+### Evidencia E2E (Docker)
+```
+GET /api/conversations → 1 conv (Diana, bot_active, mock)
+GET /api/conversations/:id → thread inbound+outbound
+POST /takeover → human_active
+Bot abstains → text: ""
+POST /reply → human msg persisted
+POST /handback → bot_active
+Bot responds → canned response
+GET /api/metrics → {1 conv, 3 inbound, 3 outbound, bot_active:1}
+GET /api/profile → persona loaded
+GET /api/flows → agendamiento v1
+```
+
+### Tests
+```
+✓ tests/channels.test.ts (8 tests)
+✓ tests/llm.test.ts (7 tests)
+✓ tests/agent.test.ts (19 tests)
+✓ tests/rls.test.ts (6 tests)
+✓ tests/dashboard.test.ts (9 tests)
+✓ tests/health.test.ts (2 tests)
+Test Files  6 passed (6)
+     Tests  51 passed (51)
+```
