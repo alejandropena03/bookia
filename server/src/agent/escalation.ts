@@ -1,10 +1,7 @@
 export interface EscalationRule {
   keyword: string;
   reason: string;
-}
-
-export interface EscalationConfig {
-  rules: EscalationRule[];
+  notify: boolean;
 }
 
 export interface EscalationResult {
@@ -14,61 +11,85 @@ export interface EscalationResult {
 }
 
 const DEFAULT_RULES: EscalationRule[] = [
-  { keyword: "humano", reason: "Cliente pidió hablar con un humano" },
-  { keyword: "operador", reason: "Cliente pidió hablar con un operador" },
-  { keyword: "asistente", reason: "Cliente pidió hablar con un asistente humano" },
-  { keyword: "emergencia", reason: "Emergencia reportada por el cliente" },
-  { keyword: "reacción", reason: "Reacción adversa reportada por el cliente" },
-  { keyword: "alergia", reason: "Reacción alérgica reportada por el cliente" },
-  { keyword: "abogado", reason: "Mención de acción legal" },
-  { keyword: "demanda", reason: "Mención de demanda" },
-  { keyword: "cancelar", reason: "Cliente quiere cancelar" },
+  { keyword: "humano", reason: "Cliente pidió hablar con un humano", notify: true },
+  { keyword: "operador", reason: "Cliente pidió hablar con un operador", notify: true },
+  { keyword: "asistente", reason: "Cliente pidió hablar con un asistente humano", notify: true },
+  { keyword: "emergencia", reason: "Emergencia reportada por el cliente", notify: true },
+  { keyword: "reacción", reason: "Reacción adversa reportada por el cliente", notify: true },
+  { keyword: "alergia", reason: "Reacción alérgica reportada por el cliente", notify: true },
+  { keyword: "abogado", reason: "Mención de acción legal", notify: true },
+  { keyword: "demanda", reason: "Mención de demanda", notify: true },
+  { keyword: "cancelar", reason: "Cliente quiere cancelar", notify: true },
 ];
 
-function extractRules(config: EscalationConfig | Record<string, unknown> | undefined | null): EscalationRule[] {
+type RuleInput =
+  | { keyword: string; reason: string; notify?: boolean }
+  | { condition: string; action: string; notify?: boolean };
+
+function normalizeRule(r: RuleInput): EscalationRule {
+  if ("keyword" in r && "reason" in r) {
+    return { keyword: r.keyword, reason: r.reason, notify: r.notify ?? true };
+  }
+  if ("condition" in r && "action" in r) {
+    return {
+      keyword: extractKeywordFromCondition(r.condition),
+      reason: r.action,
+      notify: r.notify ?? true,
+    };
+  }
+  return { keyword: "", reason: "Regla inválida", notify: false };
+}
+
+function extractKeywordFromCondition(condition: string): string {
+  const lower = condition.toLowerCase();
+  const known = [
+    "emergencia", "reacción", "alergia", "humano", "operador",
+    "asistente", "abogado", "demanda", "cancelar", "descuento",
+    "promoción", "técnico", "médico", "molesto", "insatisfecho",
+  ];
+  for (const kw of known) {
+    if (lower.includes(kw)) return kw;
+  }
+  return condition.split(" ").slice(0, 3).join(" ");
+}
+
+function extractRules(config: Record<string, unknown> | undefined | null): EscalationRule[] {
   if (!config) return DEFAULT_RULES;
-  if (typeof config !== "object") return DEFAULT_RULES;
 
-  const obj = config as Record<string, unknown>;
+  let raw: unknown[] | undefined;
 
-  // Direct: { escalation: [...] }
-  if (obj.escalation && Array.isArray(obj.escalation)) {
-    return obj.escalation as EscalationRule[];
-  }
-  // Direct: { rules: [...] }
-  if (obj.rules && Array.isArray(obj.rules)) {
-    return obj.rules as EscalationRule[];
-  }
-  // Wrapped: { rules: { escalation: [...] } } (DB format)
-  if (obj.rules && typeof obj.rules === "object") {
-    const inner = obj.rules as Record<string, unknown>;
-    if (inner.escalation && Array.isArray(inner.escalation)) {
-      return inner.escalation as EscalationRule[];
-    }
-    if (inner.rules && Array.isArray(inner.rules)) {
-      return inner.rules as EscalationRule[];
+  if (Array.isArray(config.escalation)) {
+    raw = config.escalation as unknown[];
+  } else if (Array.isArray(config.rules)) {
+    raw = config.rules as unknown[];
+  } else if (config.rules && typeof config.rules === "object") {
+    const inner = config.rules as Record<string, unknown>;
+    if (Array.isArray(inner.escalation)) {
+      raw = inner.escalation as unknown[];
+    } else if (Array.isArray(inner.rules)) {
+      raw = inner.rules as unknown[];
     }
   }
 
-  return DEFAULT_RULES;
+  if (!raw || raw.length === 0) return DEFAULT_RULES;
+
+  return raw.map((r) => normalizeRule(r as RuleInput)).filter((r) => r.keyword);
 }
 
 export function evaluateEscalation(
   text: string,
   routerConfidence: number,
-  rulesConfig?: EscalationConfig | Record<string, unknown> | null
+  rulesConfig?: Record<string, unknown> | null
 ): EscalationResult {
   const lower = text.toLowerCase().trim();
 
-  // 1. Check keywords/reglas SIEMPRE primero (independiente de confianza)
   const rules = rulesConfig ? extractRules(rulesConfig) : DEFAULT_RULES;
   for (const rule of rules) {
-    if (lower.includes(rule.keyword)) {
-      return { shouldEscalate: true, reason: rule.reason, notify: true };
+    if (rule.keyword && lower.includes(rule.keyword.toLowerCase())) {
+      return { shouldEscalate: true, reason: rule.reason, notify: rule.notify };
     }
   }
 
-  // 2. Baja confianza como señal adicional (no cortocircuito)
   if (routerConfidence < 0.3) {
     return { shouldEscalate: false, reason: "confianza_baja", notify: false };
   }

@@ -7,13 +7,16 @@ export interface BusinessContext {
   catalog: string;
   rules: string;
   hours: string;
+  systemPromptOverrides: string | null;
+  cannedResponses: Record<string, string>;
+  offHoursMessage: string | null;
 }
 
-export async function generateLlmResponse(
-  text: string,
-  context: BusinessContext
-): Promise<string> {
-  const systemPrompt = `Eres un asistente virtual de una clínica estética.
+function buildSystemPrompt(context: BusinessContext): string {
+  if (context.systemPromptOverrides) {
+    return context.systemPromptOverrides;
+  }
+  return `Eres un asistente virtual de un negocio local.
 Personalidad: ${context.persona}
 
 Catálogo de servicios:
@@ -31,6 +34,13 @@ IMPORTANTE:
 - Si el cliente pregunta algo fuera de tu alcance, sugiere contactar a un asesor
 - Responde en español, de forma cordial y profesional
 - No uses markdown`;
+}
+
+export async function generateLlmResponse(
+  text: string,
+  context: BusinessContext
+): Promise<string> {
+  const systemPrompt = buildSystemPrompt(context);
 
   const llm = getLlm();
   const result = await llm.complete({
@@ -44,15 +54,12 @@ IMPORTANTE:
   return result.text;
 }
 
-// Respuestas predefinidas para intenciones comunes
-const CANNED_RESPONSES: Record<string, string> = {
-  charla: "¡Hola {nombre}! Soy el asistente virtual de la clínica. ¿En qué puedo ayudarte hoy? 😊",
-  faq: "Con gusto te ayudamos con esa información. ¿Podrías darme más detalles para orientarte mejor?",
-  precio: "Con gusto te damos información sobre nuestros precios. ¿Qué servicio te interesa?",
-};
-
-export function getCannedResponse(intent: string, context: Record<string, string>): string | null {
-  const template = CANNED_RESPONSES[intent];
+export function getCannedResponse(
+  intent: string,
+  context: Record<string, string>,
+  cannedFromDb: Record<string, string> = {}
+): string | null {
+  const template = cannedFromDb[intent];
   if (!template) return null;
   return renderTemplate(template, context);
 }

@@ -1,0 +1,71 @@
+{
+  "slug": "santa-maria",
+  "business_name": "Santa María Clínica Estética",
+  "agent_name": "Sofía",
+  "persona": "Asistente virtual amable y profesional de una clínica de estética. Tono cálido y cercano. Usa el nombre del cliente. Responde con claridad y empatía. No uses jerga médica técnica a menos que el cliente la use primero.",
+  "tone": "amigable",
+  "hours": {
+    "lunes": { "open": "09:00", "close": "22:30" },
+    "martes": { "open": "09:00", "close": "22:30" },
+    "miércoles": { "open": "09:00", "close": "22:30" },
+    "jueves": { "open": "09:00", "close": "22:30" },
+    "viernes": { "open": "09:00", "close": "22:30" },
+    "sábado": { "open": "09:00", "close": "22:30" },
+    "domingo": { "open": null, "close": null }
+  },
+  "off_hours_message": "Gracias por escribirnos. Nuestro horario de atención es de lunes a sábado de 9:00 a 22:30. Te responderemos apenas estemos disponibles.",
+  "system_prompt_overrides": null,
+  "booking_mode": "mock",
+  "catalog": [
+    { "name": "Servicio A — Consulta", "description": "Consulta inicial con nuestros especialistas. Evaluación personalizada.", "price": "100000", "currency": "COP", "category": "consultas", "duration_minutes": 30 },
+    { "name": "Servicio B — Tratamiento facial", "description": "Tratamiento facial rejuvenecedor. Resultados visibles desde la primera sesión.", "price": "250000", "currency": "COP", "category": "tratamientos", "duration_minutes": 60 },
+    { "name": "Servicio C — Depilación láser", "description": "Sesión de depilación láser en zona a definir.", "price": "180000", "currency": "COP", "category": "depilación", "duration_minutes": 45 },
+    { "name": "Servicio D — Masaje relajante", "description": "Masaje corporal completo de relajación muscular.", "price": "150000", "currency": "COP", "category": "masajes", "duration_minutes": 60 },
+    { "name": "Paquete E — Plan bienestar", "description": "Paquete de 5 sesiones de tratamiento facial + 2 masajes.", "price": "1200000", "currency": "COP", "category": "paquetes", "duration_minutes": null }
+  ],
+  "canned_responses": {
+    "charla": "¡Hola {nombre}! Soy {agent_name}, tu asistente virtual de {business_name}. ¿En qué puedo ayudarte hoy? 😊",
+    "faq": "Con gusto te ayudamos con esa información. ¿Podrías darme más detalles para orientarte mejor?",
+    "precio": "Con gusto te damos información sobre nuestros precios. ¿Qué servicio te interesa?",
+    "agendamiento": "Claro, con gusto te ayudo a agendar una cita. ¿Qué día y hora prefieres?",
+    "horario": "Nuestro horario de atención es de lunes a sábado de 9:00 a 22:30. Los domingos estamos cerrados.",
+    "pagos": "Aceptamos transferencia bancaria, Nequi, y tarjeta de crédito/débito.",
+    "info_general": "Somos Santa María Clínica Estética. Ofrecemos servicios de consulta, tratamientos faciales, depilación láser, masajes y paquetes de bienestar. ¿En qué te puedo ayudar?"
+  },
+  "escalation_rules": [
+    { "keyword": "emergencia", "reason": "Cliente menciona emergencia o reacción adversa", "notify": true },
+    { "keyword": "reacción", "reason": "Cliente menciona reacción adversa", "notify": true },
+    { "keyword": "alergia", "reason": "Cliente menciona reacción alérgica", "notify": true },
+    { "keyword": "humano", "reason": "Cliente pide explícitamente hablar con un humano", "notify": true },
+    { "keyword": "insatisfecho", "reason": "Cliente se muestra molesto o insatisfecho", "notify": true },
+    { "keyword": "descuento", "reason": "Cliente pide descuento o promoción no listada", "notify": true },
+    { "keyword": "técnico", "reason": "Cliente pregunta algo técnico/médico fuera del catálogo", "notify": true },
+    { "keyword": "médico", "reason": "Cliente pregunta algo técnico/médico fuera del catálogo", "notify": true }
+  ],
+  "flows": {
+    "agendamiento": {
+      "initial": "ask_city",
+      "states": {
+        "ask_city": { "prompt": "¡Hola {nombre}! ¿De qué ciudad nos escribes?", "collects": "city", "next": "show_service" },
+        "show_service": { "prompt": "Tenemos estos servicios disponibles en {city}:\n{catalog_list}\n\n¿Cuál te interesa?", "collects": "service", "next": "confirm_service" },
+        "confirm_service": { "prompt": "Entendido, {nombre}. Has elegido: {service_name} ({service_price}).\n¿Te gustaría agendar una cita?", "collects": "confirmation", "transitions": { "si": "ask_datetime", "no": "farewell" } },
+        "ask_datetime": { "prompt": "Perfecto. ¿Qué día y hora te gustaría agendar?", "collects": "datetime", "next": "payment_instructions" },
+        "payment_instructions": { "prompt": "Para confirmar tu cita del {datetime}, realizamos el pago anticipado del {service_price}.\n\n💰 Puedes pagar por:\n1. Transferencia bancaria (Nequi: 300xxxxxxx)\n2. Tarjeta de crédito/débito (enviamos link de pago)\n\n¿Cómo prefieres pagar?", "collects": "payment_method", "next": "await_proof" },
+        "await_proof": { "prompt": "¡Gracias! Una vez realices el pago, por favor envíanos el comprobante por este medio y confirmaremos tu cita.", "collects": "payment_proof", "next": "collect_data" },
+        "collect_data": { "prompt": "¡Gracias por tu comprobante! Para confirmar la cita, necesitamos:\n- Nombre completo\n- Número de contacto\n- Correo electrónico (opcional)", "collects": "client_data", "next": "confirm_booking" },
+        "confirm_booking": { "prompt": "✅ ¡Cita confirmada!\n\n{client_name}, tu cita de {service_name} queda agendada para el {datetime} en nuestra sede.\n\nTe enviaremos un recordatorio 24 horas antes.\n\n¿Hay algo más en que pueda ayudarte?", "collects": null, "next": "farewell" },
+        "farewell": { "prompt": "¡Gracias por contactarnos, {nombre}! Que tengas un excelente día. 😊\n\nSi necesitas algo más, aquí estaremos para ayudarte.", "collects": null, "next": null }
+      }
+    },
+    "first_contact": {
+      "initial": "saludo",
+      "states": {
+        "saludo": {
+          "prompt": "¡Hola {nombre}! Soy Sofía, tu asistente virtual de Santa María Clínica Estética. 😊\n\n¿En qué puedo ayudarte hoy? Estas son algunas opciones:\n\n1. 📋 **Ver servicios y precios**\n2. 📅 **Agendar una cita**\n3. 🕐 **Conocer nuestros horarios**\n4. 💬 **Hablar con un asesor**\n\nO simplemente escríbeme lo que necesitas.",
+          "collects": null,
+          "next": null
+        }
+      }
+    }
+  }
+}

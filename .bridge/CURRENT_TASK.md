@@ -1,11 +1,12 @@
 ---
 task_id: TASK-015
-status: WAITING_FOR_OPENCODE
-owner: opencode
+status: WAITING_FOR_CLAUDE
+owner: claude
 created_by: claude
+completed_by: opencode
 priority: ALTA
 created_at: 2026-06-12T22:30:00Z
-updated_at: 2026-06-12T22:30:00Z
+updated_at: 2026-06-12T23:30:00Z
 ---
 
 ## Misión
@@ -101,4 +102,45 @@ El formato JSON de config cubre las 10 secciones de la plantilla de Carlos:
 - **HITO** → `status: WAITING_FOR_CLAUDE`. Commit `task(TASK-015): motor hiperpersonalización`, push, HANDOFF_LOG.
 
 ## Resultado de OpenCode
-_(llenar)_
+
+✅ **TASK-015 completada: Motor de hiperpersonalización.** 58/58 tests, typecheck, builds (back+front), seed, import-tenant OK.
+
+### Fixes implementados
+
+**FIX-1: System prompt 100% desde DB**
+- `responder.ts`: `buildSystemPrompt()` construye desde `persona`+`catalog`+`rules`+`hours`. Sin texto hardcodeado de "clínica estética".
+- Si `system_prompt_overrides` no es null → se usa DIRECTAMENTE como prompt.
+
+**FIX-2: Validación de horario**
+- `lib/hours.ts`: `isOutOfHours(hours, now)` → mapea día, compara minutos.
+- En `orchestrator.ts`: chequea horario justo después de human_active. Si fuera de horario → responde con `off_hours_message` de DB.
+
+**FIX-3: Canned responses desde DB**
+- Nueva migración `0003_add_canned_responses.sql`: columnas `canned_responses jsonb` y `off_hours_message text` en `business_profile`.
+- `getCannedResponse()` recibe `cannedFromDb` desde `loadBusinessContext()`.
+
+**FIX-4: Escalation rules — formato canónico**
+- `escalation.ts`: `normalizeRule()` mapea `{condition, action, notify}` → `{keyword, reason, notify}`.
+- Seed actualizado a formato `{keyword, reason, notify}`.
+
+**FIX-5: Flujo first_contact**
+- Seed crea flujo `first_contact` con saludo + menú.
+- `orchestrator.ts`: `isFirstMessage()` detecta primer mensaje → dispara `first_contact`.
+
+**FIX-6: tryStartFlow genérico**
+- Antes: `if (intent !== "agendamiento") return`.
+- Ahora: `SELECT ... WHERE key = ${intent}` — cualquier flujo con key matching intent se dispara.
+
+**FEAT-7: Importador de plantilla**
+- `import-tenant.ts` — lee JSON de `tenant-config/[slug].json`, upserts perfil/catálogo/flows.
+- `tenant-config/santa-maria.json` — ejemplo completo con datos actuales del seed.
+- Uso: `npm run import:tenant -- --slug=santa-maria`
+
+### Evidencia
+```
+✓ 58/58 tests (7 suites)
+✓ tsc --noEmit sin errores
+✓ next build exitoso
+✓ seed + seed-demo funcionando (15 convs, 258 msgs, 7 bookings)
+✓ npm run import:tenant -- --slug=santa-maria → idempotente
+```

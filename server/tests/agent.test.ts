@@ -204,7 +204,7 @@ describe("getCannedResponse", () => {
   });
 
   it("renders canned response with template", () => {
-    const result = getCannedResponse("charla", { nombre: "Ana" });
-    expect(result).toContain("Ana");
+    const result = getCannedResponse("charla", { nombre: "Ana" }, { charla: "¡Hola {nombre}! ¿En qué puedo ayudarte?" });
+    expect(result).toBe("¡Hola Ana! ¿En qué puedo ayudarte?");
   });
 });

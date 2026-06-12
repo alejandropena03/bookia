@@ -130,6 +130,8 @@ export const businessProfile = pgTable("business_profile", {
   hours: jsonb("hours").$type<Record<string, unknown>>().default({}).notNull(),
   bookingMode: bookingModeEnum("booking_mode").default("mock").notNull(),
   systemPromptOverrides: text("system_prompt_overrides"),
+  cannedResponses: jsonb("canned_responses").$type<Record<string, string>>().default({}).notNull(),
+  offHoursMessage: text("off_hours_message"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });

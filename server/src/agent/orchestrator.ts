@@ -1,4 +1,6 @@
+import crypto from "crypto";
 import { withTenant } from "../lib/tenant-db.js";
+import { isOutOfHours } from "../lib/hours.js";
 import { evaluateFlow, startFlow, FlowDefinition, CatalogItem } from "../flows/engine.js";
 import { evaluateEscalation } from "./escalation.js";
 import { getCannedResponse, generateLlmResponse, BusinessContext } from "./responder.js";
@@ -25,7 +27,8 @@ export interface AgentResponse {
 
 async function loadBusinessContext(tenantId: string, sql: any): Promise<BusinessContext & { bookingMode: string; escalationConfig: Record<string, unknown> | null }> {
   const [profile] = await sql`
-    SELECT persona, rules, hours, booking_mode FROM business_profile WHERE tenant_id = ${tenantId}
+    SELECT persona, rules, hours, booking_mode, system_prompt_overrides, canned_responses, off_hours_message
+    FROM business_profile WHERE tenant_id = ${tenantId}
   `;
   const items: any[] = await sql`
     SELECT name, description, price, currency, category
@@ -44,15 +47,10 @@ async function loadBusinessContext(tenantId: string, sql: any): Promise<Business
     hours: typeof profile?.hours === "object" ? JSON.stringify(profile.hours) : (profile?.hours ?? "Horario no especificado"),
     bookingMode: profile?.booking_mode ?? "mock",
     escalationConfig: profile?.rules as Record<string, unknown> | null ?? null,
+    systemPromptOverrides: profile?.system_prompt_overrides ?? null,
+    cannedResponses: (profile?.canned_responses as Record<string, string>) ?? {},
+    offHoursMessage: profile?.off_hours_message ?? null,
   };
-}
-
-function loadCatalogItems(raw: any[]): CatalogItem[] {
-  return raw.map((i: any) => ({
-    name: i.name,
-    price: String(i.price),
-    currency: i.currency,
-  }));
 }
 
 async function persistAndEmit(
@@ -150,10 +148,6 @@ async function tryStartFlow(
   context: { flowKey: string; currentState: string; slots: Record<string, string> };
   executed: boolean;
 }> {
-  if (intent !== "agendamiento") {
-    return { response: "", context: { flowKey: "", currentState: "", slots: {} }, executed: false };
-  }
-
   const [conv] = await sql`
     SELECT tenant_id FROM conversations WHERE id = ${conversationId} LIMIT 1
   `;
@@ -163,7 +157,7 @@ async function tryStartFlow(
     SELECT key, definition FROM flows
     WHERE tenant_id = ${conv.tenant_id}
       AND is_active = 1
-      AND key = 'agendamiento'
+      AND key = ${intent}
     LIMIT 1
   `;
 
@@ -184,6 +178,14 @@ async function tryStartFlow(
   }
 
   return { response: "", context: { flowKey: "", currentState: "", slots: {} }, executed: false };
+}
+
+async function isFirstMessage(sql: any, conversationId: string): Promise<boolean> {
+  const [result] = await sql`
+    SELECT COUNT(*)::int AS count FROM messages
+    WHERE conversation_id = ${conversationId}
+  `;
+  return (result?.count ?? 0) === 0;
 }
 
 async function completeBooking(
@@ -217,14 +219,12 @@ async function completeBooking(
     contactName,
   });
 
-  // Persist booking in DB
   const [booking] = await sql`
     INSERT INTO bookings (tenant_id, conversation_id, contact_id, service_name, service_price, city, datetime, status, booking_provider_ref, data)
     VALUES (${tenantId}, ${conversationId}, ${contactId}, ${serviceName}, ${servicePrice ?? null}, ${slots.city ?? null}, ${slots.datetime ?? null}, ${result.success ? "confirmed" : "failed"}, ${result.providerRef ?? null}, ${slots})
     RETURNING id
   `;
 
-  // If handoff mode, escalate
   if (bookingMode === "handoff") {
     await sql`UPDATE conversations SET status = 'human_active' WHERE id = ${conversationId}`;
     return { text: result.message, escalated: true, escalationReason: "handoff_booking" };
@@ -237,24 +237,38 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
   return withTenant(req.tenantId, async (sql) => {
     const { text, conversationId, contactName, tenantSlug } = req;
 
-    // Check if conversation is human-controlled — bot abstains
     const [convStatus] = await sql`SELECT status FROM conversations WHERE id = ${conversationId} LIMIT 1`;
     if (convStatus && (convStatus.status === "human_active" || convStatus.status === "escalated")) {
       return { text: "", messageId: "", route: "flow", escalated: false };
     }
 
-    // Load reusable data
     const bizContext = await loadBusinessContext(req.tenantId, sql);
+
+    // Check if out of hours
+    const hoursRaw = await sql`SELECT hours FROM business_profile WHERE tenant_id = ${req.tenantId} LIMIT 1`;
+    if (hoursRaw[0]?.hours && isOutOfHours(hoursRaw[0].hours as Record<string, { open: string | null; close: string | null }>)) {
+      const offMsg = bizContext.offHoursMessage ?? "Gracias por escribirnos. Te responderemos en nuestro horario de atención.";
+      const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, offMsg, "bot", "canned");
+      return { text: offMsg, messageId: msgId, route: "canned", escalated: false };
+    }
+
     const catalogItems: CatalogItem[] = await sql`
       SELECT name, price::text, currency FROM catalog_items WHERE tenant_id = ${req.tenantId} AND is_active = 1 ORDER BY name
     `;
 
-    // 1. Try resume active flow first
+    // Check if first message — trigger first_contact flow
+    if (await isFirstMessage(sql, conversationId)) {
+      const firstResult = await tryStartFlow(sql, conversationId, "first_contact", catalogItems, contactName);
+      if (firstResult.executed) {
+        const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, firstResult.response, "bot", "flow");
+        return { text: firstResult.response, messageId: msgId, route: "flow", escalated: false };
+      }
+    }
+
+    // 1. Try resume active flow
     const resumeResult = await tryExecuteFlow(sql, conversationId, text, catalogItems, contactName);
     if (resumeResult.executed) {
       if (resumeResult.completed) {
-        // Flow completed — check if there's a booking to create
-        // The farewell state means the flow is done; only create booking if we have service info
         const slots = resumeResult.context.slots;
         if (slots.service || slots.service_name) {
           const [conv] = await sql`SELECT contact_id FROM conversations WHERE id = ${conversationId} LIMIT 1`;
@@ -270,7 +284,7 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
     // 2. Classify intent
     const routerResult = await classifyIntent(text);
 
-    // 3. Check escalation (pass rules from business_profile)
+    // 3. Check escalation
     const escalation = evaluateEscalation(text, routerResult.confidence, bizContext.escalationConfig);
     if (escalation.shouldEscalate) {
       await sql`UPDATE conversations SET status = 'human_active' WHERE id = ${conversationId}`;
@@ -279,21 +293,21 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
       return { text: text_, messageId: msgId, route: "escalated", escalated: true, escalationReason: escalation.reason };
     }
 
-    // 4. Try start a flow (e.g. agendamiento)
+    // 4. Try start a flow (generic — matches flow key to intent)
     const startResult = await tryStartFlow(sql, conversationId, routerResult.intent, catalogItems, contactName);
     if (startResult.executed) {
       const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, startResult.response, "bot", "flow");
       return { text: startResult.response, messageId: msgId, route: "flow", escalated: false };
     }
 
-    // 5. Try canned response
-    const canned = getCannedResponse(routerResult.intent, { nombre: contactName ?? "" });
+    // 5. Try canned response (from DB)
+    const canned = getCannedResponse(routerResult.intent, { nombre: contactName ?? "" }, bizContext.cannedResponses);
     if (canned) {
       const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, canned, "bot", "canned");
       return { text: canned, messageId: msgId, route: "canned", escalated: false };
     }
 
-    // 6. LLM responder (open question)
+    // 6. LLM responder
     const llmText = await generateLlmResponse(text, bizContext);
     const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, llmText, "bot", "llm");
     return { text: llmText, messageId: msgId, route: "llm", escalated: false };

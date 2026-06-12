@@ -33,12 +33,14 @@ async function seed() {
     persona: "Asistente virtual amable y profesional de una clínica de estética. Tono cálido y cercano. Usa el nombre del cliente. Responde con claridad y empatía. No uses jerga médica técnica a menos que el cliente la use primero.",
     rules: {
       escalation: [
-        { condition: "cliente menciona emergencia o reacción adversa", action: "escalar_inmediato", notify: true },
-        { condition: "cliente se muestra molesto o insatisfecho", action: "escalar", notify: true },
-        { condition: "cliente pide explícitamente hablar con un humano", action: "escalar", notify: true },
-        { condition: "cliente pide descuento o promoción no listada", action: "escalar", notify: true },
-        { condition: "cliente pregunta algo técnico/médico fuera del catálogo", action: "escalar", notify: true },
-        { condition: "confianza del router < 0.4", action: "escalar", notify: false },
+        { keyword: "emergencia", reason: "Cliente menciona emergencia o reacción adversa", notify: true },
+        { keyword: "reacción", reason: "Cliente menciona reacción adversa", notify: true },
+        { keyword: "alergia", reason: "Cliente menciona reacción alérgica", notify: true },
+        { keyword: "humano", reason: "Cliente pide explícitamente hablar con un humano", notify: true },
+        { keyword: "insatisfecho", reason: "Cliente se muestra molesto o insatisfecho", notify: true },
+        { keyword: "descuento", reason: "Cliente pide descuento o promoción no listada", notify: true },
+        { keyword: "técnico", reason: "Cliente pregunta algo técnico/médico fuera del catálogo", notify: true },
+        { keyword: "médico", reason: "Cliente pregunta algo técnico/médico fuera del catálogo", notify: true },
       ],
       no_decir: [
         "diagnósticos médicos",
@@ -46,7 +48,6 @@ async function seed() {
         "precios que no estén en el catálogo",
         "promesas de resultados",
       ],
-      respuesta_fuera_de_horario: "Gracias por escribirnos. Nuestro horario de atención es de lunes a sábado de 9:00 a 22:30. Te responderemos apenas estemos disponibles.",
     },
     hours: {
       lunes: { open: "09:00", close: "22:30" },
@@ -58,6 +59,8 @@ async function seed() {
       domingo: { open: null, close: null },
     },
     systemPromptOverrides: null,
+    cannedResponses: {},
+    offHoursMessage: "Gracias por escribirnos. Nuestro horario de atención es de lunes a sábado de 9:00 a 22:30. Te responderemos apenas estemos disponibles.",
   }).returning();
   console.log(`✓ Business profile created`);
 
@@ -157,7 +160,30 @@ async function seed() {
   });
   console.log('✓ Flow "agendamiento" created');
 
-  // ── 6. User: owner placeholder ──
+  // ── 6. Flow: first_contact (saludo + menú) ──
+  const firstContactDef = {
+    initial: "saludo",
+    states: {
+      saludo: {
+        prompt: "¡Hola {nombre}! Soy Sofía, tu asistente virtual de Santa María Clínica Estética. 😊\n\n¿En qué puedo ayudarte hoy? Estas son algunas opciones:\n\n1. 📋 **Ver servicios y precios**\n2. 📅 **Agendar una cita**\n3. 🕐 **Conocer nuestros horarios**\n4. 💬 **Hablar con un asesor**\n\nO simplemente escríbeme lo que necesitas.",
+        collects: null,
+        next: null,
+        description: "Saludo inicial con menú de opciones",
+      },
+    },
+  };
+
+  await db.insert(flows).values({
+    tenantId: tenant.id,
+    key: "first_contact",
+    name: "Saludo inicial y menú de opciones",
+    definition: firstContactDef as unknown as Record<string, unknown>,
+    isActive: 1,
+    version: 1,
+  });
+  console.log('✓ Flow "first_contact" created');
+
+  // ── 7. User: owner placeholder ──
   const [owner] = await db.insert(users).values({
     tenantId: tenant.id,
     email: "admin@santamaria.test",
