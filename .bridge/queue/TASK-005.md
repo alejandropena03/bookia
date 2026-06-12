@@ -31,8 +31,16 @@ Implementar el **cerebro híbrido del agente**: router + motor de flujos (state-
 5. `npm test` (router con mock, engine transiciones, template render, escalación) + `npm run build` pasan.
 6. (Opcional, si hay OPENROUTER_API_KEY) correr el mismo flujo con un modelo real barato y pegar muestra.
 
+## BookingProvider configurable (§5.5 actualizado 2026-06-12)
+En el MVP NO se agenda de verdad (la API key de Agenda Pro la tiene el cliente). El cierre de cita es CONFIGURABLE por tenant vía `business_profile.booking_mode`, con la misma interfaz `BookingProvider` y 2 implementaciones a construir AHORA:
+- **`MockBookingProvider`** (`booking_mode=mock`): responde "¡Cita confirmada!" y guarda la reserva en DB simulada. Disponibilidad falsa. Para la demo.
+- **`HandoffBookingProvider`** (`booking_mode=handoff`): NO confirma automático; recolecta los datos, los deja listos y dispara una escalación/notificación al operador para que los cargue a Agenda Pro a mano (= workflow real de Santa María hoy).
+- Define la interfaz `BookingProvider` (createBooking, getAvailableSlots, find/createClient) y una factory por `booking_mode`. Deja `AgendaProProvider` como stub que lanza "no implementado" (POST-MVP).
+- El seed de Santa María: pon `booking_mode=mock` por defecto para que la demo se vea automática.
+- El estado `confirm_booking` del flujo llama al `BookingProvider` resuelto por el modo del tenant.
+
 ## Fuera de alcance
-- Integración real con Agenda Pro (BookingProvider real) — el `confirm_booking` por ahora usa MockBookingProvider o un stub que loguea "cita creada". La interfaz BookingProvider (§5.5) se implementa en una tarea posterior.
+- `AgendaProProvider` REAL (API v3) — NO en el MVP. Solo interfaz + stub. Se implementa cuando el cliente comparta su API key.
 - Inbox humano / endpoints de dashboard (TASK posterior).
 - Adapters reales de canal.
 

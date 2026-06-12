@@ -240,8 +240,18 @@ interface LlmProvider {
 - **`MockLlmProvider`** para tests sin gastar tokens.
 - **Harness de evaluación** (`server/src/agent/eval/`): corre un set de conversaciones de prueba contra varios modelos → tabla de costo (tokens × precio) + calidad (criterios). Permite decidir el modelo con datos, no opinión.
 
-### 5.5 Integración de agendamiento — Agenda Pro (BookingProvider)
-**VALIDADO (2026-06-11): Agenda Pro SÍ expone una API REST v3 pública y self-service.** El flujo de agendamiento es **end-to-end real**, no solo recolección de datos. Mismo patrón adapter que los canales: interfaz `BookingProvider` con impl mock (demo) ⇄ real (producción), intercambiables.
+### 5.5 Integración de agendamiento — BookingProvider (3 modos configurables)
+**Agenda Pro SÍ expone API REST v3 (validado 2026-06-11), PERO la API key la tiene el cliente — igual que las credenciales de Meta.** Por eso, en el MVP **NO se agenda de verdad**; la integración real con Agenda Pro queda como "se enchufa después".
+
+**Decisión (2026-06-12): el cierre de cita es CONFIGURABLE por tenant** vía `business_profile` (`booking_mode`), con 3 implementaciones intercambiables de la misma interfaz `BookingProvider`:
+
+| `booking_mode` | Implementación | Comportamiento al confirmar cita | Uso |
+|---|---|---|---|
+| `mock` | `MockBookingProvider` | "¡Cita confirmada!" + guarda en DB simulada (disponibilidad y reserva falsas) | **Demo de venta** (vistoso, 100% automático) |
+| `handoff` | `HandoffBookingProvider` | Recolecta todos los datos y los entrega al operador + notifica para que los cargue a Agenda Pro a mano | **Piloto real antes de tener la API** (= workflow actual de Santa María) |
+| `agendapro` | `AgendaProProvider` | Agenda de verdad vía API v3 | Cuando el cliente comparte su API key (POST-MVP) |
+
+**Alcance MVP:** construir `mock` y `handoff`. `agendapro` queda como **interfaz + stub documentado**, NO se implementa (TASK-008 sale del MVP). El día que llega la API key, se implementa y se cambia el flag — cero reconstrucción.
 
 ```ts
 interface BookingProvider {
@@ -256,8 +266,8 @@ interface BookingProvider {
 ```
 
 - **Base URL:** `https://connect.agendapro.com/v3/` · **Auth:** `Authorization: Bearer apk_live_...` (key generada por el cliente en Configuraciones > Integraciones).
-- **MockBookingProvider:** disponibilidad y reservas falsas en memoria/DB → permite demostrar el flujo completo sin cuenta real.
-- **AgendaProProvider:** REST real. Se enchufa con la API key del cliente, igual que las credenciales de Meta.
+- **MockBookingProvider / HandoffBookingProvider:** lo del MVP (ver tabla arriba). No tocan Agenda Pro.
+- **AgendaProProvider (POST-MVP, no se construye aún):** REST real. Se enchufa con la API key del cliente, igual que las credenciales de Meta.
 - **Rate limits** (~70/min, 10.000/día): **cachear** catálogo (`services`/`providers`/`locations`) y disponibilidad; NO consultar `available_slots` en cada turno del LLM.
 - **Webhooks de Agenda Pro** (`trigger`, `resource_type:"Booking"`): sincronizar cancelaciones/cambios hechos fuera de Bookia.
 
@@ -353,7 +363,7 @@ Se ejecuta vía el **bridge Git** (`.bridge/`). Cada tarea es un handoff a OpenC
 
 ## 11. Decisiones abiertas / dependencias
 
-1. **API de Agenda Pro:** ✅ RESUELTO (2026-06-11) — SÍ expone API REST v3 pública/self-service. El flujo de agendamiento es end-to-end real vía `BookingProvider` (§5.5). Requisito: cliente en plan Pro. Queda solo validar el esquema fino del body de `POST /v3/bookings` con una cuenta real.
+1. **API de Agenda Pro:** ✅ RESUELTO (2026-06-11) — SÍ expone API REST v3. PERO (decisión 2026-06-12): la API key la tiene el cliente, así que **NO se agenda de verdad en el MVP**. Agendamiento configurable (`booking_mode`: mock/handoff ahora, agendapro post-MVP) — ver §5.5. `AgendaProProvider` real se construye cuando el cliente comparta su key.
 2. **Plantilla de flujos de Carlos:** necesaria para rellenar el "hueco". El MVP se construye con placeholder mientras tanto.
 3. **Modelo final:** se decide tras TASK-008 (eval), no antes.
 4. **Migración del número de WhatsApp actual a Cloud API:** validar viabilidad (riesgo de negocio).
