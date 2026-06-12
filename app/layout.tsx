@@ -9,7 +9,7 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "Bookia — Tu negocio responde solo. 24/7.",
+  title: "Bookia — Convierte cada mensaje en una cita.",
   description:
     "Conecta WhatsApp, Instagram y Facebook con IA para convertir conversaciones en citas agendadas automáticamente. Sin errores, sin demoras.",
   openGraph: {

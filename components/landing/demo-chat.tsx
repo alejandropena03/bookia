@@ -159,7 +159,7 @@ export default function DemoChat() {
             Míralo responder solo
           </h2>
           <p className="demo-line text-mid text-lg max-w-xl mx-auto">
-            Una paciente pregunta por un servicio y Bookia gestiona toda la conversación hasta dejar la cita confirmada.
+            Un cliente pregunta por un servicio y Bookia gestiona toda la conversación hasta dejar la cita confirmada.
           </p>
         </div>
 

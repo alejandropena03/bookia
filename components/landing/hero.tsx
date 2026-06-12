@@ -3,7 +3,6 @@
 import { useRef, useEffect } from "react"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
-import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
@@ -23,13 +22,9 @@ export default function Hero() {
       if (!prefersReduced) {
         const tl = gsap.timeline({ defaults: { ease: "power3.out" } })
 
-        tl.fromTo(".hero-icon",
-          { scale: 0.6, opacity: 0, filter: "blur(8px)" },
-          { scale: 1, opacity: 1, filter: "blur(0px)", duration: 1 }
-        )
-          .fromTo(".hero-badge",
+        tl.fromTo(".hero-badge",
             { y: 20, opacity: 0 },
-            { y: 0, opacity: 1, duration: 0.6 }, "-=0.5")
+            { y: 0, opacity: 1, duration: 0.6 })
           .fromTo(".hero-headline",
             { y: 40, opacity: 0, filter: "blur(6px)" },
             { y: 0, opacity: 1, filter: "blur(0px)", stagger: 0.12, duration: 0.9 }, "-=0.3")
@@ -43,7 +38,7 @@ export default function Hero() {
             { y: 16, opacity: 0 },
             { y: 0, opacity: 1, stagger: 0.08, duration: 0.6 }, "-=0.3")
       } else {
-        gsap.set([".hero-icon", ".hero-badge", ".hero-headline", ".hero-sub", ".hero-cta-item", ".hero-stat"],
+        gsap.set([".hero-badge", ".hero-headline", ".hero-sub", ".hero-cta-item", ".hero-stat"],
           { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" })
       }
 
@@ -98,38 +93,23 @@ export default function Hero() {
       <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-[#0A0A0F] to-transparent pointer-events-none" />
 
       <div className="hero-content relative z-10 max-w-5xl mx-auto px-5 text-center pt-28 pb-24">
-        {/* Ícono del logo con glow */}
-        <div className="hero-icon inline-flex mb-8 opacity-0">
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-[#7C3AED] to-[#2563EB] blur-2xl opacity-50 scale-110" />
-            <Image
-              src="/bookia-icon.jpeg"
-              alt="Bookia"
-              width={76}
-              height={76}
-              className="relative rounded-2xl shadow-2xl shadow-[#6D28D9]/30 ring-1 ring-white/10"
-              priority
-            />
-          </div>
-        </div>
-
         <div className="hero-badge inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-white/10 bg-white/[0.04] backdrop-blur-sm text-mid text-xs tracking-wide mb-9 opacity-0">
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60 animate-ping" />
             <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
           </span>
-          Agente de IA para clínicas de estética y bienestar
+          Agente de IA para negocios que viven de responder y agendar
         </div>
 
         <h1 className="text-[2.75rem] sm:text-6xl md:text-7xl lg:text-[5.5rem] font-bold leading-[0.92] tracking-[-0.045em] text-hi mb-7">
-          <span className="hero-headline block opacity-0">Tu negocio</span>
-          <span className="hero-headline block gradient-brand opacity-0 pb-2">responde solo.</span>
+          <span className="hero-headline block opacity-0">Convierte cada mensaje</span>
+          <span className="hero-headline block gradient-brand opacity-0 pb-2">en una cita.</span>
         </h1>
 
         <p className="hero-sub text-lg sm:text-xl text-mid max-w-2xl mx-auto leading-relaxed opacity-0">
-          Bookia conecta WhatsApp, Instagram y Facebook con inteligencia artificial
-          para convertir cada conversación en una cita agendada.
-          <span className="text-hi"> Sin errores. Sin demoras. 24/7.</span>
+          Bookia responde tus conversaciones de WhatsApp, Instagram y Facebook
+          en segundos, agenda las citas por ti y te muestra cómo crece tu negocio.
+          <span className="text-hi"> Humano, pero sin errores. 24/7.</span>
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3.5 justify-center items-center mt-11">

@@ -44,20 +44,14 @@ export default function Navbar() {
       }`}
     >
       <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2.5 group" aria-label="Bookia inicio">
-          <Image
-            src="/bookia-icon.jpeg"
-            alt=""
-            width={28}
-            height={28}
-            className="rounded-lg ring-1 ring-white/10"
-          />
+        <Link href="/" className="flex items-center group" aria-label="Bookia inicio">
           <Image
             src="/bookia-wordmark.svg"
             alt="Bookia"
-            width={96}
-            height={28}
-            className="h-6 w-auto"
+            width={150}
+            height={44}
+            className="h-9 w-auto transition-opacity duration-300 group-hover:opacity-80"
+            priority
           />
         </Link>
 
