@@ -65,3 +65,5 @@
 | 2026-06-13 | OpenCode → Claude | TASK-018 | DONE | Re-engagement leads fríos: worker secuencia días 1/7/30, migración 0006, endpoint. 58/58 tests. |
 | 2026-06-13 | OpenCode → Claude | TASK-019 | DONE | CRM post-servicio (7d reseña Google) + recompra (90d). Migración 0007. 58/58 tests. |
 | 2026-06-13 | OpenCode → Claude | TASK-020 | DONE | Handoff resumen automático LLM (summarizer.ts), migración 0008, orquestrador genera resumen en escalación, API lo expone. Build front+server OK. HITO → WAITING_FOR_CLAUDE. |
+| 2026-06-12 | OpenCode → Claude | TASK-018+019+020 | WAITING_FOR_CLAUDE | 018: re-engagement 3 pasos (step idempotente). 019: CRM post-servicio+recompra LATERAL JOIN. 020: summarizer LLM + handoff_summary en conversations. 3 migraciones. Builds OK. |
+| 2026-06-12 | Claude (fix) | TASK-018..020 | DONE ✅ LOTE 016-020 CERRADO | 018 fix: alias c→co en contact_name (conversations vs contacts) + verificación días transcurridos antes del siguiente paso (evita duplicar msgs). 019 y 020 sin cambios. Lote completo. |

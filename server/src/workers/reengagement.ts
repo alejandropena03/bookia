@@ -19,7 +19,7 @@ export async function runReengagement(sql: postgres.Sql): Promise<ReengagementRe
 
   const eligible = await sql`
     SELECT cs.id, cs.tenant_id, cs.conversation_id, cs.slots, cs.reengagement_step, cs.updated_at,
-           c.name AS contact_name, t.slug AS tenant_slug
+           co.name AS contact_name, t.slug AS tenant_slug
     FROM conversation_state cs
     JOIN conversations c ON c.id = cs.conversation_id
     JOIN contacts co ON co.id = c.contact_id
@@ -32,14 +32,18 @@ export async function runReengagement(sql: postgres.Sql): Promise<ReengagementRe
   for (const row of eligible) {
     try {
       const step = row.reengagement_step ?? 0;
-      const daysSinceUpdate = row.updated_at
-        ? Math.floor((Date.now() - new Date(row.updated_at).getTime()) / (24 * 60 * 60 * 1000))
-        : 999;
       const targetDays = [1, 7, 30];
       const nextIndex = targetDays.findIndex((d) => d > step);
       const nextDay = nextIndex >= 0 ? targetDays[nextIndex] : null;
 
       if (!nextDay) continue; // All steps done
+
+      // Verify enough days have passed since last reengagement (or since conversation updated_at for step 0)
+      const referenceDate = step === 0 ? row.updated_at : row.last_reengagement_at ?? row.updated_at;
+      const daysSince = referenceDate
+        ? Math.floor((Date.now() - new Date(referenceDate).getTime()) / (24 * 60 * 60 * 1000))
+        : 999;
+      if (daysSince < nextDay - 1) continue; // Not enough days yet
 
       const tmpl = REENGAGEMENT_MESSAGES[nextDay];
       if (!tmpl) continue;
