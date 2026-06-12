@@ -1,4 +1,9 @@
+"use client"
+
+import { useQuery } from "@tanstack/react-query"
+import { getIntelligence } from "@/lib/api"
 import { getDashboardData } from "@/lib/dashboard-mock"
+import type { DashboardData } from "@/lib/dashboard-mock"
 import RevenueKpiCards from "@/components/dashboard/RevenueKpiCards"
 import ConversionFunnel from "@/components/dashboard/ConversionFunnel"
 import ServiceDemand from "@/components/dashboard/ServiceDemandHeatmap"
@@ -7,13 +12,38 @@ import BotRoiCard from "@/components/dashboard/BotRoiCard"
 import DashboardRecentActivity from "@/components/dashboard/DashboardRecentActivity"
 
 export default function DashboardPage() {
-  const data = getDashboardData()
+  const { data: realData, isLoading, error } = useQuery({
+    queryKey: ["intelligence"],
+    queryFn: getIntelligence,
+    refetchInterval: 30_000,
+  })
+
+  const data: DashboardData = (realData ?? getDashboardData()) as DashboardData
+
+  if (realData && error) {
+    console.warn("Dashboard: backend respondió pero con error, usando mock:", error)
+  }
+  if (!realData && !isLoading && error) {
+    console.warn("Dashboard: backend no disponible, usando mock fallback:", error)
+  }
+
+  const convRate = data.funnel[0].count > 0
+    ? ((data.funnel[data.funnel.length - 1].count / data.funnel[0].count) * 100).toFixed(1)
+    : "0.0"
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold app-text-hi">Dashboard de inteligencia</h1>
-        <p className="app-text-mid text-sm mt-1">Estética Santa María · Resumen de los últimos 30 días</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold app-text-hi">Dashboard de inteligencia</h1>
+          <p className="app-text-mid text-sm mt-1">Estética Santa María · Resumen de los últimos 30 días</p>
+        </div>
+        {isLoading && (
+          <span className="text-xs app-text-lo flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
+            Actualizando...
+          </span>
+        )}
       </div>
 
       <RevenueKpiCards kpis={data.kpis} />
@@ -28,17 +58,15 @@ export default function DashboardPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between py-2 border-b app-border">
                 <span className="text-xs app-text-mid">Tasa de conversión general</span>
-                <span className="text-sm font-bold app-text-hi tabular-nums">
-                  {((data.funnel[data.funnel.length - 1].count / data.funnel[0].count) * 100).toFixed(1)}%
-                </span>
+                <span className="text-sm font-bold app-text-hi tabular-nums">{convRate}%</span>
               </div>
               <div className="flex items-center justify-between py-2 border-b app-border">
                 <span className="text-xs app-text-mid">Servicio más demandado</span>
-                <span className="text-sm font-bold app-text-hi">{data.services[0].name}</span>
+                <span className="text-sm font-bold app-text-hi">{data.services[0]?.name ?? "—"}</span>
               </div>
               <div className="flex items-center justify-between py-2 border-b app-border">
                 <span className="text-xs app-text-mid">Mejor tasa de cierre</span>
-                <span className="text-sm font-bold app-text-hi">{data.services[1].name}</span>
+                <span className="text-sm font-bold app-text-hi">{data.services[1]?.name ?? "—"}</span>
               </div>
               <div className="flex items-center justify-between py-2">
                 <span className="text-xs app-text-mid">Pico de demanda semanal</span>

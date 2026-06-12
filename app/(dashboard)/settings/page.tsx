@@ -1,13 +1,25 @@
 "use client"
 
 import { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { MessageCircle, Camera, Tv2, Info } from "lucide-react"
+import { MessageCircle, Camera, Tv2, Info, Sparkles } from "lucide-react"
+import { getProfile, getCatalog } from "@/lib/api"
 
 export default function SettingsPage() {
+  const { data: profile } = useQuery({
+    queryKey: ["profile"],
+    queryFn: getProfile,
+  })
+
+  const { data: catalog } = useQuery({
+    queryKey: ["catalog"],
+    queryFn: getCatalog,
+  })
+
   const [business, setBusiness] = useState({
     name: "Estética Santa María",
     type: "clinica_estetica",
@@ -63,6 +75,38 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
+        {profile && (
+          <div className="bg-indigo-50 rounded-xl p-3 flex items-start gap-2.5">
+            <Sparkles className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
+            <div className="text-xs text-indigo-700">
+              <p className="font-medium">Perfil sincronizado con el backend</p>
+              <p className="mt-0.5">Persona: {profile.persona} · Modo: {profile.booking_mode}</p>
+            </div>
+          </div>
+        )}
+      </section>
+
+      <section className="app-card p-6 space-y-4">
+        <h2 className="font-semibold app-text-hi">Servicios ({catalog?.data?.length ?? 0})</h2>
+        <p className="text-sm app-text-mid">Catálogo de servicios sincronizado del backend.</p>
+        {catalog?.data && catalog.data.length > 0 ? (
+          <div className="space-y-2">
+            {catalog.data.map((item) => (
+              <div key={item.id} className="flex items-center justify-between p-3 rounded-xl border app-border app-bg">
+                <div>
+                  <p className="text-sm font-medium app-text-hi">{item.name}</p>
+                  <p className="text-xs app-text-lo">{item.category}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-bold app-text-hi">${parseFloat(item.price).toLocaleString("es-CO")}</p>
+                  <p className="text-xs app-text-lo">{item.currency}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm app-text-lo">Cargando servicios...</p>
+        )}
       </section>
 
       <section className="app-card p-6 space-y-4">
@@ -154,6 +198,11 @@ export default function SettingsPage() {
       >
         {saved ? "¡Guardado!" : "Guardar cambios"}
       </Button>
+
+      <p className="text-xs app-text-lo pb-8">
+        Los cambios en perfil y agente requieren endpoint PUT del backend (Fase 2). 
+        Datos actuales sincronizados vía GET /api/profile y GET /api/catalog.
+      </p>
     </div>
   )
 }
