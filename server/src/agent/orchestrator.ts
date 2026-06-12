@@ -7,6 +7,7 @@ import { getCannedResponse, generateLlmResponse, BusinessContext } from "./respo
 import { classifyIntent } from "./router.js";
 import { getBookingProvider } from "../booking/index.js";
 import { getPaymentProvider } from "../payment/index.js";
+import { summarizeConversation } from "./summarizer.js";
 import { eventBus } from "../lib/event-bus.js";
 
 export interface AgentRequest {
@@ -318,6 +319,25 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
     const escalation = evaluateEscalation(text, routerResult.confidence, bizContext.escalationConfig);
     if (escalation.shouldEscalate) {
       await sql`UPDATE conversations SET status = 'human_active' WHERE id = ${conversationId}`;
+
+      // Generate handoff summary
+      try {
+        const rawMsgs = await sql`
+          SELECT sender_type, text, created_at FROM messages
+          WHERE conversation_id = ${conversationId} AND tenant_id = ${req.tenantId}
+          ORDER BY created_at DESC LIMIT 20
+        `;
+        const msgs = rawMsgs.reverse().map((r: any) => ({
+          senderType: r.sender_type as string,
+          text: r.text as string | null,
+          createdAt: r.created_at as string,
+        }));
+        const summary = await summarizeConversation(msgs, contactName ?? "Cliente");
+        await sql`UPDATE conversations SET handoff_summary = ${summary} WHERE id = ${conversationId}`;
+      } catch {
+        // Summary generation is best-effort
+      }
+
       const text_ = "Tu consulta será atendida por un asesor humano en breve.";
       const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, text_, "bot", "escalated");
       return { text: text_, messageId: msgId, route: "escalated", escalated: true, escalationReason: escalation.reason };

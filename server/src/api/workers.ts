@@ -1,5 +1,7 @@
 import { Hono } from "hono";
 import { runReminders } from "../workers/reminder.js";
+import { runReengagement } from "../workers/reengagement.js";
+import { runCrm } from "../workers/crm.js";
 import { queryClient } from "../db/client.js";
 
 const workerRuns: Array<{
@@ -41,4 +43,22 @@ workers.post("/reminders/run", async (c) => {
 
 workers.get("/reminders/status", (c) => {
   return c.json({ runs: workerRuns });
+});
+
+workers.post("/reengagement/run", async (c) => {
+  try {
+    const result = await runReengagement(queryClient);
+    return c.json({ ok: true, result });
+  } catch (err: any) {
+    return c.json({ ok: false, error: err.message }, 500);
+  }
+});
+
+workers.post("/crm/run", async (c) => {
+  try {
+    const result = await runCrm(queryClient);
+    return c.json({ ok: true, result });
+  } catch (err: any) {
+    return c.json({ ok: false, error: err.message }, 500);
+  }
 });

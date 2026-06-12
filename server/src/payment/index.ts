@@ -22,4 +22,4 @@ export function getPaymentProvider(): PaymentProvider {
   return instance;
 }
 
-export { PaymentProvider, CreatePaymentLinkParams, CreatePaymentLinkResult } from "./types.js";
+export type { PaymentProvider, CreatePaymentLinkParams, CreatePaymentLinkResult } from "./types.js";

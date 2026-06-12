@@ -52,7 +52,7 @@ dashboard.get("/conversations/:id", async (c) => {
   return withTenant(tenantId, async (sql) => {
     const [conv] = await sql`
       SELECT
-        c.id, c.status, c.created_at, c.last_message_at, c.assigned_user_id,
+        c.id, c.status, c.created_at, c.last_message_at, c.assigned_user_id, c.handoff_summary,
         ct.id AS contact_id, ct.name AS contact_name, ct.phone AS contact_phone, ct.external_id,
         ca.channel
       FROM conversations c

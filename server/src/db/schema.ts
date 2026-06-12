@@ -42,6 +42,7 @@ export const contacts = pgTable("contacts", {
   externalId: text("external_id").notNull(),
   name: text("name"),
   phone: text("phone"),
+  repurchaseSentAt: timestamp("repurchase_sent_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => [
   uniqueIndex("contacts_tenant_channel_external_idx").on(table.tenantId, table.channel, table.externalId),
@@ -65,6 +66,7 @@ export const conversations = pgTable("conversations", {
   assignedUserId: uuid("assigned_user_id").references(() => users.id, { onDelete: "set null" }),
   replyWindowExpiresAt: timestamp("reply_window_expires_at", { withTimezone: true }),
   lastMessageAt: timestamp("last_message_at", { withTimezone: true }),
+  handoffSummary: text("handoff_summary"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => [
   index("conversations_tenant_status_idx").on(table.tenantId, table.status),
@@ -79,6 +81,8 @@ export const conversationState = pgTable("conversation_state", {
   slots: jsonb("slots").$type<Record<string, string>>().default({}).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  reengagementStep: integer("reengagement_step").default(0).notNull(),
+  lastReengagementAt: timestamp("last_reengagement_at", { withTimezone: true }),
 });
 
 export const messages = pgTable("messages", {
@@ -132,6 +136,7 @@ export const businessProfile = pgTable("business_profile", {
   systemPromptOverrides: text("system_prompt_overrides"),
   cannedResponses: jsonb("canned_responses").$type<Record<string, string>>().default({}).notNull(),
   offHoursMessage: text("off_hours_message"),
+  googleMapsUrl: text("google_maps_url"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
@@ -162,6 +167,7 @@ export const bookings = pgTable("bookings", {
   paymentStatus: text("payment_status").default("pending").notNull(),
   paymentUrl: text("payment_url"),
   paymentTransactionId: text("payment_transaction_id"),
+  postServiceSentAt: timestamp("post_service_sent_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => [
   index("bookings_tenant_idx").on(table.tenantId),
