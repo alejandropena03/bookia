@@ -3,6 +3,7 @@ import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import { eventBus } from "../lib/event-bus.js";
 import { withTenant } from "../lib/tenant-db.js";
+import { computeIntelligence } from "../metrics/intelligence.js";
 
 const dashboard = new Hono();
 
@@ -189,6 +190,15 @@ dashboard.get("/metrics", async (c) => {
       by_channel: byChannel,
       daily_trend: dailyTrend,
     });
+  });
+});
+
+// ── GET /api/metrics/intelligence ──
+dashboard.get("/metrics/intelligence", async (c) => {
+  const { tenantId } = ctx(c);
+  return withTenant(tenantId, async (sql) => {
+    const data = await computeIntelligence(sql, tenantId);
+    return c.json({ ...data, _shape_doc: "DashboardData shape from server/src/metrics/intelligence.ts" });
   });
 });
 
