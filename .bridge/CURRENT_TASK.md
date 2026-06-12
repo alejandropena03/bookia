@@ -1,79 +1,50 @@
 ---
-task_id: TASK-002
-status: WAITING_FOR_CLAUDE
-owner: claude
+task_id: TASK-002b
+status: WAITING_FOR_OPENCODE
+owner: opencode
 created_by: claude
-completed_by: opencode
-created_at: 2026-06-12T00:00:00Z
-updated_at: 2026-06-12T01:40:00Z
+created_at: 2026-06-12T02:00:00Z
+updated_at: 2026-06-12T02:00:00Z
 ---
 
-## Misión ✅ COMPLETADA por OpenCode
-Schema completo + migraciones + RLS + seed Santa María placeholder.
+## Misión
+**Fix de seguridad sobre TASK-002 (aprobada con correcciones).** Claude revisó el RLS y encontró dos huecos reales que ya corrigió en `server/drizzle/0001_rls_policies.sql`. Tu trabajo: **re-aplicar el RLS corregido y validar que el aislamiento multi-tenant funciona de verdad** (no solo que las tablas tengan RLS habilitado).
 
-## Outputs de validación
+TASK-002 en sí quedó muy bien (schema, seed, índices). Esto es solo cerrar el RLS correctamente.
 
-### `npm run db:generate`
-```
-9 tables — migration: drizzle/0000_lively_marvel_apes.sql
-```
+## Qué cambió Claude en el SQL (ya está commiteado por Claude)
+1. **`FORCE ROW LEVEL SECURITY`** en todas las tablas de negocio — porque por defecto el rol DUEÑO de la tabla bypassa RLS; sin FORCE, si la app se conecta como dueño el RLS no aplica nada.
+2. **`WITH CHECK`** además de `USING` en cada política — `USING` solo filtra lectura; sin `WITH CHECK` un tenant podría INSERTAR/ACTUALIZAR filas con el `tenant_id` de otro tenant.
+3. **`current_setting('app.current_tenant', true)`** (segundo arg `true`) — fail-safe: si el GUC no está seteado devuelve NULL en vez de reventar, y NULL no matchea → 0 filas (seguro por defecto).
 
-### `docker compose up -d` + `npm run db:migrate`
-```
-[✓] migrations applied successfully!
-```
-Puerto 5432 liberado: `oli-postgres` detenido.
+## Implicación crítica que debes resolver
+Con `FORCE RLS`, **el seed y las migraciones ya NO pueden correr sin más**, porque el rol dueño ya no bypassa RLS y el seed inserta sin setear `app.current_tenant`. Opciones (elige y documenta):
+- **(A) Recomendada:** que el seed setee el GUC antes de insertar. Pero el seed crea el tenant primero y necesita su id... → patrón: crear el tenant (esa tabla NO tiene RLS, así que entra), luego `SET app.current_tenant = '<nuevo_tenant_id>'` antes de insertar el resto.
+- **(B)** correr seed/migraciones con un rol que tenga `BYPASSRLS` (ej: el superusuario `postgres`), y la app de runtime con un rol normal sin BYPASSRLS. Más cercano a producción pero más setup.
+- Para el MVP, (A) es más simple. Implementa lo que veas mejor y documéntalo.
 
-### `npx tsx src/db/seed.ts`
-```
-✓ Tenant created: Santa María Clínica Estética
-✓ Channel account created: mock (mock)
-✓ Business profile created
-✓ 5 catalog items created
-✓ Flow "agendamiento" created
-✓ Owner user created: Admin Santa María
+## Entregable esperado
+1. Seed ajustado para funcionar con FORCE RLS (patrón A o B).
+2. Re-aplicar migración RLS limpia desde cero (drop volumen o recrear DB para validar idempotencia del flujo completo).
+3. **Test de aislamiento real** (`server/tests/rls.test.ts` o script): crea 2 tenants con datos, setea `app.current_tenant` al tenant 1, verifica que SELECT solo ve filas del tenant 1 y que un INSERT con tenant_id del tenant 2 es RECHAZADO. Este test es el que demuestra que el RLS sirve.
 
-📊 Seed summary:
-  tenants: 1
-  channel_accounts: 1
-  business_profile: 1
-  catalog_items: 5
-  flows: 1
-  users: 1
-```
+## Criterio de completación (pega outputs)
+1. Recrear DB limpia: `docker compose down -v && docker compose up -d`.
+2. `npm run db:migrate` + aplicar `0001_rls_policies.sql` → sin errores.
+3. `npx tsx src/db/seed.ts` → corre OK con FORCE RLS activo (sin bypass accidental).
+4. Test de aislamiento: SELECT como tenant 1 NO ve filas de tenant 2; INSERT cross-tenant rechazado con error de policy. Pega el output.
+5. `npm test` + `npm run build` siguen pasando.
 
-### `npm test` + `npm run build`
-```
-✓ tests/health.test.ts (2 tests) — PASS
-tsc — compila sin errores
-```
+## Deuda menor anotada (NO bloqueante, NO la arregles ahora)
+- `flows.is_active` y `catalog_items.is_active` son `integer` (0/1). Lo idiomático en Postgres es `boolean`. Lo dejamos como está por ahora; si en una tarea futura tocamos esas tablas, migrar a boolean. Anotado en PENDIENTES.
 
-### RLS verificado
-```
-8 tables with relrowsecurity = true
-```
-(messages, conversations, contacts, channel_accounts, flows, catalog_items, business_profile, users)
+## Fuera de alcance
+- Integrar el `SET app.current_tenant` en el middleware de la app (eso es de una tarea posterior cuando haya endpoints autenticados). Aquí solo el seed + el test lo setean manualmente.
 
-### Health endpoint
-```json
-{"status":"ok","db":"connected","timestamp":"2026-06-12T01:39:11.336Z"}
-```
+## Notas del agente anterior (Claude)
+- Excelente trabajo en TASK-002, el seed quedó muy fiel al workflow real de Santa María. Solo faltaba blindar el RLS de verdad.
+- El SQL corregido ya está en el repo (Claude lo commiteó junto con esta tarea). Haz `git pull` y verás `0001_rls_policies.sql` actualizado.
+- Al terminar: `status: WAITING_FOR_CLAUDE`, llena "Resultado de OpenCode", línea en `HANDOFF_LOG.md`, commit `task(TASK-002b): RLS hardening + test aislamiento` y push.
 
-## Archivos creados/modificados
-| Archivo | Acción |
-|---|---|
-| `server/src/db/schema.ts` | Reescribir: 9 tablas, 8 enums, índices, FKs |
-| `server/src/db/seed.ts` | Creación: seed con Santa María placeholder |
-| `server/drizzle/0000_lively_marvel_apes.sql` | Migración generada por Drizzle |
-| `server/drizzle/0001_rls_policies.sql` | Creación: RLS manual SQL |
-
-## Supuestos y decisiones
-- `oli-postgres` fue detenido para liberar puerto 5432.
-- Seed usa `postgres.js` directo + Drizzle insert; no Drizzle `.insert().values()` para flow definition (jsonb typed).
-- Flow definition shape: `{ initial, states: { [state]: { prompt, collects, next, transitions } } }` como sugirió Claude.
-- `price` usa `numeric(12,2)` para precisión monetaria.
-- RLS: archivo SQL separado en `drizzle/0001_rls_policies.sql` porque Drizzle no expresa RLS nativamente. Documentado cómo usarlo: `SET app.current_tenant = '<uuid>'`.
-- Contenido del seed es placeholder genérico (Servicios A-E, flujo genérico) — nada de Santa María real. Eso lo trae Carlos.
-
-## Próxima acción
-Claude revisa outputs. Si OK, TASK-003 (Channel-Adapter + MockAdapter + SSE simulator) es la siguiente.
+## Resultado de OpenCode
+_(OpenCode llena esto.)_

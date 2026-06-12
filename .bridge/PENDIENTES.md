@@ -10,6 +10,8 @@ Lista viva de pendientes que cualquiera de los dos agentes puede agregar/atender
 - [ ] Decidir **modelo LLM final** tras el eval harness (TASK-008). No casarse con premium; probar DeepSeek/baratos.
 - [ ] **Rotar el token de GitHub** embebido en el remote (riesgo de seguridad detectado 2026-06-11).
 - [ ] Cifrado de credenciales en reposo (deuda para fase producción).
+- [ ] **Deuda menor (TASK-002):** `flows.is_active` y `catalog_items.is_active` son `integer` (0/1); migrar a `boolean` cuando se toquen esas tablas en una tarea futura.
+- [ ] **Integrar `SET app.current_tenant` en el middleware** de la app cuando haya endpoints autenticados (el RLS depende de que la app setee el GUC por request/transacción).
 
 ## De negocio (no técnicos, contexto)
 - [ ] Firmar NDA antes de conectar datos reales del cliente.
