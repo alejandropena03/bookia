@@ -1,0 +1,25 @@
+{"t":"2026-06-13 10:27:20","project":"bookia","title":"infra fix","decision":"Outline restaurado + Bookia a 3001","reason":"Outline caido ocupando Bookia puerto"}
+{"t":"2026-06-13 10:15:14","project":"bookia","title":"infra fix","decision":"Outline restaurado + Bookia a 3001","reason":"Outline caido ocupando Bookia puerto"}
+{"t":"2026-06-12 18:45:32","project":"bookia","title":"infra fix","decision":"Outline restaurado + Bookia a 3001","reason":"Outline caido ocupando Bookia puerto"}
+{"t":"2026-06-12 16:28:48","project":"bookia","title":"TASK-018 re-engagement","decision":"Worker reengagement creado","reason":"Recuperar leads frios"}
+{"t":"2026-06-12 16:25:29","project":"bookia","title":"TASK-016 recordatorios","decision":"Worker reminder creado","reason":"Reducir no-shows"}
+{"t":"2026-06-12 16:25:07","project":"bookia","title":"TASK-020 handoff resumen","decision":"Summarizer LLM integrado","reason":"Handoff con contexto para operador"}
+{"t":"2026-06-12 16:21:11","project":"bookia","title":"TASK-017 Wompi pagos","decision":"PaymentProvider integrado","reason":"Cerrar loop de ingresos"}
+{"t":"2026-06-12 16:09:57","project":"bookia","title":"TASK-016 recordatorios","decision":"Worker reminder creado","reason":"Reducir no-shows"}
+{"t":"2026-06-12 16:09:37","project":"bookia","title":"TASK-017 Wompi pagos","decision":"PaymentProvider integrado","reason":"Cerrar loop de ingresos"}
+{"t":"2026-06-12 16:07:31","project":"bookia","title":"TASK-016 recordatorios","decision":"Worker reminder creado","reason":"Reducir no-shows"}
+{"t":"2026-06-12 16:03:09","project":"bookia","title":"TASK-016 recordatorios","decision":"Worker reminder creado","reason":"Reducir no-shows"}
+{"t":"2026-06-12 15:51:41","project":"bookia","title":"TASK-016 recordatorios","decision":"Worker reminder creado","reason":"Reducir no-shows"}
+{"t":"2026-06-12 15:21:26","project":"bookia","title":"TASK-015 hiperpersonalizacion","decision":"Motor hiperpersonalizacion completado","reason":"System prompt desde DB"}
+{"t":"2026-06-12 15:19:04","project":"bookia","title":"TASK-015 hiperpersonalizacion","decision":"Motor hiperpersonalizacion completado","reason":"System prompt desde DB"}
+{"t":"2026-06-12 13:49:31","project":"bookia","title":"deepseek-v4-flash","decision":"Cambiar a v4-flash","reason":"3x mas barato"}
+{"t":"2026-06-12 13:40:38","project":"bookia","title":"TASK-015 hiperpersonalizacion","decision":"Motor hiperpersonalizacion completado","reason":"System prompt desde DB"}
+{"t":"2026-06-12 13:29:31","project":"bookia","title":"TASK-014 seed-demo","decision":"Datos muestra Santa Maria","reason":"Dashboard con datos realistas"}
+{"t":"2026-06-12 13:28:10","project":"bookia","title":"TASK-014 seed-demo","decision":"Datos muestra Santa Maria","reason":"Dashboard con datos realistas"}
+{"t":"2026-06-12 12:51:18","project":"bookia","title":"TASK-014 seed-demo","decision":"Datos muestra Santa Maria","reason":"Dashboard con datos realistas"}
+{"t":"2026-06-12 12:48:12","project":"bookia","title":"TASK-013 frontend conexion","decision":"Front conectado a backend real","reason":"Demo en vivo SSE"}
+{"t":"2026-06-12 12:41:47","project":"bookia","title":"TASK-013 frontend conexion","decision":"Front conectado a backend real","reason":"Demo en vivo SSE"}
+{"t":"2026-06-12 12:29:02","project":"bookia","title":"TASK-012 inteligencia","decision":"Endpoint metrics/intelligence","reason":"Dashboard con datos reales"}
+{"t":"2026-06-12 12:22:59","project":"bookia","title":"TASK-012 inteligencia","decision":"Endpoint metrics/intelligence","reason":"Dashboard con datos reales"}
+{"t":"2026-06-13T16:00:00","project":"bookia","title":"super-opencode-system","decision":"Crear sistema de 7 sub-agentes + MANIFIESTO + memoria en repo","reason":"Optimizar contexto, automatizar tareas repetitivas, memoria persistente entre sesiones"}
+{"t":"2026-06-13T16:00:00","project":"bookia","title":"memory-migration","decision":"Migrar memoria de ~/memory.jsonl a .bridge/memory/","reason":"Memoria compartida entre agentes via git"}
