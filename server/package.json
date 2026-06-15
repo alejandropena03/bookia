@@ -14,7 +14,8 @@
     "db:push": "drizzle-kit push",
     "seed": "tsx src/db/seed.ts",
     "seed:demo": "tsx src/db/seed-demo.ts",
-    "import:tenant": "tsx src/db/import-tenant.ts"
+    "import:tenant": "tsx src/db/import-tenant.ts",
+    "smoke-test": "bash scripts/smoke-test.sh"
   },
   "dependencies": {
     "@hono/node-server": "^2.0.4",

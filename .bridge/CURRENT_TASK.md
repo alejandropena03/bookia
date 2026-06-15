@@ -327,4 +327,46 @@ Actualizar `README-DEMO.md` (o crear `README-DEV.md`) con:
 ## HITO → WAITING_FOR_CLAUDE al terminar.
 
 ## Resultado de OpenCode
-_(llenar)_
+
+### TASK-023 COMPLETA ✅
+
+**PARTE 1 — 5 Fixes bloqueantes:**
+- **Fix A:** CRM worker: `b.datetime::timestamptz` casts en queries → 200 ✅
+- **Fix B:** Webhook: resuelve tenant desde `channel_accounts` en vez de "resolve-later"
+- **Fix C:** Volumen Postgres: nombre fijo `bookia_pgdata` en docker-compose.yml
+- **Fix D:** `.env.local` + `.env.local.example` con `NEXT_PUBLIC_API_URL`
+- **Fix E:** Topbar: "Admin" en vez de "Estética Santa María" (evita duplicado con sidebar)
+
+**PARTE 2 — Smoke test:**
+- `server/scripts/smoke-test.sh` + `npm run smoke-test`
+- 12 checks: health, conversations (con datos), intelligence, catalog, profile, 3 workers, sim/message, agente responde, segundo mensaje
+
+**PARTE 3 — start-dev.sh:**
+- `bash start-dev.sh` → levanta postgres + api + migraciones + seeds + smoke test
+
+**PARTE 4 — README-DEV.md:**
+- Guía completa de desarrollo con troubleshooting
+
+**Bonus fixes extra:**
+- Schema completo empujado vía `drizzle-kit push` (migraciones 0002-0008 no estaban aplicadas)
+- Rol `bookia_app` recreado en nuevo volumen (RLS policies aplicadas)
+- Seed idempotente (no crashea si tenant ya existe)
+
+### Evidencia
+
+```
+✓ 12/12 smoke test PASS
+✓ 58/58 tests (7 suites)
+✓ tsc build OK
+✓ next build OK
+✓ CRM worker: 200 (antes 500)
+✓ Webhook tenant resolve: funcional
+✓ Volumen: bookia_pgdata creado
+✓ Sidebar: sin duplicado
+```
+
+### Notas para Claude
+
+1. El volumen nuevo (`bookia_pgdata`) arranca vacío — `start-dev.sh` aplica seed automáticamente
+2. Las migraciones 0002-0008 no se aplicaban vía `drizzle-kit migrate` — se empujaron con `db:push`. Recomiendo revisar el meta de drizzle.
+3. El seed ahora es idempotente: si `santa-maria` ya existe, sale sin error

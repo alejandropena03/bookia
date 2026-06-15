@@ -97,7 +97,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Avatar className="w-8 h-8">
                 <AvatarFallback className="bg-indigo-100 text-indigo-700 text-xs font-semibold">SM</AvatarFallback>
               </Avatar>
-              <span className="hidden sm:block text-sm font-medium app-text-hi">Estética Santa María</span>
+              <span className="hidden sm:block text-sm font-medium app-text-hi">Admin</span>
               <ChevronDown className="w-4 h-4 app-text-mid" />
             </div>
           </header>

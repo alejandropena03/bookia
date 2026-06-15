@@ -21,8 +21,8 @@ export async function runCrm(sql: postgres.Sql): Promise<CrmResult> {
     LEFT JOIN business_profile bp ON bp.tenant_id = b.tenant_id
     WHERE b.status = 'confirmed'
       AND b.post_service_sent_at IS NULL
-      AND b.datetime >= NOW() - INTERVAL '8 days'
-      AND b.datetime < NOW() - INTERVAL '6 days'
+      AND b.datetime::timestamptz >= NOW() - INTERVAL '8 days'
+      AND b.datetime::timestamptz < NOW() - INTERVAL '6 days'
   `;
 
   for (const row of postServiceEligible) {

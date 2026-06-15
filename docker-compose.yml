@@ -23,7 +23,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - bookia_pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U bookia -d bookia"]
       interval: 5s
@@ -32,4 +32,5 @@ services:
     restart: unless-stopped
 
 volumes:
-  pgdata:
+  bookia_pgdata:
+    name: bookia_pgdata

@@ -92,7 +92,18 @@ webhooks.post("/:channel", async (c) => {
   }
 
   const rawBody = await c.req.json();
-  const normalized = adapter.parseInbound(rawBody, "resolve-later");
+
+  // Resolve tenant from channel_accounts table
+  const { queryClient } = await import("../db/client.js");
+  const [ca] = await queryClient`
+    SELECT tenant_id FROM channel_accounts WHERE channel = ${channel} AND status = 'connected' LIMIT 1
+  `;
+  if (!ca) {
+    return c.json({ error: `No active channel_account for channel: ${channel}` }, 404);
+  }
+  const tenantId = ca.tenant_id as string;
+
+  const normalized = adapter.parseInbound(rawBody, tenantId);
 
   for (const msg of normalized) {
     await ingestInbound(msg);

@@ -5,6 +5,13 @@ import { sql } from "drizzle-orm";
 async function seed() {
   console.log("🌱 Seeding Bookia database...\n");
 
+  // Check if tenant already exists (for idempotent runs)
+  const [existing] = await db.execute(sql`SELECT id FROM tenants WHERE slug = 'santa-maria' LIMIT 1`);
+  if (existing && (existing as any).length > 0) {
+    console.log("✓ Tenant 'santa-maria' already exists — skipping seed");
+    return;
+  }
+
   // ── 1. Tenant: Santa María ──
   const [tenant] = await db.insert(tenants).values({
     name: "Santa María Clínica Estética",

@@ -1,374 +1,344 @@
+---
+title: TDD — Backend MVP (Completado)
+collection: f8db5a5c-53ed-406a-9a8d-4e6de6d0c487
+---
+
 # TDD — Backend MVP de Bookia
 
 > **Documento de Diseño Técnico (Technical Design Document)**
-> Versión: 1.0 · Fecha: 2026-06-11 · Autor técnico: Claude (CTO-side) · Alcance: **MVP local (Docker)**
->
-> Este documento es la fuente de verdad técnica del backend. Toda decisión de implementación debe trazar a una sección de aquí. El stack de `bookia-docs` es solo referencia de negocio, no vinculante.
+> Versión: 2.0 · Fecha: 2026-06-15 · Autor: Claude + OpenCode
+> Estado: COMPLETADO — MVP funcional
+> Stack actual: Node 22 + Hono + Drizzle + PostgreSQL 16 + DeepSeek API
+> Tests: 58/58 pasando
 
 ---
 
-## 0. Resumen ejecutivo
+## 0. Resumen Ejecutivo
 
-Bookia es un SaaS donde un **agente de IA responde conversaciones de WhatsApp/Instagram** de forma autónoma para clínicas estéticas, con el catálogo y la personalidad del negocio cargados. El modelo de venta es **"producto terminado esperando credenciales"**: el sistema queda 100% construido y solo falta enchufar los tokens reales de Meta del cliente.
+Bookia es un SaaS donde un **agente de IA responde conversaciones de WhatsApp/Instagram** de forma autónoma para clínicas estéticas, con el catálogo y la personalidad del negocio cargados. El modelo de venta es **"producto terminado esperando credenciales"**.
 
-Este TDD cubre el **backend del MVP** que corre en **Docker en una Mac** (entorno del socio ejecutor). Se construye **todo el sistema dejando un único "hueco" bien definido**: la **capa de hiperpersonalización** (flujos, catálogo, tono reales de Santa María que Carlos documenta). El sistema funciona end-to-end con datos placeholder estructurados; al llegar la plantilla de Carlos, solo se **rellena esa capa de configuración**, sin reconstruir nada.
+Este TDD cubre el **backend del MVP** que corre en **Docker en una Mac** (entorno del socio ejecutor). El sistema está **100% construido** con datos placeholder estructurados; al llegar la plantilla de Carlos, solo se **rellena la capa de configuración** sin reconstruir nada.
 
-**Fuera del alcance de este TDD (explícito):** deployment a la nube, operación 24/7, DB gestionada, dominio productivo. Eso es fase post-aprobación del cliente. La arquitectura queda lista para ello sin reescritura, pero no se construye aún.
+**Lo que se construyó (TASK-001 a TASK-020):**
+- Backend scaffold (Hono + Docker + Postgres)
+- Schema completo (10 tablas, 8 enums, RLS multi-tenant)
+- Channel adapter + Mock + SSE streaming
+- LLM layer (DeepSeek + Mock + eval harness)
+- Cerebro híbrido (router, flow engine, responder, escalation, orchestrator)
+- Dashboard API + Inbox humano (takeover/handback)
+- Landing premium (tech-luxe, GSAP)
+- Dashboard inteligencia comercial (6 bloques, datos reales)
+- Front conectado a backend (lib/api.ts, TanStack Query)
+- Datos de muestra realistas (18 conversaciones, 224 mensajes)
+- Motor hiperpersonalización (6 fixes, import-tenant)
+- Workers: recordatorios, Wompi pagos, re-engagement, CRM, handoff LLM
 
 ---
 
-## 1. Principios de diseño
+## 1. Principios de Diseño
 
-1. **Provider-agnostic en el LLM.** El modelo es una pieza intercambiable. Nada premium cableado. Se valida empíricamente qué modelo (DeepSeek, Llama, Haiku, etc.) da el resultado esperado al menor costo.
-2. **Estabilidad sobre improvisación.** Los flujos críticos (agendar, cobrar) son determinísticos (máquina de estados + respuestas predefinidas). El LLM no inventa precios ni se salta pasos.
-3. **El hueco de hiperpersonalización es configuración, no código.** El motor es genérico; los flujos/catálogo/tono se cargan como datos.
-4. **Mock ⇄ Real intercambiables.** Todo canal (y el LLM) tiene un adapter mock para demostrar sin credenciales, intercambiable por el real sin tocar el core.
-5. **Multi-tenant desde el día 1**, aunque empiece con un cliente.
-6. **Un solo lenguaje (TypeScript)** compartido con el front existente.
-7. **No sobre-ingenierizar.** Sin Redis, sin vector DB, sin LangGraph hasta que un requisito real lo justifique.
+1. **Provider-agnostic en el LLM.** DeepSeek v4-flash (3x más barato). Intercambiable por config.
+2. **Estabilidad sobre improvisación.** Flujos críticos determinísticos (máquina de estados + respuestas predefinidas).
+3. **El hueco de hiperpersonalización es configuración, no código.** Motor genérico; flujos/catálogo/tono se cargan como datos.
+4. **Mock ⇄ Real intercambiables.** MockAdapter para demostrar sin credenciales.
+5. **Multi-tenant desde el día 1.** RLS con GUC `app.current_tenant`.
+6. **Un solo lenguaje (TypeScript)** compartido con el front.
+7. **No sobre-ingenierizar.** Sin Redis, sin vector DB, sin LangGraph.
 
 ---
 
-## 2. Stack tecnológico
+## 2. Stack Tecnológico
 
 | Capa | Elección | Justificación |
 |---|---|---|
-| Runtime | **Node.js 22 + TypeScript 5** | Comparte tipos con el front Next.js. Un solo ecosistema para un dev. |
-| API framework | **Hono** | Typesafe (Zod), liviano, corre en Docker hoy y edge mañana. |
-| Validación | **Zod** | Esquemas compartidos front/back; valida payloads de webhooks y API. |
-| ORM | **Drizzle ORM** | Sin codegen, tipos al instante, SQL crudo para métricas del dashboard. |
-| DB | **PostgreSQL 16** | Multi-tenant shared-schema + RLS. Sin pgvector al inicio. |
-| LLM gateway | **OpenRouter** (con interfaz propia que permite LiteLLM/directo) | Cambiar de modelo por config; comparar costo/calidad. |
-| Agente | **Híbrido propio** (router + state-machine + LLM) | Estable y bajo control, sin dependencia de LangChain. |
-| Tests | **Vitest** (unit/integration) + reutilizar Playwright del front (e2e) | Vitest por velocidad y compatibilidad TS/ESM. |
-| Contenedor | **Docker + docker-compose** | `api` + `postgres`. Sin Redis en MVP. |
+| Runtime | Node.js 22 + TypeScript 5 | Comparte tipos con el front Next.js |
+| API framework | Hono | Typesafe (Zod), liviano, edge-ready |
+| Validación | Zod | Esquemas compartidos front/back |
+| ORM | Drizzle ORM | Sin codegen, tipos al instante |
+| DB | PostgreSQL 16 | Multi-tenant shared-schema + RLS |
+| Driver raw SQL | postgres.js | SQL tagged templates para queries complejas |
+| LLM | DeepSeek API (deepseek-v4-flash) | 3x más barato, OpenAI-compatible |
+| Agente | Híbrido propio (router + state-machine + LLM) | Estable, sin LangChain |
+| Tests | Vitest | Velocidad + compatibilidad TS/ESM |
+| Frontend | Next.js 16 + React 19 + Tailwind v4 + shadcn/ui | App Router, Server Components |
+| Estado front | TanStack Query + Zustand | Cache + estado local |
+| Animaciones | GSAP + ScrollTrigger | Premium feel |
+| Charts | Recharts | Métricas en dashboard |
+| Contenedor | Docker + docker-compose | api + postgres |
 
-**Estructura de repo (monorepo ligero, sin tooling pesado):**
+---
+
+## 3. Estructura de Repo
 
 ```
 bookia/
-├── app/                    # front Next.js EXISTENTE (no se toca en este TDD)
-├── components/             # front existente
-├── server/                 # ← NUEVO: el backend de este TDD
+├── app/                    # Front Next.js (App Router)
+│   ├── (dashboard)/        # Layout dashboard + pages
+│   ├── api/                # Next.js API routes (auth, proxy)
+│   ├── login/              # Auth pages
+│   └── page.tsx            # Landing (premium)
+├── components/             # React components
+│   ├── landing/              # Landing sections (GSAP)
+│   └── dashboard/            # Dashboard + DemoLive
+├── lib/                    # Client utilities
+│   ├── api.ts                # API client (13 funciones)
+│   └── dashboard-mock.ts     # Mock fallback
+├── server/
 │   ├── src/
-│   │   ├── index.ts        # entrypoint Hono
-│   │   ├── env.ts          # validación de env vars con Zod
-│   │   ├── db/             # Drizzle: schema, migraciones, cliente
-│   │   ├── channels/       # Channel-Adapter (mock, whatsapp, instagram)
-│   │   ├── agent/          # cerebro: router, state-machine, llm
-│   │   ├── flows/          # motor de flujos configurable (el "hueco")
-│   │   ├── catalog/        # carga catálogo + personalidad (el "hueco")
-│   │   ├── conversations/  # servicio de conversaciones/mensajes
-│   │   ├── tenants/        # multi-tenancy
-│   │   ├── metrics/        # agregaciones para el dashboard
-│   │   ├── api/            # rutas REST/webhooks
-│   │   └── lib/            # utilidades compartidas
-│   ├── drizzle/            # migraciones generadas
-│   ├── tests/
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── Dockerfile
-│   └── drizzle.config.ts
-├── docker-compose.yml      # ← NUEVO
-└── shared/                 # ← NUEVO: tipos Zod compartidos front/back
+│   │   ├── index.ts          # Hono entrypoint
+│   │   ├── api/
+│   │   │   ├── sim.ts        # POST /message + GET /stream
+│   │   │   ├── dashboard.ts  # 12 endpoints
+│   │   │   ├── workers.ts    # 3 workers + status
+│   │   │   └── webhooks.ts   # Webhook stubs
+│   │   ├── agent/
+│   │   │   ├── router.ts     # LLM intent classifier
+│   │   │   ├── responder.ts  # LLM + canned responses
+│   │   │   ├── orchestrator.ts # Pipeline completo
+│   │   │   ├── escalation.ts # Rules + low confidence
+│   │   │   ├── summarizer.ts # LLM handoff summary
+│   │   │   └── llm/          # DeepSeekProvider + Mock
+│   │   ├── flows/
+│   │   │   ├── engine.ts       # State-machine
+│   │   │   └── template.ts     # Variable renderer
+│   │   ├── channels/
+│   │   │   ├── types.ts        # ChannelAdapter interface
+│   │   │   ├── registry.ts     # getAdapter()
+│   │   │   └── mock.ts         # MockAdapter
+│   │   ├── conversations/
+│   │   │   └── service.ts      # ingestInbound
+│   │   ├── workers/
+│   │   │   ├── reminder.ts     # TASK-016
+│   │   │   ├── reengagement.ts # TASK-018
+│   │   │   └── crm.ts          # TASK-019
+│   │   ├── payment/
+│   │   │   ├── types.ts        # PaymentProvider interface
+│   │   │   ├── wompi.ts        # WompiProvider (TASK-017)
+│   │   │   └── manual.ts       # ManualPaymentProvider
+│   │   ├── booking/
+│   │   │   ├── types.ts        # BookingProvider interface
+│   │   │   ├── mock.ts         # MockBookingProvider
+│   │   │   └── handoff.ts      # HandoffBookingProvider
+│   │   ├── db/
+│   │   │   ├── schema.ts       # 10 tablas, 8 enums
+│   │   │   ├── client.ts       # postgres.js connection
+│   │   │   ├── seed.ts         # Santa Maria placeholder
+│   │   │   └── seed-demo.ts    # Realistic demo data
+│   │   ├── lib/
+│   │   │   ├── tenant-db.ts    # withTenant helper
+│   │   │   ├── event-bus.ts    # SSE EventEmitter
+│   │   │   └── hours.ts        # Out-of-hours check
+│   │   └── env.ts              # Environment config
+│   ├── tests/                # 7 suites, 58 tests
+│   ├── drizzle/              # 9 migrations (0000-0008)
+│   └── docker-compose.yml    # api + postgres
+├── docs/
+│   ├── TDD-BACKEND-MVP.md    # Este documento
+│   └── ESTADO-ACTUAL.md      # Estado actual del proyecto
+└── .bridge/                  # Bridge Protocol
+    ├── CURRENT_TASK.md
+    ├── HANDOFF_LOG.md
+    ├── queue/                  # Task specs
+    └── tasks/                  # Archived tasks
 ```
 
-> Nota: el backend es un servicio aparte (`server/`) del front Next.js. Esto simplifica el deploy en Docker y separa responsabilidades. Comparten tipos vía `shared/`.
+---
+
+## 4. Arquitectura del Cerebro
+
+```
+Mensaje entrante
+  → ingestInbound
+    - Upsert contact (tenant_id + channel + external_id)
+    - Find/create conversation (open + bot_active)
+    - Insert message (idempotent)
+    - Emit SSE event
+  → processMessage (orchestrator)
+    1. Load business context (persona, catalog, rules, hours)
+    2. Check if human_active → abort
+    3. Check out-of-hours → canned response
+    4. Load catalog items
+    5. isFirstMessage? → trigger first_contact flow
+    6. Resume active flow (evaluateFlow)
+       - If completed with service → completeBooking
+       - Else → injectPaymentLink → respond
+    7. Classify intent (router → LLM)
+    8. Check escalation (evaluateEscalation)
+       - If escalate → summarizeConversation → persist summary → handoff
+    9. Try start new flow (tryStartFlow)
+    10. Try canned response (getCannedResponse)
+    11. LLM responder (generateLlmResponse)
+  → persistAndEmit
+    - INSERT outbound message
+    - Emit SSE event
+```
 
 ---
 
-## 3. Modelo de datos (PostgreSQL + Drizzle)
+## 5. Schema de Base de Datos
 
-Multi-tenant **shared schema**: toda tabla de negocio lleva `tenant_id`. RLS de Postgres como red de seguridad.
+### Tablas (10)
 
-### Tablas
-
-**`tenants`** — cada negocio cliente (Santa María = primer tenant)
-| Campo | Tipo | Notas |
-|---|---|---|
-| id | uuid PK | |
-| name | text | "Santa María Clínica Estética" |
-| slug | text unique | "santa-maria" |
-| status | enum(active, paused) | |
-| created_at | timestamptz | |
-
-**`channel_accounts`** — conexión de un canal por tenant (lo que recibe credenciales reales)
-| Campo | Tipo | Notas |
-|---|---|---|
-| id | uuid PK | |
-| tenant_id | uuid FK | |
-| channel | enum(whatsapp, instagram, messenger, mock) | |
-| mode | enum(mock, live) | el "enchufe": mock para demo, live con credenciales |
-| external_account_id | text | phone_number_id / ig_id |
-| credentials | jsonb (cifrado en reposo a futuro) | access_token, app_secret, verify_token… NULL en mock |
-| status | enum(connected, disconnected, error) | |
-
-**`contacts`** — el cliente final que escribe al negocio
-| id, tenant_id, channel, external_id (wa_id/ig id), name, phone, created_at |
-
-**`conversations`** — hilo de conversación
-| id, tenant_id, contact_id, channel_account_id, status (enum: bot_active, human_active, escalated, closed), assigned_user_id (nullable), reply_window_expires_at, last_message_at, created_at |
-
-**`messages`** — cada mensaje (la "memoria" = leer las últimas N filas)
-| id, tenant_id, conversation_id, direction (inbound/outbound), sender_type (contact/bot/human), provider_message_id (idempotencia), content_type, text, media_url, raw (jsonb), created_at |
-
-**`flows`** — definición de un flujo configurable (el "hueco" de hiperpersonalización)
-| id, tenant_id, key (ej "agendamiento"), name, definition (jsonb: estados, transiciones, respuestas predefinidas), is_active, version |
-
-**`catalog_items`** — servicios del negocio (el "hueco")
-| id, tenant_id, name, description, price, currency, category, duration_minutes, image_url, is_active |
-
-**`business_profile`** — personalidad/tono/reglas (el "hueco", 1 por tenant)
-| tenant_id PK, persona (text: tono de voz), rules (jsonb: qué no decir, cuándo escalar), hours (jsonb), system_prompt_overrides (text) |
-
-**`users`** — operadores humanos del negocio (para inbox/escalación)
-| id, tenant_id, email, name, role (enum: owner, agent) |
-
-**`metrics_daily`** (opcional, materializada) — pre-agregados para el dashboard, o se calcula on-the-fly al inicio.
-
-> **Idempotencia:** índice único `(tenant_id, provider_message_id)` en `messages` — Meta reintenta webhooks.
-> **Índices:** `(tenant_id, conversation_id, created_at)` en messages; `(tenant_id, status)` en conversations.
-
----
-
-## 3.bis El "hueco" de hiperpersonalización = la plantilla de Carlos
-
-La **Plantilla de Recopilación de Flujos — Santa María** (que Carlos está llenando en el Outline) ES, literalmente, el formato de la configuración que carga este sistema. No es código: es data que rellena las tablas `flows`, `catalog_items` y `business_profile`. El sistema funciona con un placeholder hasta que llega la plantilla llena, y entonces solo se **importa**. Mapeo exacto:
-
-| Sección de la plantilla (Carlos) | Dónde aterriza en el backend |
+| Tabla | Proposito |
 |---|---|
-| §1 Canales activos | `channel_accounts` (qué adapters activar) |
-| §2 Mensajes de bienvenida (+ variables `{nombre}`) | flujo `first_contact` + capa de **templating de variables** |
-| §3 Menú de opciones / botones | flujo `menu` (state-machine: opción → rama) |
-| §4 Catálogo de respuestas por tema (precios, agendamiento, horarios, dudas, pagos, otros) | `catalog_items` + **canned responses por intención** que el router selecciona |
-| §5 Imágenes / multimedia | `media_url` en items y respuestas |
-| §6 Flujos completos (secuencias) | `flows.definition` (jsonb) — el corazón del motor |
-| §7 Reglas y límites + escalación + a quién notificar | `business_profile.rules` + reglas de escalación + destino de notificación |
-| §8 Tono y personalidad (nombre del asistente, formal/cercano, emojis, frases) | `business_profile.persona` (system prompt del LLM abierto) |
-| §9 Horarios del agente + comportamiento fuera de horario | `business_profile.hours` |
-| §10 Info adicional | `business_profile.system_prompt_overrides` |
+| tenants | Multi-tenant root |
+| channel_accounts | Cuentas de canal (WhatsApp, IG, FB, mock) |
+| business_profile | Persona, reglas, horarios, canned responses |
+| catalog_items | Servicios + precios |
+| flows | Definiciones de flujos (state-machine JSON) |
+| users | Operadores humanos |
+| contacts | Clientes (único por tenant + channel + external_id) |
+| conversations | Threads de conversación |
+| messages | Mensajes (inbound/outbound) |
+| bookings | Citas agendadas |
+| conversation_state | Estado activo del flow (current_state, slots) |
+| worker_logs | Logs de ejecución de workers |
 
-**Aprendizajes de la plantilla que condicionan el diseño:**
+### Enums (8)
 
-1. **Respuestas literales, no parafraseadas.** Carlos pega "texto EXACTO". → Para precios/horarios/pagos/agendamiento se usan **canned responses literales**; el LLM NO las redacta. Esto confirma la arquitectura híbrida (§5) y elimina el riesgo de alucinación en lo crítico.
-2. **Sistema de variables explícito** (`{nombre}`, `{ciudad}`, `{servicio}`). → Se requiere una **capa de templating** que sustituya variables en las respuestas predefinidas, con slots que vienen de la conversación/contacto.
-3. **Escalación bien definida y configurable** (§7.2: emergencia/reacción, cliente molesto, pide humano, quiere descuento, pregunta técnica) + **destino de notificación** (§7.3). → Reglas de escalación como data, más un canal de notificación al operador.
-4. **Importador de plantilla:** habrá una tarea para construir un **parser/seed** que tome la plantilla llena (markdown o un form estructurado derivado) y la convierta en filas de config. Mientras tanto, el seed usa un placeholder que respeta el mismo shape.
+- channel_type: whatsapp, instagram, messenger, mock
+- conversation_status: bot_active, human_active, escalated, closed
+- message_direction: inbound, outbound
+- sender_type: contact, bot, human
+- booking_status: pending, scheduled, confirmed, cancelled, no_show, reminder_no_response
+- reminder_status: none, sent
+- reengagement_step: 0, 1, 7, 30
+- payment_status: pending, paid, failed
 
-> **Dependencia explícita:** los textos exactos, flujos y reglas reales NO existen hasta que Carlos entregue la plantilla. El MVP se construye y demuestra con placeholder estructurado; rellenarlo es importar datos, no reconstruir.
+### RLS
 
----
-
-## 4. Channel-Adapter (el núcleo del modelo de venta)
-
-Interfaz única; mock y real intercambiables. El día que llegan los tokens del cliente, solo cambia `mode` en `channel_accounts`, cero cambios en el core.
-
-```ts
-interface NormalizedInboundMessage {
-  channel: "whatsapp" | "instagram" | "messenger" | "mock";
-  providerMessageId: string;           // idempotencia
-  conversationKey: string;             // hash(channel + accountId + externalUserId)
-  account: { channelAccountId: string };
-  contact: { externalId: string; name?: string; phone?: string };
-  content: { type: string; text?: string; mediaUrl?: string; raw?: unknown };
-  timestamp: string;                   // ISO 8601
-  replyWindowExpiresAt?: string;       // timestamp + 24h (regla Meta)
-}
-
-interface ChannelAdapter {
-  readonly channel: string;
-  verifyWebhook(query, headers, rawBody): boolean;     // handshake + firma HMAC
-  parseInbound(rawBody: unknown): NormalizedInboundMessage[];
-  sendMessage(out: NormalizedOutboundMessage): Promise<{ providerMessageId: string }>;
-  canSendFreeForm(conversation): boolean;              // ventana 24h
-}
-```
-
-- **`MockAdapter`**: `verifyWebhook → true`, `parseInbound` genera mensaje simulado, `sendMessage` persiste en DB + emite por WebSocket/SSE al panel (conversación simulada en vivo). `canSendFreeForm → true`.
-- **`WhatsAppAdapter`**: REST directo a Graph API (`POST /v21.0/{phone_number_id}/messages`), valida `X-Hub-Signature-256` con app_secret, respeta ventana 24h y plantillas. SDK opcional: `whatsapp-api-js` como cliente HTTP tipado.
-- **`InstagramAdapter`**: REST a Graph API, payload estilo Messenger (`entry[].messaging[]`).
-
-**Credenciales por canal a "enchufar"** (documentado para el cliente):
-- WhatsApp: `phone_number_id`, `access_token` (System User), `app_secret`, `verify_token`.
-- Instagram: `page_access_token`/IG token, `ig_id`, `app_secret`, `verify_token`.
-
-**TikTok:** post-MVP. El adapter admite añadirlo sin refactor.
+- FORCE RLS en todas las tablas de negocio
+- `current_setting('app.current_tenant', true)` con fallback
+- Rol `bookia_app` (limited) para runtime
+- Superuser `bookia` solo para migraciones/seed
 
 ---
 
-## 5. El cerebro del agente (híbrido)
+## 6. Endpoints del Backend
 
-Pipeline por cada mensaje entrante normalizado:
+### API Pública (/api/*)
 
-```
-inbound → cargar contexto (últimas N msgs + estado de flujo activo) →
-  ROUTER (LLM barato clasifica intención) →
-    ├── flujo estructurado activo o detectado → MOTOR DE FLUJOS (state-machine)
-    └── pregunta abierta → LLM RESPONDER (system prompt + catálogo)
-  → ¿escalar? (regla o baja confianza) → marcar conversación human_active
-  → enviar respuesta vía ChannelAdapter → persistir
-```
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | /api/conversations | Lista con paginación + filtros |
+| GET | /api/conversations/:id | Detalle + mensajes |
+| POST | /api/conversations/:id/reply | Responder (solo human_active) |
+| POST | /api/conversations/:id/takeover | Tomar control humano |
+| POST | /api/conversations/:id/handback | Devolver a bot |
+| GET | /api/metrics | Métricas agregadas |
+| GET | /api/metrics/intelligence | Dashboard data (KPIs, funnel, heatmap, ROI) |
+| GET | /api/catalog | Catálogo de servicios |
+| GET | /api/profile | Business profile |
+| GET | /api/flows | Flujos configurados |
 
-### 5.1 Router
-LLM económico (vía gateway) que clasifica el mensaje en una intención: `{ intent: "agendamiento" | "faq" | "precio" | "queja" | "charla" | "otro", confidence, extractedSlots }`. Devuelve JSON estructurado (con validación Zod; si falla, fallback a "abierto").
+### Simulador (/api/sim)
 
-### 5.2 Motor de flujos (state-machine genérica — el "hueco")
-- Un flujo se define como **datos** en `flows.definition` (jsonb): estados, transiciones, qué dato pide cada estado, **respuestas predefinidas (templated)**, y qué tool ejecuta al completar.
-- El motor es genérico: lee la definición y avanza el estado guardando los slots en la conversación.
-- El LLM **solo extrae datos** (ej: parsear "mañana a las 3" → fecha/hora), **no redacta** las respuestas críticas — esas son predefinidas. → **Determinístico, nunca inventa precios.**
-- Flujo placeholder de ejemplo (`agendamiento`): `ask_city → show_service → payment_instructions → await_proof → collect_data → confirm_booking`. Se reemplaza por el real de Carlos.
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | /api/sim/message | Enviar mensaje simulado |
+| GET | /api/sim/stream | SSE stream de eventos |
 
-### 5.3 LLM responder (preguntas abiertas)
-- System prompt = personalidad (`business_profile.persona`) + catálogo estructurado (`catalog_items`) + reglas. **Prompt-stuffing**, sin RAG.
-- Reglas duras: no inventar precios fuera del catálogo, escalar si pregunta algo médico sensible / fuera de alcance.
+### Workers (/api/workers)
 
-### 5.3.bis Capa de templating de variables
-- Las respuestas predefinidas (canned) contienen variables tipo `{nombre}`, `{ciudad}`, `{servicio}` (formato de la plantilla de Carlos).
-- Un `renderTemplate(text, context)` sustituye las variables con datos del `contact` / slots de la conversación. Variables faltantes → fallback seguro (omitir o valor neutro), nunca dejar `{var}` crudo al cliente.
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | /api/workers/reminders/run | Ejecutar worker de recordatorios |
+| GET | /api/workers/reminders/status | Status de últimas ejecuciones |
+| POST | /api/workers/reengagement/run | Ejecutar worker de re-engagement |
+| POST | /api/workers/crm/run | Ejecutar worker CRM |
 
-### 5.3.ter Escalación a humano (configurable)
-- Reglas de escalación vienen de `business_profile.rules` (mapeo de §7.2 de la plantilla): emergencia/reacción, cliente molesto, pide humano, pide descuento, pregunta técnica/médica, o baja confianza del router.
-- Al escalar: conversación → `escalated`/`human_active`, y se **notifica al destino configurado** (§7.3: nombre + WhatsApp/email). En MVP la notificación puede ser un registro + evento por el stream; el canal real (WhatsApp/email al operador) se enchufa igual que los demás.
+### Webhooks (/webhooks)
 
-### 5.4 Capa de modelo (provider-agnostic)
-```ts
-interface LlmProvider {
-  complete(params: { system: string; messages: Msg[]; tools?: Tool[]; model: string }): Promise<LlmResult>;
-}
-```
-- Implementación default vía **OpenRouter** (un endpoint, muchos modelos). El modelo se elige por config (`MODEL_ROUTER`, `MODEL_RESPONDER`).
-- **`MockLlmProvider`** para tests sin gastar tokens.
-- **Harness de evaluación** (`server/src/agent/eval/`): corre un set de conversaciones de prueba contra varios modelos → tabla de costo (tokens × precio) + calidad (criterios). Permite decidir el modelo con datos, no opinión.
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | /webhooks/:channel | Webhook verification (challenge) |
+| POST | /webhooks/:channel | Recibir mensaje de canal |
+| POST | /webhooks/wompi | Webhook de pagos Wompi |
 
-### 5.5 Integración de agendamiento — BookingProvider (3 modos configurables)
-**Agenda Pro SÍ expone API REST v3 (validado 2026-06-11), PERO la API key la tiene el cliente — igual que las credenciales de Meta.** Por eso, en el MVP **NO se agenda de verdad**; la integración real con Agenda Pro queda como "se enchufa después".
+### Público
 
-**Decisión (2026-06-12): el cierre de cita es CONFIGURABLE por tenant** vía `business_profile` (`booking_mode`), con 3 implementaciones intercambiables de la misma interfaz `BookingProvider`:
-
-| `booking_mode` | Implementación | Comportamiento al confirmar cita | Uso |
-|---|---|---|---|
-| `mock` | `MockBookingProvider` | "¡Cita confirmada!" + guarda en DB simulada (disponibilidad y reserva falsas) | **Demo de venta** (vistoso, 100% automático) |
-| `handoff` | `HandoffBookingProvider` | Recolecta todos los datos y los entrega al operador + notifica para que los cargue a Agenda Pro a mano | **Piloto real antes de tener la API** (= workflow actual de Santa María) |
-| `agendapro` | `AgendaProProvider` | Agenda de verdad vía API v3 | Cuando el cliente comparte su API key (POST-MVP) |
-
-**Alcance MVP:** construir `mock` y `handoff`. `agendapro` queda como **interfaz + stub documentado**, NO se implementa (TASK-008 sale del MVP). El día que llega la API key, se implementa y se cambia el flag — cero reconstrucción.
-
-```ts
-interface BookingProvider {
-  listServices(): Promise<Service[]>;
-  listProviders(): Promise<Provider[]>;
-  listLocations(): Promise<Location[]>;
-  getAvailableSlots(params): Promise<Slot[]>;            // GET /v3/available_slots
-  findClient(query): Promise<Client | null>;             // GET /v3/clients/search
-  createClient(data): Promise<Client>;                   // POST /v3/clients
-  createBooking(data): Promise<Booking>;                 // POST /v3/bookings  ← crítico
-}
-```
-
-- **Base URL:** `https://connect.agendapro.com/v3/` · **Auth:** `Authorization: Bearer apk_live_...` (key generada por el cliente en Configuraciones > Integraciones).
-- **MockBookingProvider / HandoffBookingProvider:** lo del MVP (ver tabla arriba). No tocan Agenda Pro.
-- **AgendaProProvider (POST-MVP, no se construye aún):** REST real. Se enchufa con la API key del cliente, igual que las credenciales de Meta.
-- **Rate limits** (~70/min, 10.000/día): **cachear** catálogo (`services`/`providers`/`locations`) y disponibilidad; NO consultar `available_slots` en cada turno del LLM.
-- **Webhooks de Agenda Pro** (`trigger`, `resource_type:"Booking"`): sincronizar cancelaciones/cambios hechos fuera de Bookia.
-
-**Prerrequisito de onboarding (negocio):** el cliente debe tener **plan Pro de Agenda Pro** (la API solo está en ese plan) — plantearlo junto con los tokens de Meta.
-
-**Pendiente de validar con cuenta real:** esquema exacto del body de `POST /v3/bookings` (campos obligatorios: probablemente `service_id`, `provider_id`, `location_id`, `client_id`, `start_time`) y enumeración completa de eventos de webhook. Las páginas de referencia son SPA; se confirman en navegador o con credenciales Pro. → La interfaz `BookingProvider` aísla esto: si el esquema difiere, solo cambia `AgendaProProvider`.
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | / | Info API |
+| GET | /health | Health check + DB status |
 
 ---
 
-## 6. API / Endpoints (Hono)
+## 7. Workers Automatizados
 
-**Webhooks (entrada de canales):**
-- `GET /webhooks/:channel` — handshake de verificación (devuelve `hub.challenge`).
-- `POST /webhooks/:channel` — recibe mensajes; valida firma; normaliza; encola procesamiento; responde 200 rápido.
+### Recordatorios (TASK-016)
+- Busca bookings `confirmed/scheduled` con datetime `NOW()+24h`
+- Envia recordatorio via pipeline del agente
+- Marca `reminder_status = sent`
 
-**Simulación (para demo sin credenciales):**
-- `POST /api/sim/message` — inyecta un mensaje simulado al pipeline (lo usa el front para la demo en vivo).
-- `GET /api/sim/stream` (SSE/WebSocket) — stream de mensajes para ver la conversación en tiempo real.
+### Wompi Pagos (TASK-017)
+- `pending_activation`: solo activa si hay `WOMPI_PUBLIC_KEY`
+- Sin key → fallback a instrucciones manuales
+- Webhook confirma pago → booking confirmed
 
-**Dashboard / app (consumidos por el front):**
-- `GET /api/conversations` — lista paginada con filtros (status, canal).
-- `GET /api/conversations/:id` — hilo completo.
-- `POST /api/conversations/:id/reply` — operador humano responde.
-- `POST /api/conversations/:id/escalate` / `/takeover` / `/handback` — control humano/bot.
-- `GET /api/metrics` — KPIs del dashboard (volumen, tasa respuesta, conversión a cita, por canal, tendencias).
-- **Catálogo y config (panel self-service):** CRUD `GET/POST/PUT/DELETE /api/catalog`, `GET/PUT /api/profile`, `GET/PUT /api/flows`.
-- `GET /api/channel-accounts` / `PUT /api/channel-accounts/:id` — gestionar el "enchufe" de credenciales.
+### Re-engagement (TASK-018)
+- Busca leads en estado `precio` sin booking
+- Secuencia: día 1, 7, 30
+- Idempotente por `reengagement_step`
 
-Todas las rutas (excepto webhooks) requieren auth y resuelven `tenant_id` del usuario autenticado (reusar Auth.js del front vía JWT compartido).
+### CRM (TASK-019)
+- Post-servicio (7 días): pide reseña Google Maps
+- Recompra (90 días): recordar seguimiento
+- Idempotente por timestamps
 
----
-
-## 7. Seguridad y privacidad
-
-- **Multi-tenant aislado:** toda query filtra por `tenant_id`; RLS de Postgres como red de seguridad ante bugs.
-- **Validación de webhooks:** firma HMAC-SHA256 (`X-Hub-Signature-256`) con `app_secret` en cada webhook real.
-- **Credenciales:** en `channel_accounts.credentials` (jsonb). Para MVP local en texto; **TODO producción:** cifrado en reposo (KMS/secret manager). Documentado como deuda explícita.
-- **Datos de conversaciones:** Ley 1581 Colombia (habeas data). NDA antes de conectar datos reales del cliente (responsabilidad de negocio, no técnica). Solo el tenant ve sus datos.
-- **Secrets:** nunca en el repo. `.env` local + `env.ts` que valida con Zod al arrancar. **Rotar el token de GitHub actualmente embebido en el remote.**
+### Handoff Summary (TASK-020)
+- Cuando escalación → LLM resume últimos 20 mensajes
+- Persiste en `conversations.handoff_summary`
+- Costo: ~$0.001 por resumen
 
 ---
 
-## 8. Testing (TDD real)
+## 8. Estado Actual (2026-06-15)
 
-- **Unit:** state-machine de flujos (transiciones, extracción de slots), normalización de cada adapter, router (con MockLlmProvider).
-- **Integration:** pipeline completo inbound→respuesta con MockAdapter + MockLlm + Postgres de test (Docker).
-- **Contract:** validar que `parseInbound` maneja payloads reales de Meta (fixtures guardados).
-- **Idempotencia:** reenviar el mismo `provider_message_id` no duplica.
-- **Eval harness:** no es test pass/fail, es comparación de modelos (output a reporte).
-- Cobertura objetivo MVP: lógica de agente y adapters > 80%.
+### Funciona ✅
+- 58/58 tests pasando
+- Server build (tsc) OK
+- Frontend build (next build) OK
+- 18 conversaciones demo con datos reales
+- Chat E2E funcional (flujo de agendamiento completo)
+- Dashboard inteligencia con datos reales
+- SSE streaming
+- Workers: recordatorios, re-engagement OK
 
----
+### Bugs conocidos ❌
+- **CRM worker:** `bookings.datetime` es text, comparado con timestamp
+- **Webhooks:** no resuelven tenant ("resolve-later")
+- **Postgres volumen:** no persistente entre rebuilds
+- **UI botones:** reply/takeover/handback disabled
+- **Settings:** solo lectura (no persiste)
 
-## 9. Docker (entorno del ejecutor)
-
-```yaml
-# docker-compose.yml (conceptual)
-services:
-  api:
-    build: ./server
-    env_file: ./server/.env
-    ports: ["8787:8787"]
-    depends_on: [postgres]
-  postgres:
-    image: postgres:16
-    environment: { POSTGRES_DB: bookia, POSTGRES_PASSWORD: ... }
-    volumes: ["pgdata:/var/lib/postgresql/data"]
-  # redis: OMITIDO en MVP
-volumes: { pgdata: {} }
-```
-Arranque: `docker compose up` → `drizzle-kit migrate` → seed del tenant Santa María (placeholder) → demo lista.
+### Pendientes 🔴
+- Credenciales Meta (WhatsApp/Instagram)
+- API key Agenda Pro
+- Plantilla de flujos de Carlos
+- JWT Auth real
+- Páginas /agenda y /analytics
 
 ---
 
-## 10. Plan de construcción (orden de tareas para OpenCode)
+## 9. Decisiones Técnicas
 
-Se ejecuta vía el **bridge Git** (`.bridge/`). Cada tarea es un handoff a OpenCode (que corre Docker/Postgres/tests en la Mac).
-
-1. **TASK-001 — Scaffold backend:** `server/` con Hono + TS + Drizzle + env.ts + Dockerfile + docker-compose + Postgres arriba. Criterio: `docker compose up` levanta api+db y `GET /health` responde 200.
-2. **TASK-002 — Schema + migraciones:** todas las tablas §3 con Drizzle + RLS + seed de tenant Santa María placeholder. Criterio: migración aplica, seed corre, tests de schema pasan.
-3. **TASK-003 — Channel-Adapter + MockAdapter:** interfaz + mock + endpoints `/api/sim/*` + SSE. Criterio: inyectar mensaje simulado se persiste y emite por stream.
-4. **TASK-004 — Capa LLM provider-agnostic + MockLlm:** interfaz `LlmProvider`, impl OpenRouter, MockLlm. Criterio: responder con MockLlm sin red; con OpenRouter (key) responde real.
-5. **TASK-005 — Cerebro: router + motor de flujos + responder:** pipeline completo con flujo placeholder de agendamiento. Criterio: conversación simulada completa el flujo de agendamiento determinístico end-to-end.
-6. **TASK-006 — Inbox + escalación humana + API dashboard/metrics.** Criterio: endpoints responden, takeover/handback funcionan.
-7. **TASK-007 — WhatsAppAdapter + InstagramAdapter (REST real, sin credenciales aún):** estructura completa lista para enchufar. Criterio: verifyWebhook/parseInbound pasan contra fixtures reales de Meta.
-8. **TASK-008 — Eval harness de modelos:** corre conversaciones de prueba contra ≥3 modelos (incluido uno barato tipo DeepSeek) → reporte costo/calidad. Criterio: genera tabla comparativa.
-9. **TASK-009 — Importador de la plantilla de Carlos:** parser/seed que toma la plantilla llena (las 10 secciones §3.bis) y la convierte en filas de `flows` + `catalog_items` + `business_profile` + canned responses. Criterio: dado un archivo de plantilla de ejemplo, el seed produce una config válida que el agente consume.
-10. **TASK-010 — Conectar el front existente al backend real** (reemplazar los JSON simulados por la API).
-
-**El "hueco" de hiperpersonalización** queda en: `flows` (definición real), `catalog_items` (servicios/precios reales), `business_profile` (tono/reglas reales) + canned responses literales. Todo se rellena importando la plantilla de Carlos (TASK-009), sin tocar código. El mapeo exacto plantilla→tablas está en §3.bis.
+- **LLM:** DeepSeek API (deepseek-v4-flash) — 3x más barato que OpenRouter
+- **Booking:** Modo `handoff` para Agenda Pro (pendiente API key)
+- **Pagos:** Wompi modo `pending_activation` (sin key = manual)
+- **Auth:** NextAuth mock con `data/users.json` — JWT real en Fase 2
+- **RLS:** GUC `app.current_tenant` con FORCE RLS + bookia_app rol
+- **Docker:** `bookia_app` pool `max: 1` para consistencia de sesión
+- **CORS:** `app.use("*", cors())` — permite todo en dev
 
 ---
 
-## 11. Decisiones abiertas / dependencias
+## 10. Próximos Pasos
 
-1. **API de Agenda Pro:** ✅ RESUELTO (2026-06-11) — SÍ expone API REST v3. PERO (decisión 2026-06-12): la API key la tiene el cliente, así que **NO se agenda de verdad en el MVP**. Agendamiento configurable (`booking_mode`: mock/handoff ahora, agendapro post-MVP) — ver §5.5. `AgendaProProvider` real se construye cuando el cliente comparta su key.
-2. **Plantilla de flujos de Carlos:** necesaria para rellenar el "hueco". El MVP se construye con placeholder mientras tanto.
-3. **Modelo final:** se decide tras TASK-008 (eval), no antes.
-4. **Migración del número de WhatsApp actual a Cloud API:** validar viabilidad (riesgo de negocio).
-5. **Cifrado de credenciales en reposo:** deuda para fase producción.
+1. **TASK-022:** Revisión de Claude con auditoría completa
+2. **Fase 2:** JWT Auth, settings guardar, /agenda, /analytics
+3. **Fase 3:** Agenda Pro integration, Meta credentials, producción
 
 ---
 
-*Fin del TDD v1.0. Cambios futuros se versionan aquí mismo.*
+> **Nota:** Este documento es la fuente de verdad técnica del backend. Toda decisión de implementación debe trazar a una sección de aquí.
