@@ -9,6 +9,8 @@ services:
       DATABASE_URL: postgres://bookia:bookia_pass@postgres:5432/bookia
       DATABASE_URL_APP: postgres://bookia_app:bookia_app_pass@postgres:5432/bookia
       NODE_ENV: production
+    env_file:
+      - ./server/.env
     depends_on:
       postgres:
         condition: service_healthy
