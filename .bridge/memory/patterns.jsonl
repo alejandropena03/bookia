@@ -1,3 +1,10 @@
 {"t":"2026-06-13","skill":"validator","project":"bookia","result":"pass","iterations":8}
 {"t":"2026-06-13","skill":"bridge-updater","project":"bookia","result":"pass","iterations":15}
-{"t":"2026-06-13","skill":"outline-sync","project":"bookia","result":"pending","iterations":0}
+{"t":"2026-06-13","skill":"outline-sync","project":"bookia","result":"pass","iterations":1}
+{"t":"2026-06-15","skill":"validator","project":"bookia","result":"pass","iterations":12}
+{"t":"2026-06-15","skill":"bridge-updater","project":"bookia","result":"pass","iterations":18}
+{"t":"2026-06-15","skill":"outline-sync","project":"bookia","result":"pass","iterations":3}
+{"t":"2026-06-15","skill":"memory-keeper","project":"bookia","result":"pass","iterations":3}
+{"t":"2026-06-15","pattern":"Docker up -d recrea postgres si docker-compose.yml cambio","skill":"docker-compose","impact":"Datos se pierden en cada rebuild si el compose file cambia","mitigation":"volumen external:true + entrypoint auto-seed"}
+{"t":"2026-06-15","pattern":"SessionProvider requerido por useSession de NextAuth","skill":"next-auth","impact":"Crash global si falta SessionProvider","mitigation":"DashboardLayout externo provee SessionProvider, DashboardLayoutInner usa useSession"}
+{"t":"2026-06-15","pattern":"seed-demo usa localhost:5432 (no funciona en Docker)","skill":"docker","impact":"seed-demo falla dentro del container","mitigation":""}
