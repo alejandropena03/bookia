@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { signOut } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 import Image from "next/image"
 import {
   LayoutDashboard, MessageSquare, Calendar, BarChart2, Settings,
@@ -25,6 +25,8 @@ const navItems = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { data: session } = useSession()
+  const userName = session?.user?.name ?? session?.user?.email?.split("@")[0] ?? "Admin"
 
   return (
     <QueryProvider>
@@ -97,7 +99,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Avatar className="w-8 h-8">
                 <AvatarFallback className="bg-indigo-100 text-indigo-700 text-xs font-semibold">SM</AvatarFallback>
               </Avatar>
-              <span className="hidden sm:block text-sm font-medium app-text-hi">Admin</span>
+              <span className="hidden sm:block text-sm font-medium app-text-hi">{userName}</span>
               <ChevronDown className="w-4 h-4 app-text-mid" />
             </div>
           </header>
