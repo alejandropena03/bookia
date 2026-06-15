@@ -123,10 +123,10 @@ export function getProfile(): Promise<BusinessProfile> {
   return apiFetch<BusinessProfile>("/api/profile")
 }
 
-export function sendSimMessage(text: string): Promise<{ messageId: string; conversationId: string }> {
-  return apiFetch<{ messageId: string; conversationId: string }>("/api/sim/message", {
+export function sendSimMessage(text: string): Promise<{ messageId: string; conversationId: string; agentResponse?: unknown }> {
+  return apiFetch<{ messageId: string; conversationId: string; agentResponse?: unknown }>("/api/sim/message", {
     method: "POST",
-    body: JSON.stringify({ text, tenantSlug: TENANT_SLUG, channel: "whatsapp", contactName: "Tú (demo)" }),
+    body: JSON.stringify({ text, tenantSlug: TENANT_SLUG, from: "demo-user", name: "Tú (demo)", channel: "mock" }),
   })
 }
 

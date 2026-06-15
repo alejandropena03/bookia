@@ -26,9 +26,16 @@ export async function ingestInbound(normalized: NormalizedInboundMessage) {
       ORDER BY created_at DESC LIMIT 1
     `;
     if (!conv) {
-      const [ca] = await sql`
+      let [ca] = await sql`
         SELECT id FROM channel_accounts WHERE tenant_id = ${tenantId} AND channel = ${channel} AND mode = 'mock' LIMIT 1
       `;
+      if (!ca) {
+        [ca] = await sql`
+          INSERT INTO channel_accounts (tenant_id, channel, mode, status, external_account_id)
+          VALUES (${tenantId}, ${channel}, 'mock', 'connected', 'auto-${channel}-${Date.now()}')
+          RETURNING id
+        `;
+      }
       [conv] = await sql`
         INSERT INTO conversations (tenant_id, contact_id, channel_account_id, status, reply_window_expires_at, last_message_at)
         VALUES (${tenantId}, ${contact.id}, ${ca.id}, 'bot_active', ${normalized.replyWindowExpiresAt ?? null}, ${now})
