@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { signOut, useSession } from "next-auth/react"
+import { signOut, useSession, SessionProvider } from "next-auth/react"
 import Image from "next/image"
 import {
   LayoutDashboard, MessageSquare, Calendar, Settings,
@@ -21,7 +21,7 @@ const navItems = [
   { href: "/settings", label: "Configuración", icon: Settings },
 ]
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { data: session } = useSession()
@@ -110,5 +110,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
       <DemoLive />
     </QueryProvider>
+  )
+}
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <SessionProvider>
+      <DashboardLayoutInner>{children}</DashboardLayoutInner>
+    </SessionProvider>
   )
 }
