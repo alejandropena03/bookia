@@ -53,10 +53,11 @@ export default function DemoLive() {
     setSending(true)
     setMessages((prev) => [...prev, { id: `user-${++msgId}`, text, sender: "user" }])
     try {
-      const { conversationId } = await sendSimMessage(text)
-      setDemoConvId(conversationId)
-    } catch {
-      setMessages((prev) => [...prev, { id: `bot-${++msgId}`, text: "(Error conectando al backend)", sender: "bot" }])
+      const result = await sendSimMessage(text)
+      setDemoConvId(result.conversationId)
+    } catch (err: any) {
+      const reason = err?.message ?? String(err ?? "Error desconocido")
+      setMessages((prev) => [...prev, { id: `bot-${++msgId}`, text: `⚠️ ${reason}`, sender: "bot" }])
     }
     setSending(false)
   }
