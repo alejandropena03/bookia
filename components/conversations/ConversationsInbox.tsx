@@ -9,11 +9,14 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { formatRelativeTime } from "@/lib/time"
 import { Button } from "@/components/ui/button"
+import { replyConversation } from "@/lib/api"
 
 const CANAL_STYLES: Record<string, string> = {
   whatsapp: "bg-green-50 text-green-700",
   instagram: "bg-pink-50 text-pink-700",
   facebook: "bg-blue-50 text-blue-700",
+  messenger: "bg-purple-50 text-purple-700",
+  mock: "bg-gray-50 text-gray-600",
 }
 
 const STATUS_STYLES: Record<string, string> = {
@@ -22,6 +25,9 @@ const STATUS_STYLES: Record<string, string> = {
   pending: "bg-amber-50 text-amber-700",
   escalated: "bg-red-50 text-red-700",
   lost: "bg-gray-50 text-gray-500",
+  bot_active: "bg-indigo-50 text-indigo-700",
+  human_active: "bg-emerald-50 text-emerald-700",
+  closed: "bg-gray-50 text-gray-500",
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -30,6 +36,9 @@ const STATUS_LABELS: Record<string, string> = {
   pending: "Pendiente",
   escalated: "Escalada",
   lost: "Perdida",
+  bot_active: "Bot activo",
+  human_active: "Humano activo",
+  closed: "Cerrada",
 }
 
 interface Message {
@@ -37,6 +46,7 @@ interface Message {
   role: string
   content: string
   timestamp: string
+  messageId?: string
 }
 
 interface Conversation {
@@ -59,12 +69,43 @@ interface Props {
 export default function ConversationsInbox({ conversations, activeConversation }: Props) {
   const [search, setSearch] = useState("")
   const [canalFilter, setCanalFilter] = useState("all")
+  const [replyText, setReplyText] = useState("")
+  const [sending, setSending] = useState(false)
+  const [sentMsg, setSentMsg] = useState(false)
 
   const filtered = conversations.filter((c) => {
     const matchSearch = c.contact_name.toLowerCase().includes(search.toLowerCase())
     const matchCanal = canalFilter === "all" || c.canal === canalFilter
     return matchSearch && matchCanal
   })
+
+  async function handleReply() {
+    const text = replyText.trim()
+    if (!text || !activeConversation || sending) return
+    setSending(true)
+    try {
+      await replyConversation(activeConversation.id, text)
+      setReplyText("")
+      setSentMsg(true)
+      setTimeout(() => setSentMsg(false), 2000)
+    } catch {
+      // fallback silently
+    }
+    setSending(false)
+  }
+
+  async function handleApprove(content: string) {
+    if (!activeConversation || sending) return
+    setSending(true)
+    try {
+      await replyConversation(activeConversation.id, content)
+      setSentMsg(true)
+      setTimeout(() => setSentMsg(false), 2000)
+    } catch {
+      // fallback silently
+    }
+    setSending(false)
+  }
 
   return (
     <div className="flex h-[calc(100vh-8rem)] gap-0 -m-6 overflow-hidden">
@@ -85,7 +126,7 @@ export default function ConversationsInbox({ conversations, activeConversation }
               <TabsTrigger value="all" className="flex-1 text-xs">Todos</TabsTrigger>
               <TabsTrigger value="whatsapp" className="flex-1 text-xs">WA</TabsTrigger>
               <TabsTrigger value="instagram" className="flex-1 text-xs">IG</TabsTrigger>
-              <TabsTrigger value="facebook" className="flex-1 text-xs">FB</TabsTrigger>
+              <TabsTrigger value="messenger" className="flex-1 text-xs">FB</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
@@ -108,8 +149,8 @@ export default function ConversationsInbox({ conversations, activeConversation }
                     <span className="text-xs app-text-lo shrink-0 ml-2">{formatRelativeTime(conv.updated_at)}</span>
                   </div>
                   <div className="flex items-center gap-1.5 mb-1">
-                    <Badge className={`text-[10px] py-0 px-1 border-0 ${CANAL_STYLES[conv.canal]}`}>{conv.canal}</Badge>
-                    <Badge className={`text-[10px] py-0 px-1 border-0 ${STATUS_STYLES[conv.estado]}`}>{STATUS_LABELS[conv.estado]}</Badge>
+                    <Badge className={`text-[10px] py-0 px-1 border-0 ${CANAL_STYLES[conv.canal] ?? "bg-gray-50 text-gray-600"}`}>{conv.canal}</Badge>
+                    <Badge className={`text-[10px] py-0 px-1 border-0 ${STATUS_STYLES[conv.estado] ?? "bg-gray-50 text-gray-500"}`}>{STATUS_LABELS[conv.estado] ?? conv.estado}</Badge>
                   </div>
                   <p className="text-xs app-text-mid truncate">{last?.content?.slice(0, 50)}...</p>
                 </div>
@@ -134,9 +175,9 @@ export default function ConversationsInbox({ conversations, activeConversation }
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-semibold app-text-hi text-sm">{activeConversation.contact_name}</span>
-                <Badge className={`text-xs py-0 px-1.5 border-0 ${CANAL_STYLES[activeConversation.canal]}`}>{activeConversation.canal}</Badge>
+                <Badge className={`text-xs py-0 px-1.5 border-0 ${CANAL_STYLES[activeConversation.canal] ?? "bg-gray-50 text-gray-600"}`}>{activeConversation.canal}</Badge>
               </div>
-              <span className={`text-xs ${STATUS_STYLES[activeConversation.estado]?.replace("bg-", "text-").replace("-50", "-600")}`}>{STATUS_LABELS[activeConversation.estado]}</span>
+              <span className={`text-xs ${STATUS_STYLES[activeConversation.estado]?.replace("bg-", "text-").replace("-50", "-600") ?? "text-gray-500"}`}>{STATUS_LABELS[activeConversation.estado] ?? activeConversation.estado}</span>
             </div>
           </div>
 
@@ -175,9 +216,25 @@ export default function ConversationsInbox({ conversations, activeConversation }
                       <p className="text-[10px] app-text-lo mt-1 text-right">{formatRelativeTime(msg.timestamp)}</p>
                       {isAI && (
                         <div className="flex gap-2 mt-2 justify-end">
-                          <Button size="sm" className="h-7 text-xs bg-indigo-600 hover:bg-indigo-700 text-white">Aprobar</Button>
-                          <Button size="sm" variant="outline" className="h-7 text-xs">Editar</Button>
-                          <Button size="sm" variant="outline" className="h-7 text-xs text-red-500 border-red-200 hover:bg-red-50">Escalar</Button>
+                          <Button
+                            size="sm"
+                            className="h-7 text-xs bg-indigo-600 hover:bg-indigo-700 text-white"
+                            onClick={() => handleApprove(msg.content)}
+                            disabled={sending}
+                          >
+                            {sending ? "..." : "Aprobar"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 text-xs"
+                            onClick={() => setReplyText(msg.content)}
+                          >
+                            Editar
+                          </Button>
+                          <Button size="sm" variant="outline" className="h-7 text-xs text-red-500 border-red-200 hover:bg-red-50">
+                            Escalar
+                          </Button>
                         </div>
                       )}
                     </div>
@@ -188,13 +245,28 @@ export default function ConversationsInbox({ conversations, activeConversation }
           </div>
 
           <div className="app-surface border-t app-border p-4">
-            <div className="flex gap-2">
-              <Input placeholder="Escribe un mensaje..." className="flex-1 h-10" disabled />
-              <Button className="h-10 app-brand-bg text-white text-sm" disabled>
-                Enviar
+            <form
+              onSubmit={(e) => { e.preventDefault(); handleReply() }}
+              className="flex gap-2"
+            >
+              <Input
+                placeholder="Escribe un mensaje..."
+                className="flex-1 h-10"
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                disabled={sending}
+              />
+              <Button
+                type="submit"
+                className="h-10 app-brand-bg text-white text-sm"
+                disabled={sending || !replyText.trim()}
+              >
+                {sending ? "..." : sentMsg ? "✓" : "Enviar"}
               </Button>
-            </div>
-            <p className="text-xs app-text-lo mt-2">Demo — el envío real se activa en Fase 2</p>
+            </form>
+            <p className="text-xs app-text-lo mt-2">
+              {sentMsg ? "✅ Mensaje enviado" : "Responde como operador humano a esta conversación"}
+            </p>
           </div>
         </div>
       ) : (
@@ -214,13 +286,13 @@ export default function ConversationsInbox({ conversations, activeConversation }
               <AvatarFallback className="bg-indigo-50 text-indigo-700 text-lg font-bold">{activeConversation.contact_avatar}</AvatarFallback>
             </Avatar>
             <p className="font-semibold app-text-hi text-sm">{activeConversation.contact_name}</p>
-            <Badge className={`mt-1 text-xs border-0 ${CANAL_STYLES[activeConversation.canal]}`}>{activeConversation.canal}</Badge>
+            <Badge className={`mt-1 text-xs border-0 ${CANAL_STYLES[activeConversation.canal] ?? "bg-gray-50 text-gray-600"}`}>{activeConversation.canal}</Badge>
           </div>
 
           <div className="space-y-3">
             <div>
               <p className="text-xs app-text-lo uppercase font-medium mb-1">Estado</p>
-              <Badge className={`text-xs border-0 ${STATUS_STYLES[activeConversation.estado]}`}>{STATUS_LABELS[activeConversation.estado]}</Badge>
+              <Badge className={`text-xs border-0 ${STATUS_STYLES[activeConversation.estado] ?? "bg-gray-50 text-gray-500"}`}>{STATUS_LABELS[activeConversation.estado] ?? activeConversation.estado}</Badge>
             </div>
             <div>
               <p className="text-xs app-text-lo uppercase font-medium mb-1">Servicio</p>
@@ -239,9 +311,12 @@ export default function ConversationsInbox({ conversations, activeConversation }
             </div>
           </div>
 
-          <Button variant="outline" className="w-full text-sm app-text-mid" disabled>
-            Ver en Agenda Pro
-          </Button>
+          <div className="mt-auto pt-4 border-t app-border">
+            <p className="text-xs app-text-lo text-center leading-relaxed">
+              Agenda Pro<br />
+              <span className="text-[11px]">Próximamente</span>
+            </p>
+          </div>
         </div>
       )}
     </div>

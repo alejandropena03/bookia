@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
 import Image from "next/image"
 import {
-  LayoutDashboard, MessageSquare, Calendar, BarChart2, Settings,
+  LayoutDashboard, MessageSquare, Calendar, Settings,
   Menu, X, LogOut, Bell, ChevronDown,
 } from "lucide-react"
 import { QueryProvider } from "@/app/providers"
@@ -18,7 +18,6 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/conversations", label: "Conversaciones", icon: MessageSquare },
   { href: "/agenda", label: "Agenda", icon: Calendar, soon: true },
-  { href: "/analytics", label: "Analítica", icon: BarChart2, soon: true },
   { href: "/settings", label: "Configuración", icon: Settings },
 ]
 

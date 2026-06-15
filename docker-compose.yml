@@ -34,3 +34,4 @@ services:
 volumes:
   bookia_pgdata:
     name: bookia_pgdata
+    external: true

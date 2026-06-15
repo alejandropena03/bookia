@@ -6,6 +6,10 @@ echo ""
 echo "🚀 Iniciando Bookia..."
 echo ""
 
+echo "0. Preparando volumen de datos..."
+docker volume create bookia_pgdata 2>/dev/null || true
+echo ""
+
 # 1. Levantar Postgres
 echo "1. Levantando PostgreSQL..."
 docker compose up -d postgres
