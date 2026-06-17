@@ -11,7 +11,8 @@
 import postgres from "postgres";
 import { randomUUID } from "crypto";
 
-const sql = postgres("postgres://bookia:bookia_pass@localhost:5432/bookia", {
+const DB_URL = process.env.DATABASE_URL ?? "postgres://bookia:bookia_pass@localhost:5432/bookia";
+const sql = postgres(DB_URL, {
   max: 1, idle_timeout: 10, connect_timeout: 10,
 });
 

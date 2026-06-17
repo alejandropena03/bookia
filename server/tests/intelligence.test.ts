@@ -15,18 +15,18 @@ describe("Intelligence Metrics", () => {
   let catalogItemId: string;
 
   beforeAll(async () => {
-    // Clean data
-    await setupSql`DELETE FROM bookings`;
-    await setupSql`DELETE FROM conversation_state`;
-    await setupSql`DELETE FROM messages`;
-    await setupSql`DELETE FROM conversations`;
-    await setupSql`DELETE FROM contacts`;
-    await setupSql`DELETE FROM channel_accounts`;
-    await setupSql`DELETE FROM catalog_items`;
-    await setupSql`DELETE FROM business_profile`;
-    await setupSql`DELETE FROM users`;
-    await setupSql`DELETE FROM flows`;
-    await setupSql`DELETE FROM tenants`;
+    // Clean data — only delete our test tenant's data, never touch other tenants
+    await setupSql`DELETE FROM bookings WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-%')`;
+    await setupSql`DELETE FROM conversation_state WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-%')`;
+    await setupSql`DELETE FROM messages WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-%')`;
+    await setupSql`DELETE FROM conversations WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-%')`;
+    await setupSql`DELETE FROM contacts WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-%')`;
+    await setupSql`DELETE FROM channel_accounts WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-%')`;
+    await setupSql`DELETE FROM catalog_items WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-%')`;
+    await setupSql`DELETE FROM business_profile WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-%')`;
+    await setupSql`DELETE FROM users WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-%')`;
+    await setupSql`DELETE FROM flows WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-%')`;
+    await setupSql`DELETE FROM tenants WHERE slug LIKE 'test-%'`;
 
     // Create tenant
     const [t] = await setupSql`INSERT INTO tenants (name, slug) VALUES ('Test Intel', 'test-intel') RETURNING id`;
@@ -65,42 +65,48 @@ describe("Intelligence Metrics", () => {
     `;
 
     // Conversation 1: bot_active with conversation_state (pricing discussed, no booking)
+    const convTime = new Date();
+    convTime.setHours(10, 0, 0, 0); // Within heatmap range (10 AM Colombia time)
+
     const [c1] = await setupSql`
       INSERT INTO conversations (tenant_id, contact_id, channel_account_id, status, last_message_at)
-      VALUES (${tenantId}, ${contact.id}, ${ca.id}, 'bot_active', NOW()) RETURNING id
+      VALUES (${tenantId}, ${contact.id}, ${ca.id}, 'bot_active', ${convTime.toISOString()}) RETURNING id
     `;
     convId = c1.id;
 
     // Messages for conversation 1
     await setupSql`
       INSERT INTO messages (tenant_id, conversation_id, direction, sender_type, text, created_at)
-      VALUES (${tenantId}, ${c1.id}, 'inbound', 'contact', 'Hola, quiero saber cuánto cuesta la depilación', NOW())
+      VALUES (${tenantId}, ${c1.id}, 'inbound', 'contact', 'Hola, quiero saber cuánto cuesta la depilación', ${convTime.toISOString()})
     `;
     await setupSql`
       INSERT INTO messages (tenant_id, conversation_id, direction, sender_type, text, created_at)
-      VALUES (${tenantId}, ${c1.id}, 'outbound', 'bot', 'La depilación láser cuesta $350.000', NOW())
+      VALUES (${tenantId}, ${c1.id}, 'outbound', 'bot', 'La depilación láser cuesta $350.000', ${convTime.toISOString()})
     `;
 
     // Conversation state for conversation 1
     await setupSql`
       INSERT INTO conversation_state (tenant_id, conversation_id, flow_key, current_state, slots, created_at)
-      VALUES (${tenantId}, ${c1.id}, 'agendamiento', 'precio', ${setupSql.json({ servicio: "Depilación láser" })}, NOW())
+      VALUES (${tenantId}, ${c1.id}, 'agendamiento', 'precio', ${setupSql.json({ servicio: "Depilación láser" })}, ${convTime.toISOString()})
     `;
 
     // Conversation 2: has a booking (confirmed)
+    const convTime2 = new Date(convTime);
+    convTime2.setHours(11, 0, 0, 0); // Within heatmap range
+
     const [c2] = await setupSql`
       INSERT INTO conversations (tenant_id, contact_id, channel_account_id, status, last_message_at)
-      VALUES (${tenantId}, ${contact2.id}, ${ca.id}, 'closed', NOW()) RETURNING id
+      VALUES (${tenantId}, ${contact2.id}, ${ca.id}, 'closed', ${convTime2.toISOString()}) RETURNING id
     `;
     convWithBookingId = c2.id;
 
     await setupSql`
       INSERT INTO messages (tenant_id, conversation_id, direction, sender_type, text, created_at)
-      VALUES (${tenantId}, ${c2.id}, 'inbound', 'contact', 'Quiero agendar consulta dermatológica', NOW())
+      VALUES (${tenantId}, ${c2.id}, 'inbound', 'contact', 'Quiero agendar consulta dermatológica', ${convTime2.toISOString()})
     `;
     await setupSql`
       INSERT INTO messages (tenant_id, conversation_id, direction, sender_type, text, created_at)
-      VALUES (${tenantId}, ${c2.id}, 'outbound', 'bot', 'Claro, tenemos disponible el martes', NOW())
+      VALUES (${tenantId}, ${c2.id}, 'outbound', 'bot', 'Claro, tenemos disponible el martes', ${convTime2.toISOString()})
     `;
 
     // Booking on conversation 2
@@ -236,7 +242,7 @@ describe("Intelligence Metrics", () => {
   it("returns empty/zero data when DB has no data for a different tenant", async () => {
     // Create a clean tenant with no data
     const [emptyTenant] = await setupSql`
-      INSERT INTO tenants (name, slug) VALUES ('Empty Intel', 'empty-intel') RETURNING id
+      INSERT INTO tenants (name, slug) VALUES ('Test Empty Intel', 'test-empty-intel') RETURNING id
     `;
     const emptyTenantId = emptyTenant.id;
 

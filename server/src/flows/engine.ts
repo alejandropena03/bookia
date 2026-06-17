@@ -31,18 +31,56 @@ export interface CatalogItem {
   currency: string;
 }
 
+function normalizeText(t: string): string {
+  return t
+    .toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[–—\-_\/,.;!¡¿?]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+const LEADING_WORDS = ["quiero", "me gustaria", "quisiera", "necesito", "el", "la", "un", "una", "los", "las", "de"];
+
+function stripLeadingWords(t: string): string {
+  let result = t;
+  for (const w of LEADING_WORDS) {
+    if (result.startsWith(w + " ")) {
+      result = result.slice(w.length + 1);
+    }
+  }
+  return result;
+}
+
 function buildTemplateContext(slots: Record<string, string>, catalogItems?: CatalogItem[]): Record<string, string> {
   const catalog = catalogItems ?? [];
-  const selectedName = slots.service || slots.service_name || "";
-  const selected = catalog.find((c) => selectedName.toLowerCase().includes(c.name.toLowerCase()) || c.name.toLowerCase().includes(selectedName.toLowerCase()));
+  const rawName = slots.service || slots.service_name || "";
+  const cleanName = stripLeadingWords(normalizeText(rawName));
+
+  const selected = catalog.find((c) => {
+    const cn = normalizeText(c.name);
+    return cleanName.includes(cn) || cn.includes(cleanName);
+  });
+
+  // Clean double-article patterns from slot values for nicer rendering
+  function cleanSlot(val: string): string {
+    const v = val.trim();
+    const articles = ["el ", "la ", "un ", "una ", "los ", "las ", "de "];
+    for (const a of articles) {
+      if (v.toLowerCase().startsWith(a) && v.length > a.length + 2) {
+        return v.slice(a.length).trim();
+      }
+    }
+    return v;
+  }
 
   return {
     ...slots,
     nombre: slots.nombre || "",
-    city: slots.city || slots.ciudad || "",
-    service_name: selected?.name ?? slots.service_name ?? slots.service ?? "",
+    city: cleanSlot(slots.city || slots.ciudad || ""),
+    service_name: selected?.name ?? cleanSlot(slots.service_name ?? slots.service ?? ""),
     service_price: selected ? `${selected.price} ${selected.currency}` : slots.service_price ?? "",
-    datetime: slots.datetime || "",
+    datetime: cleanSlot(slots.datetime || ""),
     client_name: slots.client_name || slots.clientData || "",
     catalog_list: catalog.length > 0
       ? catalog.map((c) => `- ${c.name}: ${c.price} ${c.currency}`).join("\n")

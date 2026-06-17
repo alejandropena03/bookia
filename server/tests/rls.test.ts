@@ -20,20 +20,20 @@ describe("RLS multi-tenant isolation", () => {
   let tenant2Id: string;
 
   beforeAll(async () => {
-    // Clean slate via superuser connection
-    await setupSql`DELETE FROM users`;
-    await setupSql`DELETE FROM business_profile`;
-    await setupSql`DELETE FROM catalog_items`;
-    await setupSql`DELETE FROM flows`;
-    await setupSql`DELETE FROM messages`;
-    await setupSql`DELETE FROM conversations`;
-    await setupSql`DELETE FROM contacts`;
-    await setupSql`DELETE FROM channel_accounts`;
-    await setupSql`DELETE FROM tenants`;
+    // Clean slate via superuser connection — only our test tenants
+    await setupSql`DELETE FROM users WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-rls-%')`;
+    await setupSql`DELETE FROM business_profile WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-rls-%')`;
+    await setupSql`DELETE FROM catalog_items WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-rls-%')`;
+    await setupSql`DELETE FROM flows WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-rls-%')`;
+    await setupSql`DELETE FROM messages WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-rls-%')`;
+    await setupSql`DELETE FROM conversations WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-rls-%')`;
+    await setupSql`DELETE FROM contacts WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-rls-%')`;
+    await setupSql`DELETE FROM channel_accounts WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-rls-%')`;
+    await setupSql`DELETE FROM tenants WHERE slug LIKE 'test-rls-%'`;
 
     // Create 2 tenants (tenants has NO RLS)
-    const [t1] = await setupSql`INSERT INTO tenants (name, slug) VALUES ('Tenant Alpha', 'alpha') RETURNING id`;
-    const [t2] = await setupSql`INSERT INTO tenants (name, slug) VALUES ('Tenant Beta', 'beta') RETURNING id`;
+    const [t1] = await setupSql`INSERT INTO tenants (name, slug) VALUES ('Test Tenant Alpha', 'test-rls-alpha') RETURNING id`;
+    const [t2] = await setupSql`INSERT INTO tenants (name, slug) VALUES ('Test Tenant Beta', 'test-rls-beta') RETURNING id`;
     tenant1Id = t1.id;
     tenant2Id = t2.id;
 

@@ -6,6 +6,8 @@ COPY . .
 RUN npm run build
 
 FROM node:22-alpine AS runner
+RUN apk add --no-cache tzdata
+ENV TZ=America/Bogota
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --omit=dev

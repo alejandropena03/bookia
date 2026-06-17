@@ -437,8 +437,8 @@ export async function computeIntelligence(
 
   const heatmapRaw = await sql`
     SELECT
-      EXTRACT(DOW FROM m.created_at)::int AS dow,
-      EXTRACT(HOUR FROM m.created_at)::int AS hour,
+      EXTRACT(DOW FROM m.created_at AT TIME ZONE 'America/Bogota')::int AS dow,
+      EXTRACT(HOUR FROM m.created_at AT TIME ZONE 'America/Bogota')::int AS hour,
       COUNT(*)::int AS count
     FROM messages m
     WHERE m.tenant_id = ${tenantId}

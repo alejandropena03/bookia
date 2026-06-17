@@ -14,18 +14,18 @@ describe("Dashboard & Inbox API", () => {
   let convHumanId: string;
 
   beforeAll(async () => {
-    // Clean test data
-    await setupSql`DELETE FROM bookings`;
-    await setupSql`DELETE FROM conversation_state`;
-    await setupSql`DELETE FROM messages`;
-    await setupSql`DELETE FROM conversations`;
-    await setupSql`DELETE FROM contacts`;
-    await setupSql`DELETE FROM channel_accounts`;
-    await setupSql`DELETE FROM users`;
-    await setupSql`DELETE FROM business_profile`;
-    await setupSql`DELETE FROM catalog_items`;
-    await setupSql`DELETE FROM flows`;
-    await setupSql`DELETE FROM tenants`;
+    // Clean test data — only our test tenant, never touch other tenants
+    await setupSql`DELETE FROM bookings WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-%')`;
+    await setupSql`DELETE FROM conversation_state WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-%')`;
+    await setupSql`DELETE FROM messages WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-%')`;
+    await setupSql`DELETE FROM conversations WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-%')`;
+    await setupSql`DELETE FROM contacts WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-%')`;
+    await setupSql`DELETE FROM channel_accounts WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-%')`;
+    await setupSql`DELETE FROM users WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-%')`;
+    await setupSql`DELETE FROM business_profile WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-%')`;
+    await setupSql`DELETE FROM catalog_items WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-%')`;
+    await setupSql`DELETE FROM flows WHERE tenant_id IN (SELECT id FROM tenants WHERE slug LIKE 'test-%')`;
+    await setupSql`DELETE FROM tenants WHERE slug LIKE 'test-%'`;
 
     // Create tenant
     const [t] = await setupSql`INSERT INTO tenants (name, slug) VALUES ('Test Dashboard', 'test-dash') RETURNING id`;

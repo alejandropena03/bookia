@@ -286,6 +286,30 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
       SELECT name, price::text, currency FROM catalog_items WHERE tenant_id = ${req.tenantId} AND is_active = 1 ORDER BY name
     `;
 
+    // ⚡ Check escalation FIRST — keywords like "emergencia", "cancelar", "humano"
+    // must escalate even on the first message, before first_contact flow hooks it
+    const earlyEscalation = evaluateEscalation(text, 1.0, bizContext.escalationConfig);
+    if (earlyEscalation.shouldEscalate) {
+      await sql`UPDATE conversations SET status = 'human_active' WHERE id = ${conversationId}`;
+      try {
+        const rawMsgs = await sql`
+          SELECT sender_type, text, created_at FROM messages
+          WHERE conversation_id = ${conversationId} AND tenant_id = ${req.tenantId}
+          ORDER BY created_at DESC LIMIT 20
+        `;
+        const msgs = rawMsgs.reverse().map((r: any) => ({
+          senderType: r.sender_type as string,
+          text: r.text as string | null,
+          createdAt: r.created_at as string,
+        }));
+        const summary = await summarizeConversation(msgs, contactName ?? "Cliente");
+        await sql`UPDATE conversations SET handoff_summary = ${summary} WHERE id = ${conversationId}`;
+      } catch { /* best-effort */ }
+      const escText = "Tu consulta será atendida por un asesor humano en breve.";
+      const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, escText, "bot", "escalated");
+      return { text: escText, messageId: msgId, route: "escalated", escalated: true, escalationReason: earlyEscalation.reason };
+    }
+
     // Check if first message — trigger first_contact flow
     if (await isFirstMessage(sql, conversationId)) {
       const firstResult = await tryStartFlow(sql, conversationId, "first_contact", catalogItems, contactName);
@@ -315,7 +339,7 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
     // 2. Classify intent
     const routerResult = await classifyIntent(text);
 
-    // 3. Check escalation
+    // 3. Check escalation (low-confidence fallback — keywords already caught above)
     const escalation = evaluateEscalation(text, routerResult.confidence, bizContext.escalationConfig);
     if (escalation.shouldEscalate) {
       await sql`UPDATE conversations SET status = 'human_active' WHERE id = ${conversationId}`;
@@ -334,9 +358,7 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
         }));
         const summary = await summarizeConversation(msgs, contactName ?? "Cliente");
         await sql`UPDATE conversations SET handoff_summary = ${summary} WHERE id = ${conversationId}`;
-      } catch {
-        // Summary generation is best-effort
-      }
+      } catch { /* best-effort */ }
 
       const text_ = "Tu consulta será atendida por un asesor humano en breve.";
       const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, text_, "bot", "escalated");

@@ -6,6 +6,7 @@ services:
     ports:
       - "8787:8787"
     environment:
+      TZ: America/Bogota
       DATABASE_URL: postgres://bookia:bookia_pass@postgres:5432/bookia
       DATABASE_URL_APP: postgres://bookia_app:bookia_app_pass@postgres:5432/bookia
       NODE_ENV: production
