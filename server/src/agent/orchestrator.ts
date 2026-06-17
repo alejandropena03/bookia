@@ -258,6 +258,19 @@ async function completeBooking(
 
   if (bookingMode === "handoff") {
     await sql`UPDATE conversations SET status = 'human_active' WHERE id = ${conversationId}`;
+    // Log handoff for Elkin
+    await sql`
+      INSERT INTO worker_logs (worker, started_at, finished_at, status, summary)
+      VALUES ('handoff', NOW(), NOW(), 'completed', ${sql.json({
+        type: "booking_handoff",
+        conversationId,
+        contactId,
+        serviceName,
+        datetime: slots.datetime,
+        contactName: contactName ?? "Anónimo",
+        message: "Requiere carga manual a Agenda Pro",
+      })})
+    `;
     return { text: result.message, escalated: true, escalationReason: "handoff_booking" };
   }
 
@@ -373,8 +386,14 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
       return { text: textWithPayment, messageId: msgId, route: "flow", escalated: false };
     }
 
-    // 5. Try canned response (from DB)
-    const canned = getCannedResponse(routerResult.intent, { nombre: contactName ?? "" }, bizContext.cannedResponses);
+    // 5. Try canned response (from DB) with catalog prices
+    const cannedCtx: Record<string, string> = { nombre: contactName ?? "" };
+    for (const ci of catalogItems) {
+      const key = ci.name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "").slice(0, 30);
+      cannedCtx[`precio_${key}`] = `${ci.price} ${ci.currency}`;
+    }
+    cannedCtx["catalog_list"] = catalogItems.map((c) => `- ${c.name}: ${c.price} ${c.currency}`).join("\n");
+    const canned = getCannedResponse(routerResult.intent, cannedCtx, bizContext.cannedResponses);
     if (canned) {
       const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, canned, "bot", "canned");
       return { text: canned, messageId: msgId, route: "canned", escalated: false };

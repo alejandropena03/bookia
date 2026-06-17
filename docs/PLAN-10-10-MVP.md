@@ -12,7 +12,7 @@
 |------|--------|---|
 | Fase 0 — Incendios | 🟢 Completada | 100% |
 | Fase 1 — Estabilidad | 🟢 Completada | 100% |
-| Fase 2 — Experiencia Carlos | 🔴 Pendiente | 0% |
+| Fase 2 — Experiencia Carlos | 🟢 Completada | 100% |
 | Fase 3 — Frontend completo | 🔴 Pendiente | 0% |
 | Fase 4 — Seguridad | 🔴 Pendiente | 0% |
 | Fase 5 — Tests 100% | 🔴 Pendiente | 0% |
