@@ -40,7 +40,8 @@ function normalizeText(t: string): string {
     .trim();
 }
 
-const LEADING_WORDS = ["quiero", "me gustaria", "quisiera", "necesito", "el", "la", "un", "una", "los", "las", "de"];
+const LEADING_WORDS = ["quiero", "me gustaria", "quisiera", "necesito", "el", "la", "un", "una", "los", "las"];
+const STOP_WORDS = ["de", "el", "la", "los", "las", "un", "una", "y", "e", "del", "con", "para", "por", "en"];
 
 function stripLeadingWords(t: string): string {
   let result = t;
@@ -52,13 +53,17 @@ function stripLeadingWords(t: string): string {
   return result;
 }
 
+function wordsOnly(t: string): string {
+  return t.split(/\s+/).filter(w => !STOP_WORDS.includes(w)).join(" ");
+}
+
 function buildTemplateContext(slots: Record<string, string>, catalogItems?: CatalogItem[]): Record<string, string> {
   const catalog = catalogItems ?? [];
   const rawName = slots.service || slots.service_name || "";
-  const cleanName = stripLeadingWords(normalizeText(rawName));
+  const cleanName = wordsOnly(stripLeadingWords(normalizeText(rawName)));
 
   const selected = catalog.find((c) => {
-    const cn = normalizeText(c.name);
+    const cn = wordsOnly(normalizeText(c.name));
     return cleanName.includes(cn) || cn.includes(cleanName);
   });
 

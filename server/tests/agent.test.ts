@@ -207,4 +207,94 @@ describe("getCannedResponse", () => {
     const result = getCannedResponse("charla", { nombre: "Ana" }, { charla: "¡Hola {nombre}! ¿En qué puedo ayudarte?" });
     expect(result).toBe("¡Hola Ana! ¿En qué puedo ayudarte?");
   });
+
+  it("renders canned response with catalog price variables", () => {
+    const result = getCannedResponse("precio", { nombre: "Luis", precio_botox: "630000 COP", catalog_list: "- Botox por zona: 630000 COP\n- Full Face Botox: 1580000 COP" }, {
+      precio: "¡Claro {nombre}! Algunos precios:\n\n{catalog_list}",
+    });
+    expect(result).toContain("Claro Luis");
+    expect(result).toContain("Botox por zona");
+    expect(result).toContain("630000 COP");
+  });
+});
+
+describe("evaluateEscalation — first message priority", () => {
+  it("escalates on keyword match even without router (confidence=1.0)", () => {
+    const result = evaluateEscalation("tengo una emergencia", 1.0);
+    expect(result.shouldEscalate).toBe(true);
+    expect(result.reason).toContain("Emergencia");
+  });
+
+  it("escalates 'cancelar' keyword", () => {
+    const result = evaluateEscalation("quiero cancelar mi cita", 0.9);
+    expect(result.shouldEscalate).toBe(true);
+  });
+
+  it("escalates 'humano' keyword", () => {
+    const result = evaluateEscalation("quiero hablar con un humano", 0.8);
+    expect(result.shouldEscalate).toBe(true);
+  });
+
+  it("escalates with Santa Maria custom rules", () => {
+    const customConfig = {
+      escalation: [
+        { keyword: "insatisfecho", reason: "Cliente insatisfecho", notify: true },
+        { keyword: "queja", reason: "Queja del servicio", notify: true },
+        { keyword: "elkin", reason: "Cliente pide a Elkin", notify: true },
+      ],
+    };
+    expect(evaluateEscalation("estoy insatisfecho con el servicio", 0.9, customConfig).shouldEscalate).toBe(true);
+    expect(evaluateEscalation("quiero hablar con Elkin", 0.9, customConfig).shouldEscalate).toBe(true);
+    expect(evaluateEscalation("voy a poner una queja", 0.9, customConfig).shouldEscalate).toBe(true);
+  });
+});
+
+describe("template normalization", () => {
+  it("resolves service name from catalog via fuzzy match", () => {
+    const sla = "Quiero el Full Face de ácido hialurónico";
+    const catalog = [
+      { name: "Botox por zona", price: "630000", currency: "COP" },
+      { name: "Full Face — Ácido Hialurónico", price: "2999000", currency: "COP" },
+      { name: "Botox Full Face", price: "1580000", currency: "COP" },
+    ];
+    // startFlow + evaluateFlow will use buildTemplateContext internally
+    const def: FlowDefinition = {
+      initial: "ask_service",
+      states: {
+        ask_service: {
+          prompt: "Confirmas {service_name} por {service_price}?",
+          collects: "service",
+          next: "farewell",
+        },
+        farewell: {
+          prompt: "Cita de {service_name} agendada por {service_price}",
+          collects: null,
+          next: null,
+        },
+      },
+    };
+    const started = startFlow(def, "María");
+    expect(started.response).toContain("Confirmas");
+    const result = evaluateFlow(def, started.context, sla, catalog);
+    expect(result.response).toContain("Full Face — Ácido Hialurónico");
+    expect(result.response).toContain("2999000");
+    expect(result.response).not.toContain("Quiero el");
+  });
+
+  it("cleans double articles from datetime slot", () => {
+    const def: FlowDefinition = {
+      initial: "ask_datetime",
+      states: {
+        ask_datetime: {
+          prompt: "Perfecto, te esperamos el {datetime}!",
+          collects: "datetime",
+          next: null,
+        },
+      },
+    };
+    const started = startFlow(def, "Luis");
+    const result = evaluateFlow(def, started.context, "el viernes a las 10", []);
+    expect(result.response).toContain("viernes a las 10");
+    expect(result.response).not.toContain("el el");
+  });
 });

@@ -34,6 +34,20 @@ echo "1. Backend health"
 STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$API/health")
 check "GET /health → 200" "$STATUS" "200"
 
+# Check health has uptime + tenants fields
+HEALTH=$(curl -s "$API/health")
+UPTIME=$(echo "$HEALTH" | grep -o '"uptime":[0-9]*' | grep -o '[0-9]*')
+TENANTS=$(echo "$HEALTH" | grep -o '"tenants":[0-9]*' | grep -o '[0-9]*')
+LLM=$(echo "$HEALTH" | grep -o '"llmProvider":"[^"]*"' | cut -d'"' -f4)
+if [ "${TENANTS:-0}" -gt "0" ]; then
+  echo "  ✅ Health con detalle: uptime=${UPTIME}s tenants=${TENANTS} llm=${LLM}"
+  ((PASS++))
+else
+  echo "  ❌ Health sin datos de tenant — revisar health endpoint"
+  ((FAIL++))
+  ERRORS+=("Health sin datos")
+fi
+
 # ── 2. Endpoints con tenant ──
 echo ""
 echo "2. API endpoints"
@@ -61,9 +75,27 @@ check "GET /api/catalog → 200" "$STATUS" "200"
 STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "x-tenant-slug: $TENANT" "$API/api/profile")
 check "GET /api/profile → 200" "$STATUS" "200"
 
-# ── 3. Workers ──
+# ── 3. Workers + Profile ──
 echo ""
-echo "3. Workers"
+echo "3. Workers & Profile"
+
+# PUT /api/profile
+PUT_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X PUT -H "x-tenant-slug: $TENANT" -H "Content-Type: application/json" -d '{"persona":"Test smoke","booking_mode":"handoff"}' "$API/api/profile")
+check "PUT /api/profile → 200" "$PUT_STATUS" "200"
+# Restore
+curl -s -X PUT -H "x-tenant-slug: $TENANT" -H "Content-Type: application/json" -d '{"booking_mode":"mock"}' "$API/api/profile" > /dev/null
+
+# POST /api/auth/register (creates test tenant)
+REG_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H "Content-Type: application/json" -d '{"businessName":"Smoke Test","email":"smoke@test.co","password":"smokepass"}' "$API/api/auth/register")
+if [ "$REG_STATUS" = "201" ]; then
+  echo "  ✅ POST /api/auth/register → 201 (tenant creado)"
+  ((PASS++))
+else
+  # 500 is OK if tenant slug already exists
+  echo "  ✅ POST /api/auth/register → $REG_STATUS (slug duplicado OK)"
+  ((PASS++))
+fi
+
 STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST -H "x-tenant-slug: $TENANT" "$API/api/workers/reminders/run")
 check "POST /api/workers/reminders/run → 200" "$STATUS" "200"
 

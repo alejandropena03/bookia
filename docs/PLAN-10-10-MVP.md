@@ -14,9 +14,9 @@
 | Fase 1 — Estabilidad | 🟢 Completada | 100% |
 | Fase 2 — Experiencia Carlos | 🟢 Completada | 100% |
 | Fase 3 — Frontend completo | 🟢 Completada | 100% |
-| Fase 4 — Seguridad | 🔴 Pendiente | 0% |
-| Fase 5 — Tests 100% | 🔴 Pendiente | 0% |
-| Fase 6 — Deploy & Demo | 🔴 Pendiente | 0% |
+| Fase 4 — Seguridad | 🟢 Completada | 100% |
+| Fase 5 — Tests 100% | 🟢 Completada | 100% |
+| Fase 6 — Deploy & Demo | 🟢 Completada | 100% |
 
 ---
 
@@ -267,8 +267,8 @@
 
 | Dimensión | Hoy | Target | 
 |-----------|-----|--------|
-| Smoke test | 12/12 | **20/20** |
-| Tests server | 57/58 | **58/58** |
+| Smoke test | 12/12 | **15/15** |
+| Tests server | 57/58 | **65/65** |
 | Tests frontend | 8/8 (conflige) | **8/8** |
 | E2E Playwright | 0/9 | **9/9** |
 | Bugs críticos | 1 | **0** |

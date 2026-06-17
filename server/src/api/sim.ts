@@ -10,11 +10,30 @@ import { eventBus } from "../lib/event-bus.js";
 
 const sim = new Hono();
 
+// Simple in-memory rate limiter
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+
+function rateLimit(key: string, maxRequests: number, windowSec: number): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(key);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(key, { count: 1, resetAt: now + windowSec * 1000 });
+    return true;
+  }
+  entry.count++;
+  return entry.count <= maxRequests;
+}
+
 sim.post("/message", async (c) => {
   const body = await c.req.json<{ tenantSlug: string; from: string; text: string; name?: string; timestamp?: string; providerMessageId?: string }>();
 
   if (!body.tenantSlug || !body.from) {
     return c.json({ error: "tenantSlug and from are required" }, 400);
+  }
+
+  // Rate limit: max 20 requests per 10s per sender
+  if (!rateLimit(`sim:${body.from}`, 20, 10)) {
+    return c.json({ error: "Demasiadas solicitudes. Intenta de nuevo en unos segundos." }, 429);
   }
 
   const [tenant] = await db.select().from(tenants).where(eq(tenants.slug, body.tenantSlug)).limit(1);
