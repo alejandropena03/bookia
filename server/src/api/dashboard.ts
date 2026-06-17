@@ -229,6 +229,25 @@ dashboard.get("/profile", async (c) => {
   });
 });
 
+// ── PUT /api/profile ──
+dashboard.put("/profile", async (c) => {
+  const { tenantId } = ctx(c);
+  const body = await c.req.json<{
+    persona?: string;
+    booking_mode?: string;
+    hours?: Record<string, { open: string | null; close: string | null }>;
+  }>();
+  return withTenant(tenantId, async (sql) => {
+    if (body.persona !== undefined)
+      await sql`UPDATE business_profile SET persona = ${body.persona} WHERE tenant_id = ${tenantId}`;
+    if (body.booking_mode !== undefined)
+      await sql`UPDATE business_profile SET booking_mode = ${body.booking_mode} WHERE tenant_id = ${tenantId}`;
+    if (body.hours !== undefined)
+      await sql`UPDATE business_profile SET hours = ${sql.json(body.hours)} WHERE tenant_id = ${tenantId}`;
+    return c.json({ success: true });
+  });
+});
+
 // ── GET /api/flows ──
 dashboard.get("/flows", async (c) => {
   const { tenantId } = ctx(c);

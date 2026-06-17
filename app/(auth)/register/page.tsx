@@ -27,8 +27,18 @@ export default function RegisterPage() {
     const errs = validate()
     if (Object.keys(errs).length > 0) { setErrors(errs); return }
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 800))
-    router.push("/login?registered=1")
+    try {
+      const res = await fetch("http://localhost:8787/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ businessName: form.businessName, email: form.email, password: form.password }),
+      })
+      if (!res.ok) { setErrors({ form: "Error al crear cuenta. Intenta de nuevo." }); return }
+      router.push("/login?registered=1")
+    } catch {
+      setErrors({ form: "Error de conexión con el servidor." })
+    }
+    setLoading(false)
   }
 
   return (

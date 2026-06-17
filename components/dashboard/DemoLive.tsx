@@ -22,6 +22,7 @@ export default function DemoLive() {
   ])
   const [input, setInput] = useState("")
   const [sending, setSending] = useState(false)
+  const [connected, setConnected] = useState(false)
   const [demoConvId, setDemoConvId] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
 
@@ -35,14 +36,18 @@ export default function DemoLive() {
 
   useEffect(() => {
     if (!open) return
-    const unsub = subscribeToSSE((data: any) => {
-      const text = data?.message?.text ?? data?.text ?? ""
-      if (!text) return
-      // filter to only show messages from this demo's conversation
-      const convId = data?.message?.conversationId ?? data?.conversationId
-      if (demoConvId && convId && convId !== demoConvId) return
-      setMessages((prev) => [...prev, { id: `bot-${++msgId}`, text, sender: "bot" }])
-    })
+    setConnected(false)
+    const unsub = subscribeToSSE(
+      (data: any) => {
+        setConnected(true)
+        const text = data?.message?.text ?? data?.text ?? ""
+        if (!text) return
+        const convId = data?.message?.conversationId ?? data?.conversationId
+        if (demoConvId && convId && convId !== demoConvId) return
+        setMessages((prev) => [...prev, { id: `bot-${++msgId}`, text, sender: "bot" }])
+      },
+      () => setConnected(false)
+    )
     return unsub
   }, [open, demoConvId])
 
@@ -83,7 +88,10 @@ export default function DemoLive() {
                 </Avatar>
                 <div>
                   <p className="text-sm font-semibold text-white">Demo en vivo</p>
-                  <p className="text-[10px] text-white/70">Agente IA · respondiendo en tiempo real</p>
+                  <p className="text-[10px] text-white/70 flex items-center gap-1.5">
+                    <span className={`w-1.5 h-1.5 rounded-full ${connected ? "bg-green-300" : "bg-yellow-300 animate-pulse"}`} />
+                    {connected ? "Conectado" : "Conectando..."}
+                  </p>
                 </div>
               </div>
               <button onClick={() => setOpen(false)} className="text-white/70 hover:text-white transition-colors">

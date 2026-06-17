@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { MessageCircle, Camera, Tv2, Info, Sparkles } from "lucide-react"
-import { getProfile, getCatalog } from "@/lib/api"
+import { getProfile, getCatalog, updateProfile } from "@/lib/api"
 
 export default function SettingsPage() {
   const { data: profile } = useQuery({
@@ -31,10 +31,17 @@ export default function SettingsPage() {
   const [tone, setTone] = useState("amigable")
   const [notifs, setNotifs] = useState({ escalation: true, newCita: true, dailySummary: false })
   const [saved, setSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
 
-  function handleSave() {
-    setSaved(true)
-    setTimeout(() => setSaved(false), 2000)
+  async function handleSave() {
+    setSaving(true)
+    setSaved(false)
+    try {
+      await updateProfile({ persona: `Eres ${agentName}, asesor de ${business.name}. Tono ${tone} y cercano.` })
+      setSaved(true)
+    } catch {}
+    setSaving(false)
+    setTimeout(() => setSaved(false), 3000)
   }
 
   return (
@@ -196,12 +203,12 @@ export default function SettingsPage() {
         onClick={handleSave}
         className="app-brand-bg px-8 font-medium"
       >
-        {saved ? "¡Guardado!" : "Guardar cambios"}
+        {saving ? "Guardando..." : saved ? "¡Guardado!" : "Guardar cambios"}
       </Button>
 
       <p className="text-xs app-text-lo pb-8">
-        Los cambios en perfil y agente requieren endpoint PUT del backend (Fase 2). 
-        Datos actuales sincronizados vía GET /api/profile y GET /api/catalog.
+        Los cambios se guardan en el backend vía PUT /api/profile.
+        Datos sincronizados desde GET /api/profile y GET /api/catalog.
       </p>
     </div>
   )

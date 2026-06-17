@@ -19,6 +19,27 @@ export default function DashboardPage() {
   })
 
   const data: DashboardData = (realData ?? getDashboardData()) as DashboardData
+  const isUsingMock = !realData && !!error
+
+  if (!data || !data.kpis || data.kpis.length === 0 || data.kpis.every(k => k.value === "$0" || k.value === "0")) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] app-card p-12 text-center">
+        <div className="w-16 h-16 rounded-full bg-indigo-50 flex items-center justify-center mb-4">
+          <span className="text-2xl">📊</span>
+        </div>
+        <h2 className="text-lg font-semibold app-text-hi mb-2">No hay suficientes datos aún</h2>
+        <p className="app-text-mid text-sm max-w-md">
+          Una vez que el agente comience a conversar con clientes, aquí verás métricas de ingresos potenciales,
+          citas agendadas, embudo de conversión y más.
+        </p>
+        {isUsingMock && (
+          <p className="text-xs app-text-lo mt-4">
+            Mostrando datos de demostración porque el backend no está disponible.
+          </p>
+        )}
+      </div>
+    )
+  }
 
   if (realData && error) {
     console.warn("Dashboard: backend respondió pero con error, usando mock:", error)

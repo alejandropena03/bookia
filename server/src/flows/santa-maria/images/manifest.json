@@ -1,0 +1,236 @@
+{
+  "source": "Copia de plantilla_recopilacion_flujos.md.docx — Carlos Acevedo",
+  "extracted_at": "2026-06-15",
+  "total_images": 28,
+  "analysis_method": "Gemma 4 12B multimodal + Tesseract OCR (spa)",
+  "images": {
+    "image1.jpeg": {
+      "type": "price_card",
+      "service": "price_list",
+      "currency": "EUR",
+      "description": "Lista de precios en EUROS (€) — Servicios como Full Face Botox (899€), Radiesse (1.800€), Sculptra, rellenos labiales, rinomodelación",
+      "dimensions": "348x522",
+      "size_kb": 78,
+      "gemma4": "Lista de precios Santa Maria Medicina Estética en euros. Incluye consultation/reservation, face filler, premium lips, red lip, full face Radiesse, Sculptra, etc."
+    },
+    "image2.jpeg": {
+      "type": "price_card",
+      "service": "price_list",
+      "currency": "COP",
+      "description": "Lista de precios en PESOS COLOMBIANOS (COP) — Full Face Botox ($1.580.000), Radiesse ($3.999.000), Sculptra ($3.999.000), Rinomodelación ($820.000)",
+      "dimensions": "341x512",
+      "size_kb": 77,
+      "gemma4": "Lista de precios Santa Maria Colombia COP. Incluye toxina botulínica, rellenos, tratamientos faciales con sus respectivos costos."
+    },
+    "image3.jpeg": {
+      "type": "price_card",
+      "service": "price_list",
+      "currency": "MXN",
+      "description": "Lista de precios en PESOS MEXICANOS (MXN) — Full Face Botox, Radiesse, Sculptra, rellenos labiales en $MX",
+      "dimensions": "341x512",
+      "size_kb": 76,
+      "gemma4": "Lista de precios Santa Maria en pesos mexicanos (MXN). Tratamientos: Botox, rellenos faciales."
+    },
+    "image4.jpeg": {
+      "type": "price_card",
+      "service": "price_list",
+      "currency": "USD",
+      "description": "Lista de precios en DÓLARES (USD) — EE.UU. Servicios listados en inglés, precios en USD",
+      "dimensions": "341x512",
+      "size_kb": 76,
+      "gemma4": "Lista de precios Santa Maria Medicina Estética. Procedimientos y precios."
+    },
+    "image5.jpeg": {
+      "type": "service_card",
+      "service": "Red Lips",
+      "description": "Card de Red Lips — $670,000 COP / $100,000 mostrado. Procedimiento de relleno labial.",
+      "dimensions": "198x248",
+      "size_kb": 22,
+      "gemma4": "Red Lip procedure for lips. $100,000. PROCED. SIN ANESTESIA."
+    },
+    "image6.jpeg": {
+      "type": "service_card",
+      "service": "Russian Lips",
+      "description": "Card de Russian Lips — Técnica de relleno labial con ácido hialurónico para proyección del arco de cupido",
+      "dimensions": "130x162",
+      "size_kb": 11,
+      "gemma4": "Russian Lips treatment using hyaluronic acid injections for lip enhancement."
+    },
+    "image7.jpeg": {
+      "type": "service_card",
+      "service": "Russian Lips",
+      "description": "Card de Russian Lips — Incluye 1 ml de ácido hialurónico, detalle de técnica",
+      "dimensions": "138x172",
+      "size_kb": 12,
+      "gemma4": "Russian Lips technique with hyaluronic acid, 1 ml product. Facial harmony."
+    },
+    "image8.jpeg": {
+      "type": "service_card",
+      "service": "Doll Lips",
+      "description": "Card de Doll Lips — $160,000. Relleno labial con ácido hialurónico para volumen y armonía. Incluye segunda sesión.",
+      "dimensions": "139x174",
+      "size_kb": 11,
+      "gemma4": "DOLL LIPS lip filler with hyaluronic acid. $160,000 MON. Includes second session."
+    },
+    "image9.jpeg": {
+      "type": "service_card",
+      "service": "Doll Lips",
+      "description": "Card de Doll Lips — Alternativa, relleno labial con ácido hialurónico",
+      "dimensions": "125x161",
+      "size_kb": 10,
+      "gemma4": "Lip filler treatment with hyaluronic acid for volume and definition (Russian Lips style)."
+    },
+    "image10.jpeg": {
+      "type": "service_card",
+      "service": "Red Lips",
+      "description": "Card de Red Lips — $6,500 MXN. Aumento de volumen y color en labios.",
+      "dimensions": "130x162",
+      "size_kb": 11,
+      "gemma4": "Service for lip volume and color enhancement (lip filler)."
+    },
+    "image11.jpeg": {
+      "type": "service_card",
+      "service": "Red Lips",
+      "description": "Card de Red Lips — $350 USD. Relleno de labios.",
+      "dimensions": "132x165",
+      "size_kb": 11,
+      "gemma4": "Lip filler treatment for volume enhancement."
+    },
+    "image12.jpeg": {
+      "type": "service_card",
+      "service": "Red Lips",
+      "description": "Card de Red Lips — 800 €. Relleno de labios.",
+      "dimensions": "138x165",
+      "size_kb": 11,
+      "gemma4": "Lip filler treatment."
+    },
+    "image13.jpeg": {
+      "type": "service_card",
+      "service": "Doll Lips",
+      "description": "Card de Doll Lips — Vista alternativa del tratamiento de relleno labial",
+      "dimensions": "130x196",
+      "size_kb": 11,
+      "gemma4": "Russian Lips treatment with hyaluronic acid."
+    },
+    "image14.jpeg": {
+      "type": "service_card",
+      "service": "Doll Lips",
+      "description": "Card de Doll Lips — $899. Contorno y relleno labial.",
+      "dimensions": "139x202",
+      "size_kb": 11,
+      "gemma4": "Doll Lips facial esthetics procedure for lip contour and filler."
+    },
+    "image15.jpeg": {
+      "type": "service_card",
+      "service": "Doll Lips",
+      "description": "Card de Doll Lips — 800. Aumento y modelado de labios.",
+      "dimensions": "130x196",
+      "size_kb": 10,
+      "gemma4": "Doll Lips treatment for lip augmentation and modeling."
+    },
+    "image16.jpeg": {
+      "type": "service_card",
+      "service": "Full Face — Ácido Hialurónico",
+      "description": "Card de Full Face Ácido Hialurónico — Paquete integral que incluye Botox, rinomodelación, rellenos",
+      "dimensions": "178x165",
+      "size_kb": 13,
+      "gemma4": "Full Face package: Botox, rhinoplasty, lip fillers, facial treatments."
+    },
+    "image17.jpeg": {
+      "type": "service_card",
+      "service": "Marcación mandibular",
+      "description": "Card de marcación mandibular — Perfilamiento del reborde mandibular",
+      "dimensions": "141x134",
+      "size_kb": 9,
+      "gemma4": "Facial contouring treatment for jawline definition."
+    },
+    "image18.jpeg": {
+      "type": "service_card",
+      "service": "Proyección de mentón",
+      "description": "Card de proyección de mentón — Aumento de mentón con ácido hialurónico",
+      "dimensions": "152x152",
+      "size_kb": 11,
+      "gemma4": "Full Face Sculptra — comprehensive facial rejuvenation treatment."
+    },
+    "image19.jpeg": {
+      "type": "service_card",
+      "service": "Facial Masculinization",
+      "description": "Card de masculinización facial — Incluye Botox, implantes, marcación mandibular",
+      "dimensions": "166x152",
+      "size_kb": 11,
+      "gemma4": "Facial masculinization service: Botox, implants, mandibular marking."
+    },
+    "image20.jpeg": {
+      "type": "service_card",
+      "service": "Facial Rejuvenation",
+      "description": "Card de rejuvenecimiento facial — Radiesse + DRT. Por la Dra.",
+      "dimensions": "128x158",
+      "size_kb": 10,
+      "gemma4": "Facial rejuvenation with Radiesse and Deep Wrinkle Treatment (DRT)."
+    },
+    "image21.jpeg": {
+      "type": "service_card",
+      "service": "Facial Masculinization",
+      "description": "Card de masculinización facial — Cirugía estética facial masculina (inglés)",
+      "dimensions": "131x163",
+      "size_kb": 11,
+      "gemma4": "Facial masculinization cosmetic surgery services."
+    },
+    "image22.jpeg": {
+      "type": "service_card",
+      "service": "Masculinización facial",
+      "description": "Card de masculinización facial y rejuvenecimiento",
+      "dimensions": "179x162",
+      "size_kb": 14,
+      "gemma4": "Facial masculinization and rejuvenation treatment."
+    },
+    "image23.jpeg": {
+      "type": "service_card",
+      "service": "Full Face — Radiesse",
+      "description": "Card de Full Face Radiesse — Bioestimulación completa con Radiesse",
+      "dimensions": "150x186",
+      "size_kb": 13,
+      "gemma4": "Full Face Radiesse — facial filler treatment with Radiesse."
+    },
+    "image24.jpeg": {
+      "type": "service_card",
+      "service": "Full Face — Sculptra",
+      "description": "Card de Full Face Sculptra — Bioestimulación completa con Sculptra",
+      "dimensions": "149x185",
+      "size_kb": 13,
+      "gemma4": "FULL FACE SCULPTRA"
+    },
+    "image25.jpeg": {
+      "type": "service_card",
+      "service": "Full Face — Radiesse",
+      "description": "Card de Full Face Radiesse — Alternativa",
+      "dimensions": "147x183",
+      "size_kb": 13,
+      "gemma4": "Full Face Radiesse"
+    },
+    "image26.jpeg": {
+      "type": "service_card",
+      "service": "Barbie Botox",
+      "description": "Card de Barbie Botox — Relajación de trapecios. Precio: $2,999,000 COP.",
+      "dimensions": "147x184",
+      "size_kb": 12,
+      "gemma4": "FULL FACE — full facial treatment package."
+    },
+    "image27.jpeg": {
+      "type": "service_card",
+      "service": "Korean Face",
+      "description": "Card de Korean Face — Tratamiento con centella asiática. Precio: $1,899,000 COP.",
+      "dimensions": "148x185",
+      "size_kb": 14,
+      "gemma4": "FULL FACE SCULPTURA"
+    },
+    "image28.jpeg": {
+      "type": "service_card",
+      "service": "Full Face — Ácido Hialurónico",
+      "description": "Card de Full Face Ácido Hialurónico — Full Face Hyaluronic Acid",
+      "dimensions": "149x185",
+      "size_kb": 12,
+      "gemma4": "Full Face Hyaluronic Acid treatment."
+    }
+  }
+}

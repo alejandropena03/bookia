@@ -9,7 +9,8 @@ import { dashboard } from "./api/dashboard.js";
 import { workers } from "./api/workers.js";
 import { resolveTenant } from "./api/middleware.js";
 import { sql } from "drizzle-orm";
-import { tenants } from "./db/schema.js";
+import { tenants, users } from "./db/schema.js";
+import postgres from "postgres";
 
 const app = new Hono();
 const startTime = Date.now();
@@ -50,6 +51,28 @@ app.get("/health", async (c) => {
 });
 
 app.get("/", (c) => c.json({ name: "Bookia API", version: "0.1.0" }));
+
+// ── POST /api/auth/register — crear tenant + user ──
+app.post("/api/auth/register", async (c) => {
+  const { businessName, email, password } = await c.req.json<{ businessName: string; email: string; password: string }>();
+  if (!businessName || !email || !password || password.length < 6) {
+    return c.json({ error: "Invalid fields" }, 400);
+  }
+  const slug = email.split("@")[0].toLowerCase().replace(/[^a-z0-9]/g, "-");
+  try {
+    const adminSql = postgres(env.DATABASE_URL, { max: 1, connect_timeout: 5 });
+    const [tenant] = await adminSql`INSERT INTO tenants (name, slug) VALUES (${businessName}, ${slug}) RETURNING id`;
+    await adminSql`SELECT set_config('app.current_tenant', ${tenant.id}, true)`;
+    await adminSql`
+      INSERT INTO users (tenant_id, email, name, role)
+      VALUES (${tenant.id}, ${email}, ${businessName}, 'owner')
+    `;
+    await adminSql.end();
+    return c.json({ success: true, slug, tenantId: tenant.id }, 201);
+  } catch (err: any) {
+    return c.json({ error: err?.message ?? "Registration failed" }, 500);
+  }
+});
 
 app.use("/api/*", resolveTenant);
 

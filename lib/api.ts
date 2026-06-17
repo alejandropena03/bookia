@@ -123,6 +123,13 @@ export function getProfile(): Promise<BusinessProfile> {
   return apiFetch<BusinessProfile>("/api/profile")
 }
 
+export function updateProfile(data: Partial<BusinessProfile>): Promise<{ success: boolean }> {
+  return apiFetch<{ success: boolean }>("/api/profile", {
+    method: "PUT",
+    body: JSON.stringify(data),
+  })
+}
+
 export function sendSimMessage(text: string): Promise<{ messageId: string; conversationId: string; agentResponse?: unknown }> {
   return apiFetch<{ messageId: string; conversationId: string; agentResponse?: unknown }>("/api/sim/message", {
     method: "POST",
