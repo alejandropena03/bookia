@@ -7,7 +7,7 @@ import { AGENDAMIENTO_FLOW, FIRST_CONTACT_FLOW } from "../flows/santa-maria/flow
 
 function buildProfileData() {
   return {
-    persona: "Eres Carlos, asesor de Santa María Clínica Estética. Tono cercano, natural y amigable — como un asesor de verdad, no como un bot. Usa 'tú' y el nombre del cliente. Saluda naturalmente: 'Buenas {nombre}, ¿cómo estás?'. NO uses guiones ni menús numerados. NO suenes robotizado. Eres un asesor real que conoce los tratamientos, precios y sedes. Responde con claridad y calidez.",
+    persona: "Te llamas Carlos y eres el asesor virtual de Santa María Clínica Estética. Tono cercano, amigable y natural, con muchos emojis. NO usas un menú de botones: la conversación fluye de forma humana. SIEMPRE saludas con calidez. Frases características: \"Con gusto te ayudo\", \"¿Tienes alguna duda?\", \"¿Cómo te puedo ayudar el día de hoy?\". Preguntas la ciudad del cliente al inicio para filtrar servicios y precios por país. Hablas en español. NO das diagnósticos médicos ni recomiendas qué tratamiento es \"el mejor\" para el cliente — solo informas y ofreces agendar una valoración con el doctor. NO confirmas citas sin recibir comprobante de pago. NO mencionas a la competencia. NO das precios que no estén en el catálogo.",
     rules: {
       escalation: SANTA_MARIA_ESCALATION_RULES.keywords.map((k) => ({
         keyword: k.keyword,
@@ -15,6 +15,8 @@ function buildProfileData() {
         notify: k.notify,
       })),
       no_decir: SANTA_MARIA_ESCALATION_RULES.no_decir,
+      frases_caracteristicas: SANTA_MARIA_ESCALATION_RULES.frases_caracteristicas,
+      escalate_to: SANTA_MARIA_ESCALATION_RULES.escalate_to,
     },
     hours: {
       lunes: { open: "09:00", close: "19:00" },
@@ -38,9 +40,9 @@ async function upsertProfile(tenantId: string) {
     await queryClient`
       UPDATE business_profile SET
         persona = ${pd.persona},
-        rules = ${queryClient.json(pd.rules)},
-        hours = ${queryClient.json(pd.hours)},
-        canned_responses = ${queryClient.json(pd.cannedResponses)},
+        rules = ${JSON.stringify(pd.rules)}::jsonb,
+        hours = ${JSON.stringify(pd.hours)}::jsonb,
+        canned_responses = ${JSON.stringify(pd.cannedResponses)}::jsonb,
         off_hours_message = ${pd.offHoursMessage}
       WHERE tenant_id = ${tenantId}
     `;
@@ -48,7 +50,7 @@ async function upsertProfile(tenantId: string) {
   } else {
     await queryClient`
       INSERT INTO business_profile (tenant_id, persona, rules, hours, canned_responses, off_hours_message)
-      VALUES (${tenantId}, ${pd.persona}, ${queryClient.json(pd.rules)}, ${queryClient.json(pd.hours)}, ${queryClient.json(pd.cannedResponses)}, ${pd.offHoursMessage})
+      VALUES (${tenantId}, ${pd.persona}, ${JSON.stringify(pd.rules)}::jsonb, ${JSON.stringify(pd.hours)}::jsonb, ${JSON.stringify(pd.cannedResponses)}::jsonb, ${pd.offHoursMessage})
     `;
     console.log(`✓ Business profile created (${Object.keys(SANTA_MARIA_CANNED).length} canned responses)`);
   }
@@ -60,9 +62,9 @@ async function seed() {
   let tenantId: string;
   let isNewTenant = false;
 
-  const [existing] = await db.execute(sql`SELECT id FROM tenants WHERE slug = 'santa-maria' LIMIT 1`);
-  if (existing && (existing as any).length > 0) {
-    tenantId = (existing as any)[0].id;
+  const existingRows = await queryClient`SELECT id FROM tenants WHERE slug = 'santa-maria' LIMIT 1`;
+  if (existingRows && existingRows.length > 0) {
+    tenantId = (existingRows[0] as any).id;
     console.log(`✓ Tenant 'santa-maria' exists (${tenantId}) — upserting seed data`);
     await queryClient`SELECT set_config('app.current_tenant', ${tenantId}, true)`;
   } else {
@@ -93,11 +95,16 @@ async function seed() {
   await queryClient`DELETE FROM catalog_items WHERE tenant_id = ${tenantId}`;
   for (const item of SANTA_MARIA_CATALOG) {
     await queryClient`
-      INSERT INTO catalog_items (tenant_id, name, description, price, currency, category, duration_minutes, is_active)
-      VALUES (${tenantId}, ${item.name}, ${item.description}, ${item.price}, ${item.currency}, ${item.category}, ${item.durationMinutes}, 1)
+      INSERT INTO catalog_items (tenant_id, name, description, price, currency, category, duration_minutes, cities, image_keys, promo_label, is_active)
+      VALUES (
+        ${tenantId}, ${item.name}, ${item.description}, ${item.price}, ${item.currency},
+        ${item.category}, ${item.durationMinutes},
+        ${JSON.stringify(item.cities)}::jsonb, ${JSON.stringify(item.imageKeys)}::jsonb,
+        ${item.promoLabel ?? null}, 1
+      )
     `;
   }
-  console.log(`✓ ${SANTA_MARIA_CATALOG.length} catalog items synced`);
+  console.log(`✓ ${SANTA_MARIA_CATALOG.length} catalog items synced (with cities + image_keys)`);
 
   const flowDefs = [
     { key: "agendamiento", name: "Flujo de agendamiento — Santa María", def: AGENDAMIENTO_FLOW },

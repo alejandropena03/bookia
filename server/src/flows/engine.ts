@@ -29,6 +29,9 @@ export interface CatalogItem {
   name: string;
   price: string;
   currency: string;
+  cities?: string[];
+  imageKeys?: string[];
+  promoLabel?: string | null;
 }
 
 function normalizeText(t: string): string {

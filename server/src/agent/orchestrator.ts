@@ -33,7 +33,7 @@ async function loadBusinessContext(tenantId: string, sql: any): Promise<Business
     FROM business_profile WHERE tenant_id = ${tenantId}
   `;
   const items: any[] = await sql`
-    SELECT name, description, price, currency, category
+    SELECT name, description, price, currency, category, COALESCE(cities, '[]') AS cities, COALESCE(image_keys, '[]') AS image_keys, promo_label
     FROM catalog_items WHERE tenant_id = ${tenantId} AND is_active = 1
     ORDER BY category, name
   `;
@@ -296,7 +296,8 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
     }
 
     const catalogItems: CatalogItem[] = await sql`
-      SELECT name, price::text, currency FROM catalog_items WHERE tenant_id = ${req.tenantId} AND is_active = 1 ORDER BY name
+      SELECT name, price::text, currency, COALESCE(cities, '[]') AS cities, COALESCE(image_keys, '[]') AS image_keys, promo_label
+      FROM catalog_items WHERE tenant_id = ${req.tenantId} AND is_active = 1 ORDER BY name
     `;
 
     // ⚡ Check escalation FIRST — keywords like "emergencia", "cancelar", "humano"
@@ -387,12 +388,22 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
     }
 
     // 5. Try canned response (from DB) with catalog prices
+    // Filter catalog by conversation city slot if available (multi-city hyper-personalization)
+    const [stateRow] = await sql`SELECT slots::text FROM conversation_state WHERE conversation_id = ${conversationId} LIMIT 1`;
+    let sessionCity = "";
+    try {
+      if (stateRow?.slots) sessionCity = (JSON.parse(stateRow.slots).city || JSON.parse(stateRow.slots).ciudad || "") as string;
+    } catch { /* ignore parse errors */ }
+    const filterCity = sessionCity.trim();
+    const cityItems = filterCity
+      ? catalogItems.filter((c) => !Array.isArray(c.cities) || c.cities.length === 0 || c.cities.some((city) => city.toLowerCase() === filterCity.toLowerCase()))
+      : catalogItems;
     const cannedCtx: Record<string, string> = { nombre: contactName ?? "" };
-    for (const ci of catalogItems) {
+    for (const ci of cityItems) {
       const key = ci.name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "").slice(0, 30);
       cannedCtx[`precio_${key}`] = `${ci.price} ${ci.currency}`;
     }
-    cannedCtx["catalog_list"] = catalogItems.map((c) => `- ${c.name}: ${c.price} ${c.currency}`).join("\n");
+    cannedCtx["catalog_list"] = cityItems.map((c) => `- ${c.name}: ${c.price} ${c.currency}`).join("\n");
     const canned = getCannedResponse(routerResult.intent, cannedCtx, bizContext.cannedResponses);
     if (canned) {
       const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, canned, "bot", "canned");

@@ -34,6 +34,9 @@ interface TenantConfig {
     currency: string;
     category: string | null;
     duration_minutes: number | null;
+    cities?: string[];
+    image_keys?: string[];
+    promo_label?: string | null;
   }>;
   canned_responses: Record<string, string>;
   escalation_rules: Array<{ keyword: string; reason: string; notify: boolean }>;
@@ -114,6 +117,9 @@ async function importTenant(configPath: string) {
       currency: item.currency,
       category: item.category,
       durationMinutes: item.duration_minutes,
+      cities: item.cities ?? [],
+      imageKeys: item.image_keys ?? [],
+      promoLabel: item.promo_label ?? null,
       isActive: 1,
     };
 

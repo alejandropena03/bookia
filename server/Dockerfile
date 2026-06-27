@@ -16,6 +16,8 @@ COPY --from=builder /app/drizzle ./drizzle
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/entrypoint.sh ./entrypoint.sh
+# tenant-config for import:tenant CLI tool
+COPY --from=builder /app/src/db/tenant-config ./dist/db/tenant-config
 RUN chmod +x entrypoint.sh
 EXPOSE 8787
 ENTRYPOINT ["./entrypoint.sh"]

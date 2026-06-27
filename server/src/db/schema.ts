@@ -123,6 +123,9 @@ export const catalogItems = pgTable("catalog_items", {
   category: text("category"),
   durationMinutes: integer("duration_minutes"),
   imageUrl: text("image_url"),
+  cities: jsonb("cities").$type<string[]>().default([]).notNull(),
+  imageKeys: jsonb("image_keys").$type<string[]>().default([]).notNull(),
+  promoLabel: text("promo_label"),
   isActive: integer("is_active").default(1).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });

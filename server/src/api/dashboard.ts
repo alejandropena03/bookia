@@ -205,13 +205,19 @@ dashboard.get("/metrics/intelligence", async (c) => {
 // ── GET /api/catalog ──
 dashboard.get("/catalog", async (c) => {
   const { tenantId } = ctx(c);
+  const cityFilter = (c.req.query("city") || "").trim();
   return withTenant(tenantId, async (sql) => {
     const items = await sql`
-      SELECT id, name, description, price, currency, category, duration_minutes, is_active
+      SELECT id, name, description, price, currency, category, duration_minutes,
+             COALESCE(cities, '[]') AS cities, COALESCE(image_keys, '[]') AS image_keys,
+             promo_label, is_active
       FROM catalog_items WHERE tenant_id = ${tenantId}
       ORDER BY category, name
     `;
-    return c.json({ data: items });
+    const filtered = cityFilter
+      ? items.filter((i: any) => !Array.isArray(i.cities) || i.cities.length === 0 || i.cities.some((city: string) => city.toLowerCase() === cityFilter.toLowerCase()))
+      : items;
+    return c.json({ data: filtered });
   });
 });
 
