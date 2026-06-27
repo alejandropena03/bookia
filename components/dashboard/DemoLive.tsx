@@ -34,17 +34,27 @@ export default function DemoLive() {
     scrollDown()
   }, [messages, scrollDown])
 
+  // SSE: solo se usa para confirmar "Conectado" y, una vez conocido demoConvId,
+  // re-emitir mensajes OUTBOUND de esa misma conversación (cross-talk protegido).
   useEffect(() => {
     if (!open) return
     setConnected(false)
     const unsub = subscribeToSSE(
       (data: any) => {
         setConnected(true)
-        const text = data?.message?.text ?? data?.text ?? ""
-        if (!text) return
+        const msg = data?.message
+        if (!msg) return
+        const dir = msg.direction ?? data?.direction
         const convId = data?.message?.conversationId ?? data?.conversationId
+        // Filtra cross-talk: solo outbound + mismo conversationId (una vez conocido).
+        if (dir !== "outbound") return
         if (demoConvId && convId && convId !== demoConvId) return
-        setMessages((prev) => [...prev, { id: `bot-${++msgId}`, text, sender: "bot" }])
+        const text = msg?.text ?? ""
+        if (!text) return
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === `sse-${msg.id}`)) return prev
+          return [...prev, { id: `sse-${msg.id}`, text, sender: "bot" }]
+        })
       },
       () => setConnected(false)
     )
@@ -60,6 +70,11 @@ export default function DemoLive() {
     try {
       const result = await sendSimMessage(text)
       setDemoConvId(result.conversationId)
+      // Respuesta primaria del agente: usa el agentResponse del POST (determinista).
+      const agentText = (result as any).agentResponse?.text
+      if (agentText) {
+        setMessages((prev) => [...prev, { id: `bot-${++msgId}`, text: agentText, sender: "bot" }])
+      }
     } catch (err: any) {
       const reason = err?.message ?? String(err ?? "Error desconocido")
       setMessages((prev) => [...prev, { id: `bot-${++msgId}`, text: `⚠️ ${reason}`, sender: "bot" }])

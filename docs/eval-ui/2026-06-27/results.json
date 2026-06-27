@@ -1,0 +1,1151 @@
+[
+  {
+    "task": "M1_landing",
+    "shot": "hero",
+    "viewport": "desktop",
+    "file": "docs/eval-ui/2026-06-27/shots/M1_landing_hero_desktop.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/",
+    "gemma": {
+      "scores": {
+        "visual": 3,
+        "contenido": 3,
+        "accesibilidad": 2,
+        "responsivo": 3,
+        "ux": 2,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "Botón 'Acceder' en la esquina superior derecha.",
+          "what": "El CTA principal del encabezado es demasiado genérico y no comunica el valor o el siguiente paso para un usuario que acaba de aterrizar. Esto genera fricción cognitiva.",
+          "evidence": "Botón con texto 'Acceder'",
+          "suggestedFix": "Cambiar el copy a una acción más específica y orientada al beneficio, como 'Solicitar Demo' o 'Ver Precios'."
+        },
+        {
+          "sev": "P1",
+          "where": "Los botones de CTA secundarios en la sección hero: 'Ver demo en vivo' y 'Cómo funciona'.",
+          "what": "Aunque ambos son CTAs, su jerarquía visual es similar. Se debe guiar al usuario a un único camino principal (el más deseado) o diferenciarlos con mayor claridad para evitar la parálisis por análisis.",
+          "evidence": "Botones 'Ver demo en vivo' y 'Cómo funciona'",
+          "suggestedFix": "Mantener el botón de demostración ('Ver demo en vivo') como el CTA primario (color sólido/destacado) y relegar el otro a un estilo secundario (outline o texto simple)."
+        },
+        {
+          "sev": "P2",
+          "where": "Sección 'CONECTA TUS CANALES' con los iconos de WhatsApp, Instagram, etc.",
+          "what": "La sección es funcional pero carece de un titular que la integre al flujo narrativo. Simplemente lista canales sin explicar el beneficio directo para el usuario.",
+          "evidence": "Texto y logos bajo 'CONECTA TUS CANALES'",
+          "suggestedFix": "Agregar un subtítulo o texto explicativo justo encima de los iconos, reforzando que la conexión a estos canales es lo que permite la automatización (ej: 'Conecta todos tus puntos de venta en una sola plataforma')."
+        }
+      ],
+      "summary": "La landing page presenta una estructura hero muy sólida con un copy claro y alto contraste visual. El flujo narrativo (Problema -> Solución) es excelente. Los principales ajustes se centran en la optimización de los CTAs: hacer el CTA principal del encabezado más específico, establecer una jerarquía visual clara entre los botones secundarios de la sección hero, y mejorar la contextualización de la lista de canales conectados."
+    }
+  },
+  {
+    "task": "M1_landing",
+    "shot": "pricing_or_cta",
+    "viewport": "desktop",
+    "file": "docs/eval-ui/2026-06-27/shots/M1_landing_pricing_or_cta_desktop.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/#precios",
+    "gemma": {
+      "scores": {
+        "visual": 3,
+        "contenido": 3,
+        "accesibilidad": 3,
+        "responsivo": 3,
+        "ux": 3,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "Sección de integración de canales (WhatsApp, Instagram, Facebook, TikTok)",
+          "what": "Mejorar el contexto visual o textual sobre la lista de canales.",
+          "evidence": "Iconos y nombres de plataformas: WhatsApp, Instagram, Facebook, TikTok",
+          "suggestedFix": "Añadir un subtítulo breve (ej. 'Conectamos con tus canales más populares') justo encima de los iconos para reforzar el valor y mejorar la comprensión inmediata."
+        }
+      ],
+      "summary": "Esta sección es excepcionalmente efectiva en su conversión, presentando una jerarquía visual impecable y un copy muy claro que comunica el beneficio principal (convertir mensajes en citas). La arquitectura de información guía al usuario de manera fluida desde la propuesta de valor hasta las acciones concretas. Los CTAs son prominentes, los contrastes son excelentes y la integración de canales genera confianza inmediata."
+    }
+  },
+  {
+    "task": "M1_landing",
+    "shot": "hero",
+    "viewport": "mobile",
+    "file": "docs/eval-ui/2026-06-27/shots/M1_landing_hero_mobile.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/",
+    "gemma": {
+      "scores": {
+        "visual": 2,
+        "contenido": 3,
+        "accesibilidad": 3,
+        "responsivo": 3,
+        "ux": 3,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "Espacio vertical entre 'Convierte cada mensaje en una cita.' y el párrafo descriptivo ('Bookia responde tus conversaciones...')",
+          "what": "Mejorar la separación visual (whitespace) para que el titular principal no se sienta pegado al cuerpo de texto explicativo.",
+          "evidence": "Titular: 'Convierte cada mensaje en una cita.' / Párrafo: 'Bookia responde tus conversaciones de WhatsApp, Instagram y Facebook...'",
+          "suggestedFix": "Aumentar ligeramente el margen inferior del titular o reducir el margen superior del párrafo para mejorar la jerarquía visual y el ritmo."
+        }
+      ],
+      "summary": "La landing page es extremadamente fuerte en contenido (copy claro) y experiencia de usuario, guiando al visitante de manera lógica desde el problema hasta la solución. Los CTAs son altamente visibles y cumplen con los estándares de accesibilidad móvil. El único punto a mejorar es el espaciado vertical bajo el titular principal para darle más 'respiro' visual y elevar el nivel de pulido (polish) general."
+    }
+  },
+  {
+    "task": "M1_landing",
+    "shot": "pricing_or_cta",
+    "viewport": "mobile",
+    "file": "docs/eval-ui/2026-06-27/shots/M1_landing_pricing_or_cta_mobile.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/",
+    "gemma": {
+      "scores": {
+        "visual": 3,
+        "contenido": 3,
+        "accesibilidad": 3,
+        "responsivo": 3,
+        "ux": 2,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "Botones de CTA principales ('Ver demo en vivo', 'Acceder' en el header y la sección media)",
+          "what": "Redundancia de CTAs primarios. Hay tres llamadas a la acción muy prominentes (header, hero, caja Bookia) que utilizan diferentes textos o botones. Esto puede diluir el enfoque del usuario.",
+          "evidence": "Botón 'Acceder' (Header), Botón 'Ver demo en vivo', Botón 'Acceder' (Sección de valor)",
+          "suggestedFix": "Consolidar la acción principal. Mantener un CTA claro y único en el hero section, y usar los CTAs secundarios para guiar a secciones específicas (ej: 'Cómo funciona')."
+        },
+        {
+          "sev": "P2",
+          "where": "Transición entre la sección Hero y la caja de valor ('Bookia')",
+          "what": "La transición visual es un poco abrupta. Aunque el contenido fluye lógicamente, se podría mejorar la separación o el contraste para que la segunda sección no parezca simplemente 'pegada' a la primera.",
+          "evidence": "Espacio en blanco entre el texto de cierre del Hero ('...y agenda las citas por ti.') y el encabezado 'Bookia'",
+          "suggestedFix": "Añadir un divisor sutil o aplicar un fondo ligeramente diferente (gris muy claro) a la sección de valor para crear una pausa visual más intencional."
+        },
+        {
+          "sev": "P1",
+          "where": "Iconos y nombres de canales ('WhatsApp', 'Facebook', etc.)",
+          "what": "Aunque son enlaces funcionales, es crucial asegurar que estos elementos tengan estados de foco (focus states) visibles para usuarios que navegan con teclado o lectores de pantalla. Su función como navegación debe ser obvia.",
+          "evidence": "Iconos y textos bajo 'CONECTA TUS CANALES'",
+          "suggestedFix": "Implementar un anillo de enfoque visible (outline/ring) en todos los enlaces de conexión para mejorar la accesibilidad del teclado."
+        }
+      ],
+      "summary": "La landing page es visualmente limpia, altamente legible y sigue una estructura lógica de conversión (Problema -> Solución -> Acción). El copy es excelente, claro y enfocado en el beneficio. La principal área de mejora es la gestión de las llamadas a la acción (CTAs), que están excesivamente repetidas, lo cual puede generar fatiga o confusión sobre cuál es la acción más importante. Se recomienda consolidar los CTAs para guiar mejor al usuario."
+    }
+  },
+  {
+    "task": "M2_auth",
+    "shot": "login",
+    "viewport": "desktop",
+    "file": "docs/eval-ui/2026-06-27/shots/M2_auth_login_desktop.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/login",
+    "gemma": {
+      "scores": {
+        "visual": 2,
+        "contenido": 3,
+        "accesibilidad": 2,
+        "responsivo": 3,
+        "ux": 2,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "Bloque 'Credenciales de demo'",
+          "what": "Confusión en el flujo de inicio de sesión. Este bloque parece una prueba o un acceso rápido que interrumpe la experiencia estándar del usuario.",
+          "evidence": "Texto visible: admin@bookia.co / bookia2024",
+          "suggestedFix": "Eliminar este bloque si es solo para desarrollo, o reubicarlo en una sección de ayuda/soporte, lejos del flujo principal de login."
+        },
+        {
+          "sev": "P1",
+          "where": "Campos de entrada 'Email' y 'Contraseña'",
+          "what": "Dependencia excesiva de placeholders. Aunque se ven etiquetas visibles ('Email', 'Contraseña'), el uso del placeholder como única guía puede ser insuficiente semánticamente o confuso para lectores de pantalla.",
+          "evidence": "Placeholder visible: tu@negocio.co",
+          "suggestedFix": "Asegurar que los labels sean explícitos y estén asociados correctamente (usando `aria-label` o etiquetas visibles) sin depender del placeholder."
+        },
+        {
+          "sev": "P2",
+          "where": "Área de formulario general",
+          "what": "Falta de feedback visible para estados críticos. No se observa cómo el sistema manejará errores (ej. 'Usuario o contraseña incorrectos') ni un estado de carga al hacer clic en 'Ingresar'.",
+          "evidence": "Ningún mensaje de error, validación o loading es visible.",
+          "suggestedFix": "Implementar mensajes de error claros y específicos debajo del campo afectado. Además, el botón 'Ingresar' debe deshabilitarse y mostrar un estado de carga (spinner) durante la petición."
+        }
+      ],
+      "summary": "La pantalla cumple con una estructura visual limpia y utiliza copy claro, lo cual es excelente para un MVP. Sin embargo, hay áreas de mejora en UX/Accesibilidad: el bloque de 'Credenciales de demo' confunde el flujo principal, y la falta de feedback visible (errores o carga) reduce la robustez percibida. Se recomienda mejorar la semántica de los inputs y gestionar mejor los estados transaccionales."
+    }
+  },
+  {
+    "task": "M2_auth",
+    "shot": "register",
+    "viewport": "desktop",
+    "file": "docs/eval-ui/2026-06-27/shots/M2_auth_register_desktop.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/register",
+    "gemma": {
+      "scores": {
+        "visual": 3,
+        "contenido": 2,
+        "accesibilidad": 2,
+        "responsivo": 3,
+        "ux": 3,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "Campo Contraseña (Password)",
+          "what": "El mensaje de restricción ('Mínimo 6 caracteres') está ubicado dentro del placeholder. Esto mezcla la ayuda funcional con el ejemplo de contenido, lo cual es menos limpio visualmente.",
+          "evidence": "Mínimo 6 caracteres",
+          "suggestedFix": "Mover esta información a un texto de ayuda (helper text) debajo del campo o usar una etiqueta de validación clara para separar las restricciones del placeholder."
+        },
+        {
+          "sev": "P1",
+          "where": "Campo Email",
+          "what": "Aunque el placeholder ('tu@negocio.co') es útil, no se especifica claramente si este dominio debe ser usado o si solo sirve como ejemplo de formato. Esto podría generar confusión sobre la estructura del email esperado.",
+          "evidence": "Ej: Estética Santa María (Nombre), tu@negocio.co (Email)",
+          "suggestedFix": "Asegurar que el placeholder sea genérico y se complemente con un texto de ayuda claro, como 'ejemplo@dominio.com', para indicar únicamente el formato esperado."
+        },
+        {
+          "sev": "P2",
+          "where": "Enlace secundario: ¿Ya tienes cuenta? Ingresar",
+          "what": "El enlace de retorno (login) es funcional, pero su contraste y peso visual son muy bajos en comparación con el CTA principal ('Crear cuenta gratis'). Esto podría reducir la facilidad de escaneo para usuarios que ya tienen una cuenta.",
+          "evidence": "¿Ya tienes cuenta? Ingresar",
+          "suggestedFix": "Aumentar ligeramente el tamaño del texto o aplicar un color secundario sutilmente más destacado al enlace 'Ingresar' para mejorar su detectabilidad sin competir con el CTA principal."
+        }
+      ],
+      "summary": "La página de registro es visualmente pulida y sigue las mejores prácticas modernas de SaaS. La jerarquía de la información, el uso del color en el CTA primario y los placeholders son efectivos. Los puntos a mejorar se centran en microcopia y accesibilidad: separar las restricciones funcionales (como la longitud de la contraseña) del placeholder para una mejor experiencia visual, y asegurar que todos los elementos interactivos tengan un contraste adecuado."
+    }
+  },
+  {
+    "task": "M2_auth",
+    "shot": "login",
+    "viewport": "mobile",
+    "file": "docs/eval-ui/2026-06-27/shots/M2_auth_login_mobile.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/login",
+    "gemma": {
+      "scores": {
+        "visual": 2,
+        "contenido": 3,
+        "accesibilidad": 3,
+        "responsivo": 3,
+        "ux": 2,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "El grupo de campos de formulario (Email, Contraseña)",
+          "what": "Mejorar la agrupación visual del formulario. Actualmente, los elementos están flotando libremente. Se recomienda envolver todos los inputs y el botón 'Ingresar' dentro de un contenedor con bordes sutiles o una sombra ligera para crear una unidad lógica clara.",
+          "evidence": "Campos Email, Contraseña y botón Ingresar",
+          "suggestedFix": "Aplicar un card o fondo ligeramente contrastante al formulario completo."
+        },
+        {
+          "sev": "P2",
+          "where": "Campo de Contraseña",
+          "what": "Aunque la funcionalidad de mostrar/ocultar contraseña es buena, el icono del ojo debe tener un estado visual más claro (ej. cambiar de color o ser ligeramente interactivo) para indicar que al hacer clic se ejecutará una acción.",
+          "evidence": "Icono de ojo en el campo Contraseña",
+          "suggestedFix": "Asegurar que el icono sea táctilmente evidente y tenga un feedback visual sutil (hover/focus)."
+        },
+        {
+          "sev": "P2",
+          "where": "¿No tienes cuenta? Regístrate",
+          "what": "Separar la acción secundaria de registro. El enlace 'Regístrate' está muy cerca del borde inferior y podría confundirse con un pie de página genérico. Debe estar claramente separado o enmarcado para guiar al usuario a la siguiente acción.",
+          "evidence": "¿No tienes cuenta? Regístrate",
+          "suggestedFix": "Añadir más espacio vertical (padding) entre el botón principal y este enlace, o agruparlo visualmente como un 'CTA secundario'."
+        }
+      ],
+      "summary": "El MVP presenta una base sólida con excelente accesibilidad y claridad de contenido. La estructura es limpia y cumple con los estándares móviles. Los puntos de mejora se centran en la experiencia de usuario (UX) mediante la agrupación visual del formulario, lo cual mejorará la cohesión percibida. Además, pequeños ajustes en el feedback interactivo de campos como Contraseña elevarán el nivel de pulido general."
+    }
+  },
+  {
+    "task": "M2_auth",
+    "shot": "register",
+    "viewport": "mobile",
+    "file": "docs/eval-ui/2026-06-27/shots/M2_auth_register_mobile.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/register",
+    "gemma": {
+      "scores": {
+        "visual": 2,
+        "contenido": 3,
+        "accesibilidad": 2,
+        "responsivo": 3,
+        "ux": 2,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "Contraseña (input field)",
+          "what": "El requisito de longitud mínima debe estar visible y ser más prominente.",
+          "evidence": "Mínimo 6 caracteres",
+          "suggestedFix": "Incorporar un mensaje de ayuda o tooltip que explique claramente el requisito de la contraseña (ej. 'Mínimo 6 caracteres, incluye mayúsculas/minúsculas')."
+        },
+        {
+          "sev": "P2",
+          "where": "Campos de formulario en general",
+          "what": "Mejorar la separación visual entre grupos de campos para aumentar la escaneabilidad.",
+          "evidence": "Nombre del negocio, Email, Contraseña, Tipo de negocio",
+          "suggestedFix": "Utilizar contenedores o divisores sutiles (dividers) después de cada grupo de inputs para delimitar claramente los campos y mejorar el flujo visual en móvil."
+        },
+        {
+          "sev": "P2",
+          "where": "Tipo de negocio (select box)",
+          "what": "Considerar una mejora de la affordancia del selector de tipo de negocio.",
+          "evidence": "Selecciona una opción",
+          "suggestedFix": "Si el número de opciones es limitado, considerar reemplazar el select box por botones de radio o un componente de selección más visual y guiado para mejorar la experiencia táctil."
+        }
+      ],
+      "summary": "La página cumple con altos estándares de contenido y responsividad móvil. El diseño es limpio y los CTAs son claros. Sin embargo, se recomienda mejorar la accesibilidad y UX añadiendo feedback más explícito sobre las reglas de validación (como el requisito de contraseña) y mejorando la separación visual entre los campos del formulario para un mayor polish."
+    }
+  },
+  {
+    "task": "M3_dashboard",
+    "shot": "main",
+    "viewport": "desktop",
+    "file": "docs/eval-ui/2026-06-27/shots/M3_dashboard_main_desktop.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/dashboard",
+    "gemma": {
+      "scores": {
+        "visual": 2,
+        "contenido": 3,
+        "accesibilidad": 2,
+        "responsivo": 2,
+        "ux": 3,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "Espaciado entre la sección 'Dashboard de inteligencia' y el gráfico 'Embudo de conversión'",
+          "what": "Consistencia en el espaciado vertical.",
+          "evidence": "El espacio que separa las tarjetas métricas superiores del gráfico de embudo es ligeramente menor que el espacio que hay entre los elementos dentro de cada tarjeta, creando una sensación de agrupación inconsistente.",
+          "suggestedFix": "Aumentar uniformemente el padding o margen debajo de la sección 'Dashboard de inteligencia' para separar visualmente este bloque de datos clave del siguiente componente (el embudo)."
+        },
+        {
+          "sev": "P2",
+          "where": "Título principal: 'Dashboard de inteligencia'",
+          "what": "Claridad y concisión en el título.",
+          "evidence": "'Dashboard de inteligencia' seguido por un subtítulo descriptivo ('Estética Santa María · Resumen de los últimos 30 días').",
+          "suggestedFix": "Considerar reestructurar la información para que el titular sea más orientado a la acción o al valor. Por ejemplo, cambiarlo a 'Resumen Operacional' y dejar la ubicación/fecha como un subtítulo secundario, mejorando la jerarquía visual."
+        },
+        {
+          "sev": "P1",
+          "where": "Gráfico de Embudo de conversión (texto)",
+          "what": "Contraste de color en texto sobre fondo claro.",
+          "evidence": "El texto dentro del gráfico, como 'Mensajes recibidos' o los porcentajes, debe ser revisado para asegurar un contraste WCAG AA/AAA adecuado con el fondo blanco o gris muy claro. Aunque es legible, la verificación es necesaria.",
+          "suggestedFix": "Verificar y ajustar los colores de fuente en todos los elementos textuales dentro de los gráficos complejos (como el embudo) para garantizar que cumplan con las pautas mínimas de contraste."
+        }
+      ],
+      "summary": "El dashboard presenta una estructura profesional, utiliza tarjetas métricas de manera efectiva y la navegación es intuitiva. El contenido es claro y no contiene placeholders rotos. Los puntos de mejora se centran en el pulido visual (espaciado inconsistente) y asegurar que todos los elementos textuales dentro de los gráficos cumplan con altos estándares de contraste para mejorar la accesibilidad."
+    }
+  },
+  {
+    "task": "M3_dashboard",
+    "shot": "scrolled",
+    "viewport": "desktop",
+    "file": "docs/eval-ui/2026-06-27/shots/M3_dashboard_scrolled_desktop.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/dashboard",
+    "gemma": {
+      "scores": {
+        "visual": 2,
+        "contenido": 3,
+        "accesibilidad": 2,
+        "responsivo": 3,
+        "ux": 2,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "Widget 'Embudo de conversión'",
+          "what": "El análisis del embudo es puramente descriptivo. Aunque muestra dónde hay pérdidas ('Mensajes recibidos' a 'Agendar cita'), no ofrece ninguna recomendación o insight accionable.",
+          "evidence": "Título: Embudo de conversión",
+          "suggestedFix": "Implementar una capa de inteligencia artificial que, al detectar un punto de fuga (ej. la caída entre 'Mensajes recibidos' y 'Mostraron interés'), sugiera automáticamente acciones correctivas o hipótesis para el usuario."
+        },
+        {
+          "sev": "P2",
+          "where": "Bloque de métricas principales (KPIs)",
+          "what": "La agrupación visual de los tres bloques de KPIs ($2.4M, $9.0M, etc.) es funcional pero carece de cohesión visual. Parecen elementos flotantes sin una jerarquía clara que guíe la mirada del usuario.",
+          "evidence": "$2.4M / $9.0M",
+          "suggestedFix": "Agrupar estos tres bloques en un contenedor más grande o usar tarjetas con un diseño uniforme y consistente para reforzar su relación como métricas clave de rendimiento (KPIs)."
+        },
+        {
+          "sev": "P2",
+          "where": "Barra de navegación lateral izquierda",
+          "what": "Los iconos utilizados en la barra de navegación son genéricos. Aunque el texto es claro, mejorar los iconos podría hacer que la navegación sea más rápida y intuitiva.",
+          "evidence": "Iconos junto a 'Dashboard', 'Conversaciones', 'Agenda'",
+          "suggestedFix": "Reemplazar o complementar los iconos con representaciones visuales más específicas del SaaS (ej. un icono de chat para Conversaciones, un calendario específico para Agenda) para mejorar la comprensión instantánea."
+        }
+      ],
+      "summary": "El dashboard es muy sólido en cuanto a contenido y funcionalidad, presentando métricas claras y bien estructuradas para el negocio de estética. La experiencia de usuario (UX) podría mejorarse significativamente al añadir inteligencia accionable; actualmente, los datos son descriptivos pero no prescriptivos. Se recomienda enfáticamente transformar las visualizaciones de embudo y KPIs en herramientas que sugieran 'qué hacer' con la información mostrada."
+    }
+  },
+  {
+    "task": "M3_dashboard",
+    "shot": "main",
+    "viewport": "mobile",
+    "file": "docs/eval-ui/2026-06-27/shots/M3_dashboard_main_mobile.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/dashboard",
+    "gemma": {
+      "scores": {
+        "visual": 3,
+        "contenido": 3,
+        "accesibilidad": 3,
+        "responsivo": 3,
+        "ux": 3,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "Dashboard de inteligencia / Estética Santa María · Resumen de los últimos 30 días",
+          "what": "Mejorar la jerarquía visual entre el título principal y el subtítulo contextual.",
+          "evidence": "Dashboard de inteligencia\nEstética Santa María · Resumen de los últimos 30 días",
+          "suggestedFix": "Asegurar que haya un contraste tipográfico o espaciado más marcado para que el subtítulo (contexto/fecha) se sienta subordinado al título principal, pero sin perder visibilidad."
+        },
+        {
+          "sev": "P2",
+          "where": "vs mes anterior (en las tarjetas de métricas)",
+          "what": "Reforzar la claridad del contexto comparativo.",
+          "evidence": "vs mes anterior",
+          "suggestedFix": "Aunque el texto es claro, se podría añadir un microcopy o tooltip que explique brevemente qué significa exactamente esta comparación (ej: 'Comparado con este periodo del mes pasado') para usuarios menos familiarizados con los dashboards."
+        },
+        {
+          "sev": "P2",
+          "where": "Header (Icono de menú hamburguesa y título)",
+          "what": "Asegurar el espaciado táctil adecuado en la cabecera.",
+          "evidence": "Icono de menú hamburguesa y Dashboard de inteligencia",
+          "suggestedFix": "Verificar que haya suficiente padding horizontal entre los elementos del header para evitar interacciones accidentales, especialmente si el contenido se expande o contrae."
+        }
+      ],
+      "summary": "El dashboard es excelente en su implementación MVP. Cumple con altos estándares de UX y visualización de datos (KPIs), utilizando un diseño basado en tarjetas que facilita la digestión de información crítica. La estructura es limpia, el contraste es bueno y no presenta defectos funcionales visibles. Las sugerencias son mínimas y se centran en refinar la jerarquía tipográfica y mejorar microcopys para alcanzar la perfección."
+    }
+  },
+  {
+    "task": "M3_dashboard",
+    "shot": "scrolled",
+    "viewport": "mobile",
+    "file": "docs/eval-ui/2026-06-27/shots/M3_dashboard_scrolled_mobile.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/dashboard",
+    "gemma": {
+      "scores": {
+        "visual": 2,
+        "contenido": 3,
+        "accesibilidad": 2,
+        "responsivo": 3,
+        "ux": 2,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "Dashboard de inteligencia / Estética Santa María • Resumen de los últimos 30 días",
+          "what": "La separación vertical entre el título principal y el subtítulo contextual es mínima.",
+          "evidence": "Dashboard de inteligencia\nEstética Santa María • Resumen de los últimos 30 días",
+          "suggestedFix": "Aumentar ligeramente el espacio en blanco (padding) debajo del título para mejorar la jerarquía visual."
+        },
+        {
+          "sev": "P1",
+          "where": "▲ 0% vs mes anterior",
+          "what": "Los indicadores de tendencia porcentual deben tener un contraste y etiquetado más robusto para accesibilidad.",
+          "evidence": "▲ 0% vs mes anterior",
+          "suggestedFix": "Asegurar que el texto 'vs mes anterior' esté semánticamente asociado al cambio porcentual, permitiendo a lectores de pantalla interpretarlo como una métrica completa (ej: 'Crecimiento del cero por ciento en comparación con el mes pasado')."
+        },
+        {
+          "sev": "P2",
+          "where": "Finalización del contenido visible",
+          "what": "El dashboard presenta datos clave, pero carece de una llamada a la acción (CTA) o navegación clara para guiar al usuario después de revisar las métricas.",
+          "evidence": "La última tarjeta parcialmente visible sobre 'DINERO SOBRE LA MESA'",
+          "suggestedFix": "Incluir un CTA principal ('Ver detalles', 'Gestionar Conversaciones') o una sección de acciones sugeridas inmediatamente debajo del conjunto de tarjetas para mejorar el flujo de usuario."
+        }
+      ],
+      "summary": "El dashboard es limpio, visualmente coherente y presenta métricas clave con copy excelente. La estructura móvil funciona perfectamente sin problemas de recorte ni overflow. Las áreas de mejora se centran en la usabilidad avanzada: aumentar el espaciado para mejorar la jerarquía visual, reforzar la accesibilidad de los indicadores porcentuales, y añadir un CTA o sección de acciones sugeridas al final del contenido para guiar al usuario sobre su siguiente paso."
+    }
+  },
+  {
+    "task": "M4_inbox",
+    "shot": "list",
+    "viewport": "desktop",
+    "file": "docs/eval-ui/2026-06-27/shots/M4_inbox_list_desktop.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/conversations",
+    "gemma": {
+      "scores": {
+        "visual": 3,
+        "contenido": 3,
+        "accesibilidad": 3,
+        "responsivo": 3,
+        "ux": 3,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "Filtros de conversación (Todos, WA, IG, FB)",
+          "what": "Agrupación visual y espaciado.",
+          "evidence": "Los botones/chips 'Todos', 'WA', 'IG', 'FB' están colocados inmediatamente después del campo de búsqueda sin un separador o contenedor claro que los agrupe como filtros funcionales.",
+          "suggestedFix": "Encerrar los chips de filtro en un componente visual (ej. un borde sutil o fondo de color) y añadir un margen vertical superior para distinguirlos claramente del campo de búsqueda."
+        },
+        {
+          "sev": "P2",
+          "where": "Área de selección de conversación ('Selecciona una conversación...')",
+          "what": "Claridad en el estado vacío (Empty State).",
+          "evidence": "El texto 'Selecciona una conversación para ver el hilo completo' es informativo, pero podría complementarse con un ejemplo visual o un CTA secundario que guíe al usuario sobre qué hacer si no hay conversaciones recientes.",
+          "suggestedFix": "Mantener el mensaje actual y añadir debajo de él (o junto a la ilustración) un enlace/botón como 'Iniciar nueva conversación' para reducir la fricción del estado vacío."
+        }
+      ],
+      "summary": "El MVP Bookia presenta una interfaz extremadamente pulida, con una jerarquía visual clara y una navegación intuitiva. Los componentes de lista están bien estructurados y el copy es consistente y profesional. Se recomienda únicamente mejorar la agrupación visual de los filtros para aumentar la cohesión del área de búsqueda y refinar ligeramente el estado vacío (empty state) para guiar mejor al usuario."
+    }
+  },
+  {
+    "task": "M4_inbox",
+    "shot": "search",
+    "viewport": "desktop",
+    "file": "docs/eval-ui/2026-06-27/shots/M4_inbox_search_desktop.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/conversations",
+    "gemma": {
+      "scores": {
+        "visual": 3,
+        "contenido": 3,
+        "accesibilidad": 2,
+        "responsivo": 3,
+        "ux": 3,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "Campo de búsqueda en la sección 'Conversaciones'",
+          "what": "Falta una etiqueta (label) explícita para el campo de búsqueda.",
+          "evidence": "Placeholder: `valentina`",
+          "suggestedFix": "Implementar un `<label>` visible o, si es necesario ocultarlo visualmente por diseño, usar el atributo `aria-label` para asegurar que los lectores de pantalla identifiquen la función del campo."
+        },
+        {
+          "sev": "P2",
+          "where": "Área principal de chat (panel derecho)",
+          "what": "El estado vacío es funcional, pero carece de un refuerzo visual para guiar al usuario sobre lo que debe hacer.",
+          "evidence": "Texto: `Selecciona una conversación para ver el hilo completo`",
+          "suggestedFix": "Añadir un fondo sutil o un borde alrededor del área de chat cuando está vacío. Esto ayuda a enmarcar la zona y refuerza su propósito, mejorando la percepción de 'contenedor activo'."
+        },
+        {
+          "sev": "P2",
+          "where": "Tabs de filtro (Todos, WA, IG, FB)",
+          "what": "La distinción visual entre el tab activo y los inactivos es demasiado sutil.",
+          "evidence": "Los tabs: `Todos`, `WA`, `IG`, `FB`",
+          "suggestedFix": "Aumentar la jerarquía visual del tab seleccionado (ej. un color de fondo más sólido o una línea de énfasis más gruesa) para que el usuario pueda escanear rápidamente qué filtro está activo."
+        }
+      ],
+      "summary": "El MVP Bookia presenta una estructura SaaS muy limpia y profesional, con una excelente experiencia de usuario (UX) evidente en la gestión del estado vacío. La navegación es intuitiva y los elementos están bien espaciados. Los puntos de mejora se centran principalmente en accesibilidad (etiquetas faltantes en el buscador) y pequeños ajustes visuales para mejorar la distinción entre estados activos e inactivos."
+    }
+  },
+  {
+    "task": "M4_inbox",
+    "shot": "list",
+    "viewport": "mobile",
+    "file": "docs/eval-ui/2026-06-27/shots/M4_inbox_list_mobile.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/conversations",
+    "gemma": {
+      "scores": {
+        "visual": 2,
+        "contenido": 3,
+        "accesibilidad": 2,
+        "responsivo": 3,
+        "ux": 3,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "Espacio entre el campo de búsqueda y la primera conversación ('Camila Mendoza')",
+          "what": "El espaciado vertical (padding) es ligeramente ajustado. Aumentar este espacio mejoraría el ritmo visual y la separación percibida entre los elementos principales.",
+          "evidence": "Campo 'Buscar...' y fila 'Camila Mendoza'",
+          "suggestedFix": "Añadir un padding vertical de 8-12px debajo del campo de búsqueda."
+        },
+        {
+          "sev": "P1",
+          "where": "Marcas de tiempo en las conversaciones ('ahora', 'hace 43 min', etc.)",
+          "what": "Aunque son visualmente claras, estas marcas de tiempo deben estar correctamente etiquetadas (ARIA labels) para lectores de pantalla. Si no están bien gestionadas, pueden causar ruido o ser ignoradas por usuarios con discapacidad.",
+          "evidence": "'ahora' en la fila 'Camila Mendoza'",
+          "suggestedFix": "Asegurar que el tiempo se lea como parte del contexto de la conversación y que el área táctil principal siga siendo toda la fila, sin interferencias de lectura."
+        },
+        {
+          "sev": "P2",
+          "where": "Encabezado superior (Back button)",
+          "what": "El botón de retroceso (<) está presente pero no hay un título visible en el encabezado que refuerce la ubicación actual del usuario, más allá del subtítulo 'Conversaciones' debajo. Esto podría generar confusión si el flujo es complejo.",
+          "evidence": "Icono '<' en la esquina superior izquierda",
+          "suggestedFix": "Considerar incluir el título de la sección ('Conversaciones') directamente dentro de la barra de navegación (header) para reforzar la ubicación del usuario."
+        }
+      ],
+      "summary": "La pantalla es limpia, altamente funcional y sigue un patrón de diseño móvil estándar muy efectivo. El contenido es impecable y la experiencia de usuario (UX) es intuitiva gracias a la clara jerarquía visual de las conversaciones. Los puntos de mejora son menores y se centran en el pulido visual (espaciado) y la robustez de accesibilidad, asegurando que todos los elementos secundarios como las marcas de tiempo estén correctamente etiquetados para lectores de pantalla."
+    }
+  },
+  {
+    "task": "M4_inbox",
+    "shot": "search",
+    "viewport": "mobile",
+    "file": "docs/eval-ui/2026-06-27/shots/M4_inbox_search_mobile.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/conversations",
+    "gemma": {
+      "scores": {
+        "visual": 3,
+        "contenido": 3,
+        "accesibilidad": 2,
+        "responsivo": 3,
+        "ux": 3,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "La fila de filtros/pestañas (Todos, WA, IG, FB)",
+          "what": "Mejorar la accesibilidad semántica de los filtros. Estos elementos deben estar marcados con roles ARIA apropiados (ej: role='tablist') para que los lectores de pantalla entiendan que son un grupo de navegación interconectado.",
+          "evidence": "\"Todos\", \"WA\", \"IG\", \"FB\"",
+          "suggestedFix": "Implementar la estructura semántica de tabulación utilizando ARIA roles (role=\"tablist\") y atributos de estado (aria-selected)."
+        },
+        {
+          "sev": "P2",
+          "where": "Barra de búsqueda superior",
+          "what": "Aumentar la claridad del alcance de la búsqueda. Aunque el campo es visible, no está claro si se puede buscar por nombre, contenido o palabras clave específicas sin ayuda visual.",
+          "evidence": "Input field con valor \"valentina\"",
+          "suggestedFix": "Considerar añadir un texto auxiliar (helper text) debajo del campo de búsqueda o modificar el placeholder para indicar qué tipo de información se puede buscar (ej: 'Buscar contactos, mensajes o palabras clave')."
+        }
+      ],
+      "summary": "La interfaz es visualmente impecable y sigue una jerarquía clara. La navegación mediante pestañas y la barra de búsqueda son altamente intuitivas, cumpliendo con los principios de UX móvil. Se recomienda mejorar el marcado semántico de las pestañas para garantizar la accesibilidad completa (WCAG) y añadir un poco más de contexto al campo de búsqueda."
+    }
+  },
+  {
+    "task": "M5_thread",
+    "shot": "detail",
+    "viewport": "desktop",
+    "file": "docs/eval-ui/2026-06-27/shots/M5_thread_detail_desktop.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/conversations/49c81dfa-3be6-4ce4-b5cf-6890ea721c45",
+    "gemma": {
+      "scores": {
+        "visual": 2,
+        "contenido": 2,
+        "accesibilidad": 2,
+        "responsivo": 2,
+        "ux": 2,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "Lista de conversaciones (columna izquierda)",
+          "what": "La lista de chats es densa y puede generar fatiga visual. Al hacer scroll, la referencia del chat activo podría perderse ligeramente.",
+          "evidence": "Conversaciones: Camila Mendoza, Eval Probe, Fernanda Diaz...",
+          "suggestedFix": "Considerar un encabezado fijo (sticky header) para el panel de conversaciones o utilizar separadores visuales más fuertes entre hilos de conversación."
+        },
+        {
+          "sev": "P2",
+          "where": "Botones de acción en la burbuja de mensaje del chat",
+          "what": "La agrupación de acciones secundarias ('Editar', 'Escalar') es funcional, pero visualmente podría ser más limpia. El término 'Escalar' requiere contexto adicional para el usuario.",
+          "evidence": "Botones 'Editar' y 'Escalar'",
+          "suggestedFix": "Agrupar estas acciones bajo un menú de kebab (tres puntos) o proporcionar microcopia/tooltips que expliquen claramente la función de 'Escalar' en este contexto SaaS."
+        },
+        {
+          "sev": "P2",
+          "where": "Campo de entrada de mensaje del chat",
+          "what": "Aunque el placeholder es claro ('Escribe un mensaje...'), no hay indicaciones visuales sobre los tipos de contenido que se pueden enviar (ej. archivos, imágenes) o si la respuesta debe ser estructurada.",
+          "evidence": "Input field con texto 'Escribe un mensaje...' y botón 'Enviar'",
+          "suggestedFix": "Mejorar el affordance del campo de entrada añadiendo iconos de adjunto o un placeholder más descriptivo que guíe al usuario sobre las capacidades de respuesta."
+        }
+      ],
+      "summary": "El MVP presenta una estructura sólida, con una clara división entre navegación y detalle del chat. La funcionalidad parece impecable (P3), pero se pueden mejorar la experiencia de usuario en el manejo de listas largas y la claridad contextual de acciones secundarias como 'Escalar'. Se recomienda refinar la jerarquía visual y añadir microcopia para aumentar la usabilidad general."
+    }
+  },
+  {
+    "task": "M5_thread",
+    "shot": "detail",
+    "viewport": "mobile",
+    "file": "docs/eval-ui/2026-06-27/shots/M5_thread_detail_mobile.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/conversations/49c81dfa-3be6-4ce4-b5cf-6890ea721c45",
+    "gemma": {
+      "scores": {
+        "visual": 2,
+        "contenido": 3,
+        "accesibilidad": 3,
+        "responsivo": 3,
+        "ux": 2,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "Header (Camila Mendoza)",
+          "what": "Mejorar la jerarquía visual del encabezado.",
+          "evidence": "La sección superior que contiene el nombre 'Camila Mendoza' y el botón de retroceso.",
+          "suggestedFix": "Asegurar un espaciado vertical más pronunciado entre el borde inferior del header y el inicio del contenido del chat para mejorar la separación visual."
+        },
+        {
+          "sev": "P2",
+          "where": "Input field (Escribir un mensaje...)",
+          "what": "Mejorar el feedback de envío.",
+          "evidence": "El campo 'Escribe un mensaje...' y el botón 'Enviar'.",
+          "suggestedFix": "Al enviar un mensaje, se debería añadir una micro-interacción o animación sutil (ej. un breve pulso) para confirmar visualmente que la acción fue procesada exitosamente por el sistema."
+        },
+        {
+          "sev": "P2",
+          "where": "Avatar del chatbot (CM)",
+          "what": "Reforzar la identidad de marca en el avatar.",
+          "evidence": "El círculo con las iniciales 'CM' junto al nombre 'Camila Mendoza'.",
+          "suggestedFix": "Si es posible, reemplazar o complementar el avatar genérico con un logo más profesional o una imagen que represente visualmente a la marca (Bookia) para aumentar el polish y la confianza del usuario."
+        }
+      ],
+      "summary": "La interfaz cumple con altos estándares de accesibilidad y responsividad móvil. El flujo conversacional es intuitivo, y los elementos clave como el campo de entrada son muy claros. Se recomienda mejorar ligeramente el espaciado en el encabezado y añadir micro-interacciones al enviar mensajes para elevar la experiencia de usuario (UX) general."
+    }
+  },
+  {
+    "task": "M6_demolive",
+    "shot": "opened",
+    "viewport": "desktop",
+    "file": "docs/eval-ui/2026-06-27/shots/M6_demolive_opened_desktop.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/dashboard",
+    "gemma": {
+      "scores": {
+        "visual": 2,
+        "contenido": 2,
+        "accesibilidad": 2,
+        "responsivo": 3,
+        "ux": 2,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "Embudo de conversión",
+          "what": "La sección es puramente diagnóstica y carece de un CTA o explicación accionable para los puntos de fuga.",
+          "evidence": "Título: Embudo de conversión. Muestra métricas como 'Mensajes recibidos' (16) y 'Pidieron precio' (14), pero no indica qué hacer con la información.",
+          "suggestedFix": "Agregar un botón o tooltip que explique cómo optimizar el proceso en ese punto específico del embudo, transformando datos pasivos en acciones activas."
+        },
+        {
+          "sev": "P2",
+          "where": "Ingreso Potencial en Conversaciones Activas ($2.4M)",
+          "what": "La métrica principal carece de claridad sobre su base de cálculo, lo que puede generar confusión al usuario.",
+          "evidence": "$2.4M / $2.448.000 COP en 4 conversaciones",
+          "suggestedFix": "Añadir un texto explicativo (tooltip o subtítulo) que defina claramente qué representa el 'Ingreso Potencial' y si es una estimación basada en la tasa de conversión promedio, para gestionar las expectativas del usuario."
+        },
+        {
+          "sev": "P1",
+          "where": "Espaciado general entre widgets/cards",
+          "what": "Existe una ligera inconsistencia en el espaciado vertical (padding) entre los diferentes tarjetas de métricas principales.",
+          "evidence": "El espacio entre la tarjeta 'Ingreso Potencial...' y la tarjeta 'Citas Agendadas este mes'.",
+          "suggestedFix": "Estandarizar el padding vertical entre todos los widgets clave para mejorar la cohesión visual y el ritmo del dashboard."
+        }
+      ],
+      "summary": "El MVP de Bookia presenta una estructura sólida, utilizando un diseño de tarjetas (cards) que facilita la digestión de métricas complejas. La jerarquía visual es clara y el uso de datos en tiempo real mejora la sensación de valor. Sin embargo, se recomienda mejorar la acciónabilidad del 'Embudo de conversión' para que no sea solo un informe diagnóstico, sino una herramienta que guíe al usuario hacia la optimización. Finalmente, ajustar los subtítulos de las métricas clave mejorará significativamente la claridad y confianza del usuario."
+    }
+  },
+  {
+    "task": "M6_demolive",
+    "shot": "msg1",
+    "viewport": "desktop",
+    "file": "docs/eval-ui/2026-06-27/shots/M6_demolive_msg1_desktop.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/dashboard",
+    "gemma": {
+      "scores": {
+        "visual": 2,
+        "contenido": 3,
+        "accesibilidad": 2,
+        "responsivo": 3,
+        "ux": 2,
+        "funcional": 3
+      },
+      "pass": false,
+      "findings": [
+        {
+          "sev": "P1",
+          "where": "Input field dentro del widget de chat (abajo a la derecha)",
+          "what": "Falta de etiqueta accesible para el campo de entrada del chatbot.",
+          "evidence": "Placeholder 'Escribe como cliente...'",
+          "suggestedFix": "Asegurar que el campo tenga un `aria-label` o una `<label>` visible/oculta para lectores de pantalla, ya que solo depende del placeholder."
+        },
+        {
+          "sev": "P2",
+          "where": "Sección 'Dashboard de inteligencia'",
+          "what": "Alta densidad de información y métricas sin suficiente jerarquía visual.",
+          "evidence": "Múltiples tarjetas (Ingreso potencial, Citas agendadas este mes, etc.) agrupadas en un solo bloque.",
+          "suggestedFix": "Considerar la agrupación lógica de estas métricas o utilizar pestañas/acordeones para reducir la carga cognitiva y mejorar el escaneo visual."
+        },
+        {
+          "sev": "P2",
+          "where": "Panel principal del Dashboard (Área superior)",
+          "what": "Falta un CTA primario de 'Siguiente Acción' después de revisar las métricas.",
+          "evidence": "Los datos están presentados, pero no hay una acción obvia para el usuario que acaba de aterrizar o ha revisado los números.",
+          "suggestedFix": "Añadir un botón destacado (ej. 'Crear nueva conversación', 'Configurar automatización') cerca del resumen estadístico superior para guiar al usuario inmediatamente."
+        },
+        {
+          "sev": "P2",
+          "where": "Barra lateral de navegación (Sidebar)",
+          "what": "Mejorar la separación visual entre secciones principales de navegación.",
+          "evidence": "Elementos como 'Dashboard', 'Conversaciones' y 'Configuración' están listados sin separadores claros.",
+          "suggestedFix": "Utilizar divisores sutiles o cambiar ligeramente el fondo (background color) para agrupar lógicamente los enlaces relacionados, mejorando la navegabilidad."
+        }
+      ],
+      "summary": "El dashboard presenta una estructura de datos robusta y un copy claro, lo que eleva su puntuación en contenido. Sin embargo, se detectan oportunidades clave de mejora en UX y accesibilidad. Específicamente, la densidad de información en el 'Dashboard de inteligencia' puede resultar abrumadora, requiriendo mejor jerarquía visual. Además, es crucial añadir etiquetas ARIA o labels explícitos al campo de entrada del chat para garantizar la accesibilidad completa."
+    }
+  },
+  {
+    "task": "M6_demolive",
+    "shot": "msg2",
+    "viewport": "desktop",
+    "file": "docs/eval-ui/2026-06-27/shots/M6_demolive_msg2_desktop.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/dashboard",
+    "gemma": {
+      "scores": {
+        "visual": 2,
+        "contenido": 3,
+        "accesibilidad": 2,
+        "responsivo": 3,
+        "ux": 2,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "Entre la tarjeta de métricas ($2.4M) y el título 'Embudo de conversión'",
+          "what": "Falta de separación visual o jerarquía entre bloques de información clave.",
+          "evidence": "El espacio en blanco es insuficiente para separar los dos módulos principales del dashboard, haciendo que parezca un bloque continuo.",
+          "suggestedFix": "Aumentar el padding vertical antes del título 'Embudo de conversión' o añadir un divisor sutil (línea horizontal) para segmentar claramente las métricas financieras del análisis de flujo."
+        },
+        {
+          "sev": "P1",
+          "where": "Widget de chat flotante en la esquina inferior derecha.",
+          "what": "El widget es un elemento secundario y su interacción podría mejorar la accesibilidad y el foco.",
+          "evidence": "Botón 'Hola, quiero cotizar...' dentro del widget de chat. Este componente flota sobre el contenido principal.",
+          "suggestedFix": "Asegurar que este componente tenga estados de foco visibles (focus states) para usuarios de teclado y que su función esté semánticamente etiquetada como un elemento de soporte o ayuda, no como parte integral del flujo de datos."
+        },
+        {
+          "sev": "P2",
+          "where": "Sección 'Embudo de conversión'",
+          "what": "El dato es estático y solo muestra la pérdida porcentual sin sugerir el siguiente paso o causa raíz.",
+          "evidence": "Texto: '0% dejaron avanzar aquí' (en Mensajes recibidos).",
+          "suggestedFix": "Transformar esta sección de un reporte pasivo a una herramienta activa. Añadir tooltips, explicaciones o botones que sugieran acciones correctivas basadas en los puntos de fuga más comunes (ej: 'Revisar la respuesta automática', 'Optimizar el CTA')."
+        }
+      ],
+      "summary": "El dashboard presenta una estructura limpia y profesional con contenido claro y métricas bien definidas. Los scores son altos, especialmente en Contenido y Funcionalidad. Las áreas de mejora se centran principalmente en la UX: mejorar la separación visual entre módulos (P2), aumentar la acciónabilidad del 'Embudo de conversión' para que no sea solo un reporte estático, y asegurar el cumplimiento de estándares de accesibilidad en elementos flotantes como el widget de chat."
+    }
+  },
+  {
+    "task": "M6_demolive",
+    "shot": "opened",
+    "viewport": "mobile",
+    "file": "docs/eval-ui/2026-06-27/shots/M6_demolive_opened_mobile.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/dashboard",
+    "gemma": {
+      "scores": {
+        "visual": 2,
+        "contenido": 3,
+        "accesibilidad": 2,
+        "responsivo": 3,
+        "ux": 3,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "El encabezado superior (Logo y Menú)",
+          "what": "La separación entre el logo/título de la aplicación y los iconos de acción del menú es mínima, lo que reduce ligeramente la jerarquía visual.",
+          "evidence": "Bookia | ☰",
+          "suggestedFix": "Aumentar el espaciado vertical o horizontal en el encabezado para dar más respiro a los elementos clave."
+        },
+        {
+          "sev": "P2",
+          "where": "El área de chat y la barra de entrada inferior",
+          "what": "Aunque funcional, la interacción entre el campo de texto 'Escribe como cliente...' y el botón de enviar podría beneficiarse de una separación visual más marcada (ej. un borde sutil o sombra) para mejorar la experiencia táctil.",
+          "evidence": "Campo de texto 'Escribe como cliente...'",
+          "suggestedFix": "Añadir un contenedor con bordes definidos alrededor del input y el botón, mejorando la agrupación visual."
+        },
+        {
+          "sev": "P1",
+          "where": "Dashboard de inteligencia (Sección lateral)",
+          "what": "Esta sección es informativa pero está ligeramente desconectada del flujo principal de chat. Su integración podría mejorar si se presenta como un resumen contextual o una pestaña secundaria, en lugar de un bloque estático.",
+          "evidence": "Dashboard de inteligencia",
+          "suggestedFix": "Reevaluar la ubicación: considerar mover esta información a una sección 'Estadísticas' dentro del dashboard principal, o usar pestañas para diferenciar el chat activo de los reportes analíticos."
+        }
+      ],
+      "summary": "El MVP presenta un diseño limpio y altamente funcional, con excelente claridad en el flujo de usuario (UX) y la adaptación móvil. El contenido es consistente y sin errores visibles. Los puntos a mejorar son menores: se recomienda refinar ligeramente los espaciados visuales del encabezado y mejorar la separación táctil entre el campo de entrada y el botón de envío para elevar el nivel de polish general."
+    }
+  },
+  {
+    "task": "M6_demolive",
+    "shot": "msg1",
+    "viewport": "mobile",
+    "file": "docs/eval-ui/2026-06-27/shots/M6_demolive_msg1_mobile.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/dashboard",
+    "gemma": {
+      "scores": {
+        "visual": 2,
+        "contenido": 2,
+        "accesibilidad": 3,
+        "responsivo": 3,
+        "ux": 3,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P1",
+          "where": "Dashboard de inteligencia",
+          "what": "El título principal es demasiado genérico y no comunica el valor específico del dashboard.",
+          "evidence": "Dashboard de inteligencia",
+          "suggestedFix": "Reemplazar con un título más descriptivo que refleje la métrica clave, por ejemplo: 'Insights de Conversaciones' o 'Rendimiento del Chatbot'."
+        },
+        {
+          "sev": "P2",
+          "where": "Estética Santa María. Resumen de los últimos 30 días",
+          "what": "La separación visual entre el título principal y el subtítulo (contexto) podría mejorarse para guiar mejor la lectura.",
+          "evidence": "Dashboard de inteligencia / Estética Santa María...",
+          "suggestedFix": "Añadir un divisor sutil o aumentar ligeramente el espaciado vertical para que el contexto no se sienta pegado al título principal."
+        },
+        {
+          "sev": "P2",
+          "where": "Mensajes de chat (ej. 'Hola, quiero cotizar...')",
+          "what": "Aunque la funcionalidad es clara, los botones CTA dentro del flujo de conversación podrían tener un mayor contraste o una separación más marcada para evitar que parezcan parte del texto.",
+          "evidence": "Botones con fondo coloreado como 'Hola, quiero cotizar un relleno de labios'",
+          "suggestedFix": "Asegurar que el estado táctil (hover/focus) y el contraste sean óptimos. Considerar bordes ligeramente redondeados más pronunciados para reforzar la sensación de botón interactivo."
+        }
+      ],
+      "summary": "El MVP presenta una estructura limpia, excelente usabilidad en el flujo de chat ('Demo en vivo') y cumple con los requisitos básicos de accesibilidad móvil. Los puntos a mejorar se centran principalmente en la claridad del contenido (el título 'Dashboard de inteligencia' es vago) y en refinar detalles visuales menores para elevar el nivel de pulido general, especialmente en la jerarquía de títulos."
+    }
+  },
+  {
+    "task": "M6_demolive",
+    "shot": "msg2",
+    "viewport": "mobile",
+    "file": "docs/eval-ui/2026-06-27/shots/M6_demolive_msg2_mobile.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/dashboard",
+    "gemma": {
+      "scores": {
+        "visual": 2,
+        "contenido": 3,
+        "accesibilidad": 2,
+        "responsivo": 3,
+        "ux": 2,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "Dashboard de inteligencia",
+          "what": "Falta la presentación inmediata de métricas clave (KPIs) en el dashboard.",
+          "evidence": "Título 'Dashboard de inteligencia'",
+          "suggestedFix": "Implementar una sección superior con tarjetas o gráficos que muestren KPIs críticos (ej. Leads hoy, Chats activos, Tasa de respuesta) para justificar el nombre y dar un vistazo rápido al estado del negocio."
+        },
+        {
+          "sev": "P1",
+          "where": "Campo de texto de entrada en chat",
+          "what": "El campo de entrada de texto carece de un indicador visible de estado de foco (focus state) y su etiqueta es implícita.",
+          "evidence": "Área donde se escribe 'Escribe como cliente...'",
+          "suggestedFix": "Asegurar que el componente tenga un estado de foco visualmente obvio (ej. borde resaltado, sombra) cuando el usuario haga clic en él. Considerar añadir una etiqueta ARIA o visible si es posible."
+        },
+        {
+          "sev": "P2",
+          "where": "Mensaje inicial del bot: ¡Con gusto te ayudo! 😊",
+          "what": "El mensaje de bienvenida es demasiado genérico y no guía al usuario sobre el siguiente paso o la información que debe proporcionar.",
+          "evidence": "¡Con gusto te ayudo! 😊",
+          "suggestedFix": "Hacer el saludo más accionable. Ejemplo: 'Hola, soy Bookia. Para empezar, ¿podrías indicarme si buscas [Servicio A] o [Servicio B]?'. Esto mejora la affordancia y reduce la fricción."
+        },
+        {
+          "sev": "P2",
+          "where": "Separación de secciones (ej. entre 'Demos en vivo' y el chat)",
+          "what": "La separación visual entre los bloques principales del dashboard es débil, lo que puede causar confusión sobre qué contenido pertenece a qué sección.",
+          "evidence": "Bloque 'Demos en vivo' seguido inmediatamente por la interfaz de chat",
+          "suggestedFix": "Aumentar el espaciado vertical (padding) o utilizar un divisor visual más fuerte (línea sutil, fondo ligeramente diferente) para demarcar claramente los límites entre las funcionalidades del dashboard y la herramienta de chat."
+        }
+      ],
+      "summary": "El MVP presenta una estructura limpia y es altamente funcional en el viewport móvil. Los puntos fuertes son la consistencia del copy y la excelente adaptabilidad responsiva. Sin embargo, se recomienda enfocar mejoras en la experiencia de usuario (UX) al añadir métricas clave visibles en el dashboard principal para justificar su nombre ('Dashboard de inteligencia'). Además, mejorar los estados de foco accesibles en el campo de chat es crucial para la usabilidad."
+    }
+  },
+  {
+    "task": "M7_settings",
+    "shot": "main",
+    "viewport": "desktop",
+    "file": "docs/eval-ui/2026-06-27/shots/M7_settings_main_desktop.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/settings",
+    "gemma": {
+      "scores": {
+        "visual": 2,
+        "contenido": 3,
+        "accesibilidad": 2,
+        "responsivo": 3,
+        "ux": 2,
+        "funcional": 3
+      },
+      "pass": false,
+      "findings": [
+        {
+          "sev": "P0",
+          "where": "Área de configuración general (Perfil del negocio / Tipo de negocio)",
+          "what": "Falta un CTA principal y visible para guardar los cambios.",
+          "evidence": "Ningún botón 'Guardar' o 'Actualizar' es visible después de modificar la información en las secciones de perfil o tipo de negocio. Esto genera incertidumbre sobre cómo persistir los datos ingresados.",
+          "suggestedFix": "Implementar un botón primario y claramente etiquetado ('Guardar Cambios', 'Actualizar Perfil') al final de cada sección editable (Perfil del negocio, Tipo de negocio)."
+        },
+        {
+          "sev": "P1",
+          "where": "Sección Servicios (31)",
+          "what": "La gestión de servicios carece de affordancia clara para la adición o categorización.",
+          "evidence": "Solo se muestra una lista de servicios existentes. No hay un botón visible como '+ Añadir Servicio' ni opciones claras para gestionar categorías o eliminar grupos completos.",
+          "suggestedFix": "Añadir un CTA prominente (ej: 'Añadir Nuevo Servicio') y mejorar la estructura visual para permitir la gestión masiva de servicios."
+        },
+        {
+          "sev": "P2",
+          "where": "Campos de hora ('Apertura' y 'Cierre')",
+          "what": "Los selectores de fecha/hora deben tener etiquetas ARIA o labels explícitos para mejorar la accesibilidad.",
+          "evidence": "Input fields labeled 'Apertura' and 'Cierre'.",
+          "suggestedFix": "Asegurar que estos componentes interactivos tengan un `aria-label` descriptivo y que el estado de foco (focus state) sea altamente visible."
+        },
+        {
+          "sev": "P2",
+          "where": "Sección Servicios (31)",
+          "what": "El texto explicativo sobre la sincronización del catálogo es pasivo y no añade valor funcional.",
+          "evidence": "Catálogo de servicios sincronizado del backend.",
+          "suggestedFix": "Reemplazar o complementar este texto con una explicación más útil, como 'Los cambios en el CMS se reflejan aquí automáticamente. [Guía de uso]'."
+        }
+      ],
+      "summary": "La estructura general y la navegación son claras (Puntos fuertes). Sin embargo, hay fallos críticos de UX/funcionalidad al no haber un CTA visible para guardar los datos modificados en las secciones principales. Además, la gestión de servicios necesita mejorar su affordancia para que el usuario sepa cómo añadir o modificar entradas. Se recomienda enfocar esfuerzos en la persistencia de datos y la usabilidad avanzada del catálogo."
+    }
+  },
+  {
+    "task": "M7_settings",
+    "shot": "main",
+    "viewport": "mobile",
+    "file": "docs/eval-ui/2026-06-27/shots/M7_settings_main_mobile.png",
+    "a11y": null,
+    "consoleErrors": [],
+    "reqFailures": [],
+    "url": "http://localhost:3001/settings",
+    "gemma": {
+      "scores": {
+        "visual": 2,
+        "contenido": 3,
+        "accesibilidad": 2,
+        "responsivo": 3,
+        "ux": 2,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P1",
+          "where": "Sección 'Perfil del negocio'",
+          "what": "Mejorar la agrupación visual de los campos de configuración.",
+          "evidence": "Los campos Nombre, Ciudad y Tipo de negocio están listados secuencialmente sin separación lógica clara.",
+          "suggestedFix": "Utilizar tarjetas (cards) o subtítulos más prominentes para agrupar lógicamente secciones relacionadas (ej. 'Información General', 'Horarios Operacionales'). Esto mejora la escaneabilidad."
+        },
+        {
+          "sev": "P2",
+          "where": "Botón 'Guardar'",
+          "what": "Implementar feedback de éxito al guardar los cambios.",
+          "evidence": "La acción de 'Guardar' es visible, pero no hay mecanismo de confirmación (ej. un mensaje Toast o una alerta) que notifique al usuario que la configuración se ha aplicado correctamente.",
+          "suggestedFix": "Al hacer clic en Guardar y procesarse exitosamente, mostrar un mensaje temporal de éxito ('Configuración guardada con éxito') para confirmar la acción."
+        },
+        {
+          "sev": "P2",
+          "where": "Todos los campos de formulario (Input fields)",
+          "what": "Verificar la semántica y asociación de etiquetas para accesibilidad.",
+          "evidence": "Se observan múltiples campos de entrada de texto y selectores. Aunque hay labels visibles, es crucial asegurar que el código utilice atributos ARIA o `for`/`id` correctamente asociados.",
+          "suggestedFix": "Revisar la implementación del formulario para garantizar que cada campo esté semánticamente vinculado a su etiqueta visible, mejorando la experiencia de usuarios con lectores de pantalla."
+        }
+      ],
+      "summary": "La página de configuración tiene una base sólida y un contenido claro. El diseño es limpio y se adapta perfectamente al viewport móvil. Sin embargo, el principal área de mejora radica en la Experiencia de Usuario (UX), específicamente en mejorar la agrupación visual de los campos para aumentar la escaneabilidad. Además, es fundamental añadir feedback explícito (ej. mensajes Toast) después de que el usuario realiza una acción crítica como guardar la configuración."
+    }
+  }
+]

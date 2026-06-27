@@ -2,8 +2,12 @@
 # start-dev.sh — Levanta Bookia completo para desarrollo
 set -e
 
+# LLM_PROVIDER parametrizable. deepseek (default, requiere API key) o mock.
+# Para eval de UI determinístico: LLM_PROVIDER=mock bash start-dev.sh
+export LLM_PROVIDER="${LLM_PROVIDER:-deepseek}"
+
 echo ""
-echo "🚀 Iniciando Bookia..."
+echo "🚀 Iniciando Bookia... (LLM_PROVIDER=$LLM_PROVIDER)"
 echo ""
 
 echo "0. Preparando volumen de datos..."
@@ -16,7 +20,7 @@ docker compose up -d postgres
 echo "   Esperando que Postgres esté listo..."
 sleep 5
 
-# 2. Levantar API
+# 2. Levantar API (Hono :8787) — reconoce LLM_PROVIDER vía docker-compose
 echo "2. Levantando API (Hono :8787)..."
 docker compose up -d api
 echo "   Esperando que la API esté lista..."

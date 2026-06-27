@@ -43,3 +43,8 @@ next-env.d.ts
 # server
 server/dist
 server/node_modules
+
+# eval UI: evidence shots son pesados (~1MB c/u), se generan localmente.
+# el reporte y results.json sí entran al repo para trazabilidad.
+docs/eval-ui/**/shots/
+test-results/

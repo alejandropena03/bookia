@@ -1,0 +1,28 @@
+# Inventory de shots — Eval UI Bookia 2026-06-27
+
+- `docs/eval-ui/2026-06-27/shots/M1_landing_hero_desktop.png` — pass=true scores={"visual":3,"contenido":3,"accesibilidad":2,"responsivo":3,"ux":2,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M1_landing_pricing_or_cta_desktop.png` — pass=true scores={"visual":3,"contenido":3,"accesibilidad":3,"responsivo":3,"ux":3,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M1_landing_hero_mobile.png` — pass=true scores={"visual":2,"contenido":3,"accesibilidad":3,"responsivo":3,"ux":3,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M1_landing_pricing_or_cta_mobile.png` — pass=true scores={"visual":3,"contenido":3,"accesibilidad":3,"responsivo":3,"ux":2,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M2_auth_login_desktop.png` — pass=true scores={"visual":2,"contenido":3,"accesibilidad":2,"responsivo":3,"ux":2,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M2_auth_register_desktop.png` — pass=true scores={"visual":3,"contenido":2,"accesibilidad":2,"responsivo":3,"ux":3,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M2_auth_login_mobile.png` — pass=true scores={"visual":2,"contenido":3,"accesibilidad":3,"responsivo":3,"ux":2,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M2_auth_register_mobile.png` — pass=true scores={"visual":2,"contenido":3,"accesibilidad":2,"responsivo":3,"ux":2,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M3_dashboard_main_desktop.png` — pass=true scores={"visual":2,"contenido":3,"accesibilidad":2,"responsivo":2,"ux":3,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M3_dashboard_scrolled_desktop.png` — pass=true scores={"visual":2,"contenido":3,"accesibilidad":2,"responsivo":3,"ux":2,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M3_dashboard_main_mobile.png` — pass=true scores={"visual":3,"contenido":3,"accesibilidad":3,"responsivo":3,"ux":3,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M3_dashboard_scrolled_mobile.png` — pass=true scores={"visual":2,"contenido":3,"accesibilidad":2,"responsivo":3,"ux":2,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M4_inbox_list_desktop.png` — pass=true scores={"visual":3,"contenido":3,"accesibilidad":3,"responsivo":3,"ux":3,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M4_inbox_search_desktop.png` — pass=true scores={"visual":3,"contenido":3,"accesibilidad":2,"responsivo":3,"ux":3,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M4_inbox_list_mobile.png` — pass=true scores={"visual":2,"contenido":3,"accesibilidad":2,"responsivo":3,"ux":3,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M4_inbox_search_mobile.png` — pass=true scores={"visual":3,"contenido":3,"accesibilidad":2,"responsivo":3,"ux":3,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M5_thread_detail_desktop.png` — pass=true scores={"visual":2,"contenido":2,"accesibilidad":2,"responsivo":2,"ux":2,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M5_thread_detail_mobile.png` — pass=true scores={"visual":2,"contenido":3,"accesibilidad":3,"responsivo":3,"ux":2,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M6_demolive_opened_desktop.png` — pass=true scores={"visual":2,"contenido":2,"accesibilidad":2,"responsivo":3,"ux":2,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M6_demolive_msg1_desktop.png` — pass=false scores={"visual":2,"contenido":3,"accesibilidad":2,"responsivo":3,"ux":2,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M6_demolive_msg2_desktop.png` — pass=true scores={"visual":2,"contenido":3,"accesibilidad":2,"responsivo":3,"ux":2,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M6_demolive_opened_mobile.png` — pass=true scores={"visual":2,"contenido":3,"accesibilidad":2,"responsivo":3,"ux":3,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M6_demolive_msg1_mobile.png` — pass=true scores={"visual":2,"contenido":2,"accesibilidad":3,"responsivo":3,"ux":3,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M6_demolive_msg2_mobile.png` — pass=true scores={"visual":2,"contenido":3,"accesibilidad":2,"responsivo":3,"ux":2,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M7_settings_main_desktop.png` — pass=false scores={"visual":2,"contenido":3,"accesibilidad":2,"responsivo":3,"ux":2,"funcional":3} errors=0 reqfail=0
+- `docs/eval-ui/2026-06-27/shots/M7_settings_main_mobile.png` — pass=true scores={"visual":2,"contenido":3,"accesibilidad":2,"responsivo":3,"ux":2,"funcional":3} errors=0 reqfail=0

@@ -10,6 +10,9 @@ services:
       DATABASE_URL: postgres://bookia:bookia_pass@postgres:5432/bookia
       DATABASE_URL_APP: postgres://bookia_app:bookia_app_pass@postgres:5432/bookia
       NODE_ENV: production
+      # Proveedor LLM parametrizable. deepseek (default, requiere API key) o mock.
+      # Override al evaluar UI: LLM_PROVIDER=mock docker compose up -d api
+      LLM_PROVIDER: ${LLM_PROVIDER:-deepseek}
     env_file:
       - ./server/.env
     depends_on:
