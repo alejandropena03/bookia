@@ -11,6 +11,7 @@ import type { CatalogItem } from "../../../flows/engine.js";
 import { getCannedResponse as _getCannedResponse } from "../../responder.js";
 import { evaluatePolicy as _evaluatePolicy } from "../../v2/policy/policy-engine.js";
 import { scanRisks as _scanRisks } from "../../v2/understanding/risk-scanner.js";
+import { isOutOfHours } from "../../../lib/hours.js";
 
 function createV2Providers(
   sql: postgres.Sql,
@@ -44,7 +45,39 @@ function createV2Providers(
     detectRisks: (text: string, intent: string): RiskFlags => {
       return _scanRisks(text, intent as AgentIntent);
     },
-    loadContext: async (input: AgentKernelInput): Promise<Record<string, unknown>> => ({}),
+    loadContext: async (_input: AgentKernelInput): Promise<Record<string, unknown>> => {
+      const [profile] = await sql`
+        SELECT persona, rules, hours, booking_mode, off_hours_message
+        FROM business_profile WHERE tenant_id = ${tenantId}
+      `;
+      const catalog =
+        catalogItems
+          .map((i) => `- ${i.name}: ${i.price} ${i.currency}`)
+          .join("\n") || "(Sin servicios cargados)";
+      const hoursRaw =
+        (profile?.hours as Record<string, { open: string | null; close: string | null }>) ?? {};
+      const offHours =
+        !!profile?.off_hours_message &&
+        Object.keys(hoursRaw).length > 0 &&
+        isOutOfHours(hoursRaw);
+      return {
+        persona: profile?.persona ?? "Asistente virtual profesional y cordial",
+        catalog,
+        rules:
+          typeof profile?.rules === "object"
+            ? JSON.stringify(profile.rules)
+            : profile?.rules ?? "Sin reglas especiales",
+        hours:
+          typeof profile?.hours === "object"
+            ? JSON.stringify(profile.hours)
+            : profile?.hours ?? "Horario no especificado",
+        hoursRaw,
+        bookingMode: profile?.booking_mode ?? "mock",
+        escalationConfig: (profile?.rules as Record<string, unknown>) ?? null,
+        offHoursMessage: profile?.off_hours_message ?? null,
+        isOutOfHours: offHours,
+      };
+    },
   };
 }
 
