@@ -1,52 +1,42 @@
-# Current Task: PR8 — Flow Adapter V2
+# Current Task: Sprint 0 — Estabilización (Plan GPT-5)
 
-## Goal
-Que los flows existentes (agendamiento, precio, first_contact) usen memoria persistente V2 y contexto V2. No queremos tener memoria en DB, router fuerte, policy fuerte y critic fuerte, pero que el flow siga preguntando datos que ya sabe.
+> **Línea de trabajo oficial:** `docs/PLAN_IMPLEMENTACION_BOOKIA_MVP_AGENTEV2.md` (plan GPT-5, 25 tasks, 5 sprints).
+> **North star:** MVP Fase 1 completo + agente V2 100%, listo para enchufar credenciales Meta en Fase 2.
+> **Stream prioritario:** A (agente V2). Restricciones: NO Meta real, NO Agenda Pro real, NO pagos live.
 
-## Scope
+## Estado Sprint 0 (M0 — Estable)
 
-1. **Agendamiento memory-aware completo** — flujo de agendamiento que consulta memoria persistente antes de pedir datos. Si el usuario ya dio nombre, teléfono, correo, cédula en conversaciones anteriores, el flow no los repregunta.
-2. **Precio memory-aware básico** — si el usuario ya mencionó ciudad o servicio antes, el flow de precio usa esa información sin repreguntar.
-3. **First contact memory-aware básico** — si el usuario vuelve, el first contact lo reconoce y no lo trata como nuevo.
+| Task | Status | Commit | Notas |
+|---|---|---|---|
+| **C1** Git commit + push snapshot V2 | ✅ DONE | `47d2df6` | 30 modified + 157 untracked preservados en origin/main. Riesgo operativo #1 mitigado. |
+| **A1** Fix tsc TS2307 import path | ✅ DONE | `bd9553a` | `v2-adapter.ts:10` `../../flows/engine.js` → `../../../flows/engine.js`. tsc clean exit 0. |
+| **C2** Runner de migraciones automático | 🔴 PENDING | — | drizzle-kit trackea 3/12 SQL; entrypoint.sh no corre migraciones. 1-1.5 días. |
+| **C3** Secrets management local DeepSeek | 🔴 PENDING | — | `.env.example` completo + Zod validation + secret scan. 0.5 días. |
 
-## Architecture
+## Gate M0 — verificado parcial
+- ✅ `git status --short` limpio tras commits.
+- ✅ `git push origin main` confirmado (`e1aa2de..47d2df6`).
+- ✅ `cd server && npx tsc --noEmit` sin errores (A1 aplicado).
+- ✅ `cd server && npx vitest run` → **283/283 tests verdes** (3.72s, DB corriendo).
+- 🔴 Migraciones reproducibles en DB limpia — pendiente C2.
+- 🔴 Secrets hygiene — pendiente C3.
 
-### Flow Adapter (`src/agent/v2/adapter/flow-adapter.ts`)
-Bridge entre el kernel V2 (router + policy + critic) y los flows existentes en `src/flows/`.
+## Próximo: Sprint 1 — Activación V2 end-to-end (semana 1)
+Tasks en orden de dependencia:
+- **A2** — V2 message persistence + SSE (`v2-adapter.ts:77-83` no persiste outbound).
+- **A3** — `AGENT_KERNEL_V2` en env schema Zod + `.env.example`, default `true`.
+- **A4** — `loadContext` real (no `{}` en `v2-adapter.ts:47`).
+- **A10** — Eliminar `require()` CommonJS en ESM (`v2-adapter.ts:29,40,44`).
+- **B1** — Auth real local (password hash + DB adapter + sesión tenant-aware).
+- **C6** — Crear `src/db/tenant-config/` o ajustar import contract.
 
-```
-Kernel V2 (RouterDecision) → FlowAdapter → Flow (existing)
-                                      ↕
-                              MemoryService (persistente)
-```
+## Contexto previo (cerrado)
+- **PR8 — Flow Adapter V2**: funcionalmente DONE (archivos en disco, 27 tests flow verdes). El bridge no se había cerrado formalmente; este commit lo cierra.
+- **Auditoría MVP**: `docs/AUDITORIA-MVP-GPT.md` (56KB, verificado en disco con file:line).
+- **Plan GPT-5**: `docs/PLAN_IMPLEMENTACION_BOOKIA_MVP_AGENTEV2.md` (67KB, 1332 líneas).
 
-Responsabilidades:
-- Traducir `RouterDecision` en parámetros de flow existentes
-- Inyectar memoria de sesiones previas (nombre, teléfono, ciudad, historial)
-- Hydratar el contexto del flow con datos que el usuario YA dió antes
-- Recibir eventos del flow y persistirlos en memoria V2
-
-### Memory Service (`src/agent/v2/memory/memory-service.ts`)
-Abstracción sobre la DB de memoria persistente para que los flows puedan:
-- `getUserContext(tenantId, conversationId)` — obtener datos conocidos del usuario
-- `setUserContext(tenantId, conversationId, data)` — guardar datos aprendidos
-- `getConversationHistory(tenantId, conversationId)` — historial de la sesión
-
-## Pipeline modificado
-
-```
-safetyPreRoute → domainRoute → LLM → clinicalPolicy → FlowAdapter → Flow
-                                            ↕                         ↕
-                                        MemoryService ←────────── eventos
-                                                                  (datos aprendidos)
-```
-
-## Acceptance Criteria
-- FlowAdapter creado en `src/agent/v2/adapter/flow-adapter.ts`
-- MemoryService creado en `src/agent/v2/memory/memory-service.ts`
-- Agendamiento no repregunta nombre si ya lo sabe
-- Agendamiento no repregunta teléfono si ya lo sabe
-- Precio usa ciudad ya conocida sin repreguntar
-- First contact reconoce usuarios que volvieron
-- tsc clean, tests pasan (nuevos + existentes)
-- Eval: sin regresiones en routing (mantiene 87.7%)
+## Discrepancias docs vs disco (a corregir en C5)
+- Tests: AGENTS raíz dice "167" → real **283**.
+- Eval score: AGENTS dice "87.7% (164/187)" → real **62.8% (258/411)**.
+- tsc: AGENTS dice "1 error pre-existente" → **clean tras A1**.
+- PR8: bridge decía "iniciando" → **DONE**.
