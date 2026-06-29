@@ -2,7 +2,7 @@ import crypto from "crypto";
 import type { AgentKernelInput, AgentKernelOutput, AgentEvent, AgentEventType, MemoryUpdate } from "../types/agent-kernel.js";
 import type { DecisionTrace, PolicyDecision, RiskFlags } from "../types/decision-trace.js";
 import { ConversationSnapshotBuilder } from "./conversation-snapshot.js";
-import type { AgentIntent, RouterDecision } from "../types/agent-intent.js";
+import type { AgentIntent, MediaItem, RouterDecision } from "../types/agent-intent.js";
 import { detectSentiment } from "../../../lib/sentiment.js";
 import { criticize, type ResponseCriticResult } from "../response/response-critic.js";
 
@@ -10,7 +10,7 @@ export interface KernelProviders {
   classifyIntent: (text: string) => Promise<RouterDecision>;
   getCannedResponse: (key: string, vars?: Record<string, string>) => string | null;
   generateLlmResponse: (text: string, context: Record<string, unknown>) => Promise<string>;
-  evaluateFlow: (conversationId: string, intent: AgentIntent, text: string) => Promise<{ response: string; route: string } | null>;
+  evaluateFlow: (conversationId: string, intent: AgentIntent, text: string) => Promise<{ response: string; route: string; media?: MediaItem[] } | null>;
   evaluatePolicy: (text: string, intent: AgentIntent, riskFlags: RiskFlags) => PolicyDecision;
   detectRisks: (text: string, intent: AgentIntent) => RiskFlags;
   loadContext: (input: AgentKernelInput) => Promise<Record<string, unknown>>;
@@ -151,7 +151,7 @@ export class AgentKernel {
       emit("agent.response.composed");
       emit("agent.response.sent");
       return {
-        response: { text: finalText, route: finalRoute as any },
+        response: { text: finalText, route: finalRoute as any, media: flowResult.media },
         decisionTrace: trace,
         memoryUpdates,
       };

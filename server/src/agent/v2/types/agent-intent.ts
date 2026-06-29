@@ -46,3 +46,12 @@ export interface RouterDecision {
   policyAction?: "allow" | "constrain" | "handoff" | "block";
   detectedPII?: string[];
 }
+
+export interface MediaItem {
+  url: string;
+  type: "image" | "video" | "document";
+  imageKey: string;
+  alt: string;
+  service?: string;
+  currency?: string;
+}

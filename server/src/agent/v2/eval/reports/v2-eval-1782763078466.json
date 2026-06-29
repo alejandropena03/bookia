@@ -1,0 +1,37 @@
+{
+  "timestamp": "2026-06-29T19:57:58.465Z",
+  "filters": "golden only",
+  "scores": {
+    "all_cases_score": {
+      "accuracy": "N/A",
+      "passed": 0,
+      "total": 0
+    },
+    "reviewed_cases_score": {
+      "accuracy": "N/A",
+      "passed": 0,
+      "total": 0
+    },
+    "critical_reviewed_score": {
+      "accuracy": "N/A",
+      "passed": 0,
+      "total": 0
+    },
+    "critical_failures": 0
+  },
+  "caseComposition": {
+    "reviewed": 0,
+    "unreviewed": 0,
+    "generated": 0,
+    "needsFix": 0
+  },
+  "perIntent": [],
+  "perCategory": [],
+  "goldenConversations": {
+    "total": 0,
+    "passed": 0,
+    "details": []
+  },
+  "failures": [],
+  "goldenFailures": []
+}

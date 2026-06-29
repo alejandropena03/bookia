@@ -327,6 +327,11 @@ function applyOverrides(text: string, parsedIntent: AgentIntent): AgentIntent {
     return "charla";
   }
 
+  // "agendar una valoracion" → agendamiento (over booking interest signal)
+  if ((lower.includes("agendar") || lower.includes("agenda")) && (lower.includes("valoracion") || lower.includes("valoración"))) {
+    return "agendamiento";
+  }
+
   // Cancelar/reprogramar/reagendar → cancelacion_reprogramacion (sobre cualquier intent, no solo agendamiento)
   // This is a HIGHEST PRIORITY override: actual cancel intent wins over all other routing
   const isPassiveCancel = /\b(me\s+)?(cancelaron|canceló|canceló|se\s+(me\s+)?cancel[oó]|han cancelado|fue cancelada)\b/i.test(lower);
@@ -344,13 +349,16 @@ function applyOverrides(text: string, parsedIntent: AgentIntent): AgentIntent {
   }
 
   if ((lower.includes("doctor") || lower.includes("doctora")) && !lower.includes("no necesito") && !lower.includes("no quiero") && !lower.includes("mal") && !lower.includes("maltrato") && !lower.includes("pésim")) {
-    if (parsedIntent !== "dudas_medicas" && parsedIntent !== "hablar_humano") {
+    if (parsedIntent !== "dudas_medicas" && parsedIntent !== "hablar_humano" && !lower.includes("cita con") && !lower.includes("agendar con") && !lower.includes("cita para")) {
       return "dudas_medicas";
     }
   }
 
-  if (lower.includes("descuento") || lower.includes("canje") || lower.includes("garantía")) {
-    return "otro";
+  if (lower.includes("descuento") || lower.includes("canje")) {
+    return "precio";
+  }
+  if (lower.includes("garantía")) {
+    return "faq_servicios";
   }
   // "reembolso" puede ser queja, no otro
   if (lower.includes("reembolso") && parsedIntent !== "queja") {
@@ -364,10 +372,18 @@ function extractEntities(text: string): ExtractedEntities {
   const lower = text.toLowerCase();
   const entities: ExtractedEntities = {};
 
-  const cities = ["medellín", "medellin", "bogotá", "bogota", "cali", "barranquilla", "cartagena", "pereira"];
+  const cities = ["medellín", "medellin", "bogotá", "bogota", "cali", "barranquilla", "cartagena", "pereira", "méxico", "mexico", "colombia", "manizales", "armenia"];
   for (const city of cities) {
     if (lower.includes(city)) {
       entities.city = city.charAt(0).toUpperCase() + city.slice(1).replace(/[´']/, "");
+      break;
+    }
+  }
+
+  const services = ["botox", "ácido hialurónico", "acido hialuronico", "limpieza facial", "armonización facial", "armonizacion facial", "relleno facial", "mesoterapia", "hilos", "plasma", "vitamina", "lipo", "exfoliación", "exfoliacion", "radiofrecuencia"];
+  for (const svc of services) {
+    if (lower.includes(svc)) {
+      entities.service = svc.charAt(0).toUpperCase() + svc.slice(1);
       break;
     }
   }
@@ -431,6 +447,7 @@ export async function classifyIntentStructured(text: string, isFirstMessage?: bo
   if (preRouted.decision) {
     const preRoutedDecision: RouterDecision = {
       ...preRouted.decision,
+      entities: { ...extractEntities(text), ...preRouted.decision.entities },
       riskFlags: preRouted.riskFlags,
       safetyLevel: preRouted.safetyLevel,
       detectedPII: preRouted.detectedPII,
@@ -447,6 +464,7 @@ export async function classifyIntentStructured(text: string, isFirstMessage?: bo
   if (domainRouted) {
     const domainDecision: RouterDecision = {
       ...domainRouted,
+      entities: { ...extractEntities(text), ...domainRouted.entities },
       riskFlags: preRouted.riskFlags,
       safetyLevel: preRouted.safetyLevel,
       detectedPII: preRouted.detectedPII,

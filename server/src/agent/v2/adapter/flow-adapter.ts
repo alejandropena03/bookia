@@ -1,6 +1,7 @@
 import type postgres from "postgres";
 import { evaluateFlow, startFlow, type FlowDefinition, type FlowContext, type FlowResult, type CatalogItem } from "../../../flows/engine.js";
 import { type MemoryService } from "../memory/memory-service.js";
+import type { MediaItem } from "../../v2/types/agent-intent.js";
 
 const INTENT_TO_FLOW_KEY: Record<string, string> = {
   saludo: "first_contact",
@@ -11,6 +12,24 @@ const INTENT_TO_FLOW_KEY: Record<string, string> = {
 export interface FlowAdapterResult {
   response: string;
   route: "flow";
+  media?: MediaItem[];
+}
+
+function resolveMedia(catalogItems: CatalogItem[], slots: Record<string, string>): MediaItem[] | undefined {
+  const serviceName = slots.service_name || slots.service;
+  if (!serviceName) return undefined;
+  const match = catalogItems.find(
+    (c) => serviceName.toLowerCase().includes(c.name.toLowerCase()) || c.name.toLowerCase().includes(serviceName.toLowerCase()),
+  );
+  if (!match?.imageKeys?.length) return undefined;
+  return match.imageKeys.map((key: string) => ({
+    url: `/images/${key}`,
+    type: "image" as const,
+    imageKey: key,
+    alt: match.name,
+    service: match.name,
+    currency: match.currency,
+  }));
 }
 
 export class FlowAdapter {
@@ -132,7 +151,7 @@ export class FlowAdapter {
       `;
     }
 
-    return { response: finalResult.response, route: "flow" };
+    return { response: finalResult.response, route: "flow", media: resolveMedia(this.catalogItems, flowContext.slots) };
   }
 
   private async handleStart(
@@ -165,7 +184,7 @@ export class FlowAdapter {
       `;
     }
 
-    return { response: finalResponse, route: "flow" };
+    return { response: finalResponse, route: "flow", media: resolveMedia(this.catalogItems, flowContext.slots) };
   }
 
   private async maybeCreateBooking(

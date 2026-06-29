@@ -1,0 +1,470 @@
+{
+  "timestamp": "2026-06-29T20:29:34.994Z",
+  "filters": "golden only",
+  "scores": {
+    "all_cases_score": {
+      "accuracy": "N/A",
+      "passed": 0,
+      "total": 0
+    },
+    "reviewed_cases_score": {
+      "accuracy": "N/A",
+      "passed": 0,
+      "total": 0
+    },
+    "critical_reviewed_score": {
+      "accuracy": "N/A",
+      "passed": 0,
+      "total": 0
+    },
+    "critical_failures": 0
+  },
+  "caseComposition": {
+    "reviewed": 0,
+    "unreviewed": 0,
+    "generated": 0,
+    "needsFix": 0
+  },
+  "perIntent": [],
+  "perCategory": [],
+  "goldenConversations": {
+    "total": 39,
+    "passed": 30,
+    "details": [
+      {
+        "id": "gold_new_patient_botox",
+        "passed": false,
+        "passedTurns": 7,
+        "totalTurns": 8
+      },
+      {
+        "id": "gold_price_city_variation",
+        "passed": true,
+        "passedTurns": 3,
+        "totalTurns": 3
+      },
+      {
+        "id": "gold_safety_pregnant",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_complaint_handoff",
+        "passed": true,
+        "passedTurns": 3,
+        "totalTurns": 3
+      },
+      {
+        "id": "gold_post_treatment_care",
+        "passed": false,
+        "passedTurns": 2,
+        "totalTurns": 3
+      },
+      {
+        "id": "gold_injection_attempt",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_pii_leakage",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_ambiguous_servicio",
+        "passed": true,
+        "passedTurns": 3,
+        "totalTurns": 3
+      },
+      {
+        "id": "gold_typo_handling",
+        "passed": false,
+        "passedTurns": 0,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_urgent_complication",
+        "passed": false,
+        "passedTurns": 1,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_reschedule",
+        "passed": false,
+        "passedTurns": 2,
+        "totalTurns": 3
+      },
+      {
+        "id": "gold_negation_no_booking",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_phone_contact",
+        "passed": true,
+        "passedTurns": 1,
+        "totalTurns": 1
+      },
+      {
+        "id": "gold_multi_service",
+        "passed": false,
+        "passedTurns": 2,
+        "totalTurns": 3
+      },
+      {
+        "id": "gold_strong_emotion_frustration",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_legal_threat",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_simple_goodbye",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_payment_methods",
+        "passed": true,
+        "passedTurns": 3,
+        "totalTurns": 3
+      },
+      {
+        "id": "gold_availability_check",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_guarantee",
+        "passed": true,
+        "passedTurns": 1,
+        "totalTurns": 1
+      },
+      {
+        "id": "gold_third_party_booking",
+        "passed": false,
+        "passedTurns": 1,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_memory_carryover_city",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_urgent_vs_nonurgent",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_discount_negotiation",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_seven_day_checkin",
+        "passed": false,
+        "passedTurns": 1,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_insurance_coverage",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_mixed_intents",
+        "passed": true,
+        "passedTurns": 1,
+        "totalTurns": 1
+      },
+      {
+        "id": "gold_existing_return",
+        "passed": false,
+        "passedTurns": 1,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_minor_patient",
+        "passed": true,
+        "passedTurns": 1,
+        "totalTurns": 1
+      },
+      {
+        "id": "gold_whatsapp_contact",
+        "passed": true,
+        "passedTurns": 1,
+        "totalTurns": 1
+      },
+      {
+        "id": "gold_financial_options",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_home_service",
+        "passed": true,
+        "passedTurns": 1,
+        "totalTurns": 1
+      },
+      {
+        "id": "gold_simultaneous_services",
+        "passed": true,
+        "passedTurns": 1,
+        "totalTurns": 1
+      },
+      {
+        "id": "gold_aggressive_comparison",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_pre_treatment_anxiety",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_out_of_hours",
+        "passed": true,
+        "passedTurns": 1,
+        "totalTurns": 1
+      },
+      {
+        "id": "gold_multiple_corrections",
+        "passed": true,
+        "passedTurns": 3,
+        "totalTurns": 3
+      },
+      {
+        "id": "gold_specific_doctor",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_results_expectations",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      }
+    ]
+  },
+  "failures": [],
+  "goldenFailures": [
+    {
+      "id": "gold_new_patient_botox",
+      "description": "Nuevo paciente pregunta por botox, precio, contraindica, agenda",
+      "failedTurns": [
+        {
+          "turnIndex": 5,
+          "userMessage": "Soy María, 3001234567",
+          "expected": "agendamiento",
+          "actual": "agendamiento",
+          "confidence": 0.9,
+          "errors": [],
+          "memoryErrors": [
+            "Expected memory city \"Medellín\", got \"none\""
+          ],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": "DOMAIN-ROUTER: booking: comparte nombre + teléfono"
+        }
+      ]
+    },
+    {
+      "id": "gold_post_treatment_care",
+      "description": "Paciente pregunta cuidados después de mesoterapia",
+      "failedTurns": [
+        {
+          "turnIndex": 1,
+          "userMessage": "¿Puedo hacer ejercicio?",
+          "expected": "post_tratamiento",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"post_tratamiento\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_typo_handling",
+      "description": "Paciente con typos debe ser entendido correctamente",
+      "failedTurns": [
+        {
+          "turnIndex": 0,
+          "userMessage": "Kiero ajendar votox",
+          "expected": "agendamiento",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"agendamiento\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        },
+        {
+          "turnIndex": 1,
+          "userMessage": "Mi nombre es Karla",
+          "expected": "agendamiento",
+          "actual": "charla",
+          "confidence": 0.85,
+          "errors": [
+            "Expected intent \"agendamiento\", got \"charla\""
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": "DOMAIN-ROUTER: comparte nombre"
+        }
+      ]
+    },
+    {
+      "id": "gold_urgent_complication",
+      "description": "Paciente reporta complicación post-tratamiento, debe escalar urgente",
+      "failedTurns": [
+        {
+          "turnIndex": 1,
+          "userMessage": "Tengo mucha hinchazón y me duele mucho",
+          "expected": "queja",
+          "actual": "post_tratamiento",
+          "confidence": 0.9,
+          "errors": [
+            "Expected intent \"queja\", got \"post_tratamiento\""
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": "PRE-ROUTER: post-treatment signal — complicación post"
+        }
+      ]
+    },
+    {
+      "id": "gold_reschedule",
+      "description": "Paciente necesita cancelar y reprogramar cita",
+      "failedTurns": [
+        {
+          "turnIndex": 0,
+          "userMessage": "Tengo una cita el jueves",
+          "expected": "charla",
+          "actual": "agendamiento",
+          "confidence": 0.95,
+          "errors": [
+            "Expected intent \"charla\", got \"agendamiento\""
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_multi_service",
+      "description": "Paciente interesado en múltiples servicios, debe manejar memoria de intereses",
+      "failedTurns": [
+        {
+          "turnIndex": 1,
+          "userMessage": "También el ácido hialurónico",
+          "expected": "precio",
+          "actual": "precio",
+          "confidence": 0.8,
+          "errors": [],
+          "memoryErrors": [
+            "Expected memory service \"botox,ácido hialurónico\", got \"Ácido hialurónico\""
+          ],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": "DOMAIN-ROUTER: adicional interés en otro servicio"
+        }
+      ]
+    },
+    {
+      "id": "gold_third_party_booking",
+      "description": "Paciente quiere agendar para otra persona",
+      "failedTurns": [
+        {
+          "turnIndex": 1,
+          "userMessage": "Ella se llama Gloria, su número es 3007654321",
+          "expected": "agendamiento",
+          "actual": "charla",
+          "confidence": 0.85,
+          "errors": [
+            "Expected intent \"agendamiento\", got \"charla\""
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": "DOMAIN-ROUTER: comparte numero con código país"
+        }
+      ]
+    },
+    {
+      "id": "gold_seven_day_checkin",
+      "description": "Paciente vuelve a los 7 días para seguimiento post-tratamiento",
+      "failedTurns": [
+        {
+          "turnIndex": 1,
+          "userMessage": "Me está saliendo un moretón, ¿es normal?",
+          "expected": "dudas_medicas",
+          "actual": "post_tratamiento",
+          "confidence": 0.9,
+          "errors": [
+            "Expected intent \"dudas_medicas\", got \"post_tratamiento\""
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": "PRE-ROUTER: post-treatment signal — hematoma"
+        }
+      ]
+    },
+    {
+      "id": "gold_existing_return",
+      "description": "Paciente que ya visitó la clínica vuelve a consultar",
+      "failedTurns": [
+        {
+          "turnIndex": 0,
+          "userMessage": "Ya fui paciente antes, me hice radiofrecuencia",
+          "expected": "post_tratamiento",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"post_tratamiento\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    }
+  ]
+}

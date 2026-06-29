@@ -83,12 +83,12 @@ function buildTemplateContext(slots: Record<string, string>, catalogItems?: Cata
   const market = resolveMarketFromCity(city);
 
   // Check for promo pricing based on market
-  const anyPrices = (selected as Record<string, unknown>)?.prices as Record<string, { price: string; promoPrice?: string; promoLabel?: string }> | undefined;
+  const anyPrices = (selected as unknown as Record<string, unknown>)?.prices as Record<string, { price: string; promoPrice?: string; promoLabel?: string }> | undefined;
   let servicePromoInfo = "";
   if (selected && anyPrices?.[market]?.promoPrice) {
     const mp = anyPrices[market]!;
     const regularStr = formatPrice(mp.price, market);
-    const promoStr = formatPrice(mp.promoPrice, market);
+    const promoStr = formatPrice(mp.promoPrice!, market);
     const label = mp.promoLabel ? ` (${mp.promoLabel})` : "";
     servicePromoInfo = `\n\n🎉 ¡Tenemos una promoción activa${label}! Precio regular ${regularStr} — ahora a solo ${promoStr}.`;
   } else if (selected && anyPrices) {

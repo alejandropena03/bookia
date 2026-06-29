@@ -46,14 +46,11 @@ export default function SettingsPage() {
       const t = toneMatch[1].trim().toLowerCase()
       if (["formal", "amigable", "mixto"].includes(t)) setTone(t)
     }
-    // Horarios desde profile.hours (formato: { mon: "09:00-19:00", ... }) → tomar el primero
-    const hours: Record<string, string> = profile.hours ?? {}
+    // Horarios desde profile.hours (formato: { lunes: { open: "09:00", close: "19:00" }, ... }) → tomar el primero
+    const hours: Record<string, { open: string; close: string }> = profile.hours ?? {}
     const firstSlot = Object.values(hours)[0]
-    if (firstSlot && firstSlot.includes("-")) {
-      const [open, close] = firstSlot.split("-")
-      if (open) setBusiness((b) => ({ ...b, openTime: open.trim() }))
-      if (close) setBusiness((b) => ({ ...b, closeTime: close.trim() }))
-    }
+    if (firstSlot?.open) setBusiness((b) => ({ ...b, openTime: firstSlot.open }))
+    if (firstSlot?.close) setBusiness((b) => ({ ...b, closeTime: firstSlot.close }))
     // Ciudades no están en el schema actual — dejamos el placeholder (edición manual)
   }, [profile])
 
@@ -61,7 +58,16 @@ export default function SettingsPage() {
     setSaving(true)
     setSaved(false)
     try {
-      await updateProfile({ persona: `Eres ${agentName}, asesor de ${business.name}. Tono ${tone} y cercano.` })
+      const hoursPayload: Record<string, { open: string; close: string }> = {}
+      const days = ["lunes", "martes", "miércoles", "jueves", "viernes", "sábado"]
+      for (const day of days) {
+        hoursPayload[day] = { open: business.openTime, close: business.closeTime }
+      }
+      await updateProfile({
+        persona: `Eres ${agentName}, asesor de ${business.name}. Tono ${tone} y cercano.`,
+        hours: hoursPayload,
+        booking_mode: profile?.booking_mode ?? "mock",
+      })
       setSaved(true)
     } catch {}
     setSaving(false)

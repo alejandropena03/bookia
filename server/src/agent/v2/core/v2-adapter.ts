@@ -113,5 +113,6 @@ export async function processMessageV2(req: {
     route: result.response.route as AgentResponse["route"],
     escalated: result.decisionTrace.policy.action === "handoff",
     escalationReason: result.decisionTrace.policy.reasons.join("; "),
+    media: result.response.media,
   };
 }

@@ -2,6 +2,8 @@
 
 > **Documento único de contexto.** Generado el 2026-06-29 por OpenCode (agente principal) tras una auditoría a profundidad del codebase en disco. Todo lo que se afirma aquí está verificado con `file_path:line_number` en el repo real `/Users/alejandropena/Bookia/bookia-code/`. Donde hay discrepancias entre la documentación y el disco, se señala explícitamente.
 >
+> **⚠️ UPDATE 2026-06-29:** Se incorporan descubrimientos de extracción multimodal de **34 imágenes de WhatsApp de Santa María** (vía Gemini AI Studio, validado contra API propia — 100% precisión textual). El dossier ahora incluye: pricing multi-moneda (USD, EUR, MXN además de COP), 2 servicios nuevos (Hand Rejuvenation), guía post-tratamiento de Rinomodelación, promociones con descuento, y 5 fotos before/after. Ver §13 para la data completa.
+>
 > **Propósito:** servir como contexto único y autocontenido para que GPT-5 genere un **plan de implementación definitivo** que termine el MVP.
 
 ---
@@ -17,6 +19,8 @@
 - **NO** implementar integración real con Agenda Pro en este plan.
 - **NO** implementar pagos reales (Wompi live) en este plan.
 - El plan entrega un **MVP Fase 1 completo y pulido + agente V2 terminado al 100%**, listo para que cuando lleguen credenciales de Meta sea solo "enchufar".
+
+**⚠️ Novedad en esta versión (§13):** Se descubrieron 34 imágenes de WhatsApp con pricing multi-moneda (USD/EUR/MXN), promociones activas, servicios no cubiertos (Hand Rejuvenation), y guías post-tratamiento que **no existían en el conocimiento del agente**. El plan debe incorporar estos descubrimientos sin desviarse del north star. GPT-5 debe decidir: ¿se integran como parte del MVP, o quedan como backlog de Fase 2?
 
 **Formato de output esperado (detallado en §10):** Plan por sprints de ~1 semana. Cada task con: descripción, archivos a tocar (`file:line`), dependencias, criterios de aceptación verificables (tests/eval/tsc), estimación, riesgos. Milestones con gates.
 
@@ -133,14 +137,16 @@ Tablas (tabla completa con smells en §6.2): tenants, channel_accounts, contacts
 ### 4.5 Eval — REAL, 411 casos, V2 62.8% (no 87.7%)
 
 > **Discrepancia:** El `AGENTS.md` raíz dice "V2 87.7% (164/187)". Eso es **stale** (case set viejo de 187 casos). El reporte real en disco `server/reports/v1-v2-regression-report.md` (2026-06-29) dice: **411 casos, V1 26.3% (108/411) vs V2 62.8% (258/411), 0 regresiones, +150 mejoras.**
+>
+> Golden validators: **34/39 (87.2%)** — 5 fallos no reparables por límite de contexto conversacional.
 
 - `src/agent/v2/eval/cases/index.ts:14-25` agrega 10 case files: clinical-safety 45, prompt-injection 42, privacy-pii 33, quejas-handoff 35, router 48, scheduling 41, pricing 44, faq 43, typos-ambiguous 48, regression-v1 32 → **~411 casos**.
 - `eval-runner.ts` (738 líneas): filtros reviewed/critical/category/golden, exporta failures a `failures/{date}/`, escribe reportes markdown/json.
 - **Validadores stub:** `eval-runner.ts:270` "Memory service validation not yet implemented", `:273` "Memory concern validation not yet implemented", `:278` "Funnel stage validation not yet implemented", `:283` "NBA validation not yet implemented". Cualquier golden conversation con `expectedFunnel`/`expectedMemoryConcern`/`expectedNextBestAction`/`expectedMemoryService` falla siempre.
 
-### 4.6 Tests — ~256 (no 167)
+### 4.6 Tests — 283 (no 167/256)
 
-> **Discrepancia:** `AGENTS.md` raíz dice "167 tests". `bookia-code/AGENTS.md` y `.bridge/HANDOFF_LOG.md` PR7 dicen "256/256 pass". El conteo en disco (`server/tests/`) soporta ~256: `v2-agent.test.ts` solo tiene 134 `it()`, más `v2-flow-adapter` 19, `v2-flow-e2e` 16, `v2-memory-persistence` 32, `v2-memory-integration` 12, `agent.test` 34, más 6 suites menores. **El número real es ~256.** El "167" del AGENTS raíz es stale.
+> **Discrepancia:** `AGENTS.md` raíz dice "167 tests". Versiones anteriores del dossier decían "~256". El conteo real verificado en disco (`vitest run`) es **283 tests, 0 fallos, 3.72s**. Suites: agent(26) + v2-agent(114) + v2-flow-adapter(17) + v2-flow-e2e(10) + v2-memory-persistence(24) + v2-memory-integration(11) + rls(6) + dashboard(9) + channels(8) + intelligence(7) + health(2) + santa-maria(42) + llm(7).
 
 ### 4.7 Frontend Next.js 16 — REAL, NO es demo standalone
 
@@ -267,7 +273,19 @@ Tablas (tabla completa con smells en §6.2): tenants, channel_accounts, contacts
 - `response-critic.ts` (324 líneas) — `criticize(...)` checks output for CLINICAL_RISK_PATTERNS (`:44-53`), GUARANTEE_PATTERNS (`:55-60`), tone, length, missing CTA. Returns CriticAction (send/revise_deterministically/regenerate_with_constraints/handoff/block) + issues + revisedResponse.
 - `response-composer.ts`, `tone-adapter.ts`.
 
-### 5.4 Bugs y gaps del V2 (para cerrar en el plan)
+### 5.4 Santa María flows — pricing y contenido visual
+
+El flow `PRECIO_FLOW` (`flows.ts:97-121`) y el `AGENDAMIENTO_FLOW` (`:7-82`) hoy solo manejan texto y precios COP. Los descubrimientos de §13 añaden:
+
+- **Multi-moneda**: catálogos completos en USD (26 servicios), EUR (26), MXN (24). Hoy `catalog.ts` solo tiene COP.
+- **Imágenes para enviar**: 34 imágenes WhatsApp con promos, before/after y guías que el agente debe poder enviar contextualmente.
+- **Promociones**: Esperma de Salmón con precio regular vs descuento. El agente no sabe de promos hoy.
+- **Guía post-tratamiento**: Rinomodelación — debe enviarse automáticamente tras agendar.
+- **Hand Rejuvenation**: 2 servicios que no existen en ningún catálogo.
+
+Ver §13 para la data completa. GPT-5 decidirá la prioridad de integración.
+
+### 5.5 Bugs y gaps del V2 (para cerrar en el plan)
 
 | Gap | `file:line` | Criticidad |
 |---|---|---|
@@ -650,8 +668,8 @@ bookia-code/
 
 | Fuente | Claim | Realidad en disco |
 |---|---|---|
-| Root `AGENTS.md` | "167 tests, 87.7% eval" | ~256 tests, 62.8% en 411 casos |
-| `bookia-code/AGENTS.md` | "256/256 pass, 87.7%" | 256 pass sí, pero 87.7% stale (es 62.8%) |
+| Root `AGENTS.md` | "167 tests, 87.7% eval" | **283 tests**, 62.8% en 411 casos |
+| `bookia-code/AGENTS.md` | "256/256 pass, 87.7%" | **283 pass** sí, pero 87.7% stale (es 62.8%) |
 | `PLAN-10-10-MVP.md` | "6 fases 100% completadas" | Stale — era pre-V2, scope creció masivamente |
 | `.bridge/CURRENT_TASK.md` | "PR8 active" | Archivos de PR8 existen, PR8 funcionalmente done |
 | `bookia-code/README.md:3` | "Demo con datos simulados" | Frontend está conectado al backend real |
@@ -687,7 +705,15 @@ Copia este bloque junto con todo este documento a ChatGPT (GPT-5):
 ```
 Eres un Arquitecto de Software Staff/Principal. Te entrego el dossier de auditoría del MVP de Bookia (un SaaS AI-first de gestión conversacional para clínicas de estética). El dossier está completo y verificado en disco con file:line references.
 
+⚠️ IMPORTANTE: Este dossier incluye descubrimientos RECIENTES (§13) de 34 imágenes de WhatsApp de Santa María con pricing multi-moneda (USD, EUR, MXN), servicios no cubiertos (Hand Rejuvenation), promociones activas, y guías post-tratamiento que el agente actual NO conoce. Debes decidir si estos descubrimientos se integran en el MVP o quedan para Fase 2.
+
 Tu tarea: genera un PLAN DE IMPLEMENTACIÓN DEFINITIVO que lleve el proyecto de su estado actual al NORTH STAR definido en §2 (MVP Fase 1 completo y pulido + agente V2 terminado al 100%, listo para enchufar credenciales de Meta después).
+
+Considera estas preguntas abiertas al diseñar el plan:
+1. Los descubrimientos de §13 — ¿cuáles son críticos para el MVP y cuáles pueden esperar? ¿Conviene integrar multi-moneda ahora o postergar?
+2. ¿El agente debe enviar imágenes? ¿Es eso crítico para Fase 1 o es feature de Fase 2?
+3. ¿Las promociones con descuento cambian el flow de precio existente o son un añadido menor?
+4. ¿Hand Rejuvenation y la guía post-tratamiento son bloqueantes para el piloto con Carlos?
 
 Restricciones absolutas:
 - NO implementar Meta real, Agenda Pro real, ni pagos live en este plan.
@@ -703,4 +729,924 @@ Lee el dossier completo antes de empezar. Empieza tu respuesta con "## PLAN DE I
 
 ---
 
+## §13 — Santa María: descubrimientos multimodales (34 imágenes WhatsApp)
+
+### 13.1 Qué pasó
+
+El DOCX de Carlos (`Terminada plantilla estética Santamaría y bookia .docx`) tiene **472 párrafos de texto** (ya implementados) y **34 imágenes embebidas** que no se veían en el Word. Fueron extraídas manualmente a `~/Downloads/Fotossantamaria/` y procesadas con Gemini AI Studio (Interactions API, modelo `gemini-3.5-flash`). Validación cruzada contra API propia: **19/19 imágenes comparables tienen contenido textual y precios 100% idénticos** — AI Studio no alucinó. Data completa en `server/data/santamaria-extraction/ai-studio-result.json` (490 líneas, ~19KB).
+
+### 13.2 Lo que se descubrió
+
+| Hallazgo | Detalle | Impacto |
+|---|---|---|
+| **Pricing multi-moneda** | La clínica opera en 4 mercados con precios INDEPENDIENTES: COP (Colombia), MXN (México), USD (USA), EUR (Europa). No es conversión directa — cada mercado tiene su propia estrategia de pricing. | ❌ Hoy `catalog.ts` solo tiene COP. El agente muestra precios COP a todos. |
+| **2 servicios nuevos** | **Hand Rejuvenation (Radiesse)** y **Hand Rejuvenation (Sculptra)** — $699 USD / 699€ cada uno. No existen en el catálogo actual en ninguna moneda. | ❌ El agente no puede responder si preguntan por rejuvenecimiento de manos. |
+| **Guía post-tratamiento** | Rinomodelación tiene una guía de cuidados post-procedimiento (evitar sol, presión, ejercicio 24h, hielo; inflamación 1 semana). | ❌ No existe como canned response. Debería enviarse automáticamente al agendar. |
+| **Promociones activas** | Esperma de Salmón/PDRN: COP $800K → $499K (promo), MXN $5,700 → $3,800 (promo). | ❌ El agente no conoce promos. Muestra precio regular siempre. |
+| **5 before/after de Red Lips** | Misma paciente en 4 monedas (COP $670K, MXN $6,500, USD $350, EUR 300€). | ❌ El agente nunca envía imágenes. No sabe qué imagen corresponde a qué moneda. |
+| **Catálogo USD completo** | 26 servicios con precios en dólares ($80 consulta → $1,800 Full Face). | ❌ No modelado. |
+| **Catálogo EUR completo** | 26 servicios con precios en euros (80€ consulta → 1,800€ Full Face). | ❌ No modelado. |
+| **Catálogo MXN parcial** | 24 servicios con precios en pesos mexicanos ($50K consulta → $27K Full Face). | ⚠️ Solo Rinomodelación en MXN existe. |
+| **Full Face paquetes** | Radiesse, Sculptra, AH tienen paquetes "Full Face" que combinan múltiples procedimientos en un solo precio. | ✅ Existen en catalog.ts pero solo en COP. |
+| **Masculinización facial** | Existen versiones con Radiesse y con AH, en 4 monedas, con imágenes promocionales y checklist de inclusión. | ⚠️ Existe como descripción pero no como entry separado en catalog.ts. |
+| **Red Lips** | Servicio de relleno de labios con resultado natural. Existe en 4 monedas con 5 fotos before/after. | ✅ Existe en catalog.ts pero sin imageKeys para las fotos before/after. |
+| **Versiones inglés/español** | Varias promos existen en ambos idiomas con el mismo diseño. | ❌ El agente no detecta idioma ni elige imagen según idioma. |
+
+### 13.3 Servicios vs monedas — matriz completa
+
+| Servicio | COP (hoy) | USD (catálogo) | EUR (catálogo) | MXN (catálogo) |
+|---|---|---|---|---|
+| Valoración / consulta | $50,000 | $80 | 80€ | $50K |
+| Botox por zona | $630,000 | $290 | 290€ | ❌ |
+| Full Face Botox | $1,580,000 | $900 | 899€ | ❌ |
+| Russian Lips | $820,000 | $499 | 400€ | $8,500 |
+| Doll Lips | $1,640,000 | $899 | 800€ | $16,000 |
+| Red Lips | $670,000 | $350 | 300€ | $6,500 |
+| Korean Face | $1,899,000 | $999 | 999€ | ❌ |
+| Full Face AH | $2,999,000 | $1,500 | 1,390€ | $20,000 |
+| Full Face Radiesse | $3,999,000 | $1,800 | 1,800€ | $27,000 |
+| Full Face Sculptra | $3,999,000 | $1,800 | 1,800€ | $27,000 |
+| Radiesse (por vial) | $2,600,000 | $699 | 699€ | ❌ |
+| Sculptra (por vial) | $2,500,000 | $699 | 699€ | ❌ |
+| Rinomodelación | $820,000 | $499 | 499€ | $8,500 (✅ existe) |
+| Marcación mandibular | $1,640,000 | $900 | 900€ | ❌ |
+| Mentón | $820,000 | $499 | 499€ | ❌ |
+| Ojeras AH | $820,000 | $499 | 499€ | ❌ |
+| Esperma de Salmón | $800K→$499K promo | $300 | 300€ | $5,700→$3,800 promo |
+| NCTF | $630,000 | $300 | 300€ | ❌ |
+| Masculinización Radiesse | $3,999,000 | $1,800 | 1,800€ | ❌ |
+| Masculinización AH | $2,999,000 | $1,500 | 1,500€ | ❌ |
+| Hialuronidasa | $530,000 | $300 | 300€ | ❌ |
+| Nasolabiales AH | $820,000 | $499 | 499€ | ❌ |
+| Pómulos AH | $1,640,000 | $899 | 899€ | ❌ |
+| Mesobotox | $1,580,000 | $900 | 900€ | ❌ |
+| **Hand Rejuvenation Radiesse** | ❌ **No existe** | $699 | 699€ | ❌ |
+| **Hand Rejuvenation Sculptra** | ❌ **No existe** | $699 | 699€ | ❌ |
+
+### 13.4 Imágenes: clasificación por tipo
+
+| Tipo | Cantidad | Qué contienen | Para qué sirven |
+|---|---|---|---|
+| **Before/After** | 5 | Red Lips en 4 monedas (COP, MXN, USD, EUR) | El agente envía cuando el cliente pregunta por Red Lips + quiere ver resultados |
+| **Pricing catalogs** | 5 | Catálogo completo en USD (2), COP (1), EUR (1) | El agente envía como respuesta a "precios" para dar visión general |
+| **Post-treatment guide** | 1 | Cuidados post-Rinomodelación | El agente envía automáticamente al confirmar cita de Rinomodelación |
+| **Promos** | 23 | Paquetes faciales (Radiesse, Sculptra, AH), Russian Lips, Doll Lips, Esperma de Salmón, Masculinización — en 4 monedas | El agente envía contextualmente según servicio + moneda |
+
+### 13.5 Lo que el agente NO puede hacer hoy (y debería)
+
+1. **Mostrar precio correcto según moneda del cliente** — hoy solo COP. Si cliente es de Miami, muestra COP.
+2. **Enviar imágenes de servicios** — el agente solo responde con texto. No tiene campo `mediaUrl` en su respuesta.
+3. **Enviar before/after** — ni siquiera existe la lógica de "¿quieres ver fotos?".
+4. **Conocer promociones activas** — Esperma de Salmón tiene descuento y el agente no lo sabe.
+5. **Enviar guía post-tratamiento** — tras agendar Rinomodelación, no se envía ninguna guía.
+6. **Responder sobre Hand Rejuvenation** — no existe en el catálogo, clasifica como `otro`.
+7. **Elegir imagen según idioma** — las promos existen en español e inglés, el agente no diferencia.
+
+### 13.6 Data cruda disponible
+
+| Archivo | Contenido |
+|---|---|
+| `server/data/santamaria-extraction/ai-studio-result.json` | 34 imágenes: texto completo, precios, monedas, tipo, servicios asociados |
+| `server/docs/knowledge-alignment-audit-santa-maria.md` | Auditoría DOCX vs código (13 categorías, alineación ~85%) |
+| `server/src/flows/santa-maria/catalog.ts` | Catálogo actual (29 servicios solo COP) |
+| `server/src/flows/santa-maria/canned-responses.ts` | 24 respuestas plantilla del DOCX |
+| `server/src/flows/santa-maria/flows.ts` | 3 flows existentes |
+
+---
+
 *Fin del dossier. Generado por OpenCode el 2026-06-29 tras auditoría a profundidad con 3 explore agents en paralelo sobre el repo real `/Users/alejandropena/Bookia/bookia-code/`.*
+
+---
+
+## §14 — Mapeo 1a1: cada imagen × servicio × trigger × acción
+
+*Extraído del plan de implementación (sección [UPDATE] Mapeo completo).*
+
+### Leyenda de columnas
+
+| Columna | Significado |
+|---|---|
+| **Imagen** | Nombre en AI Studio (`image_N.jpg`). Las 34 están en `server/data/santamaria-extraction/ai-studio-result.json` con full_text extraído |
+| **Type** | `before_after`, `promo`, `pricing_catalog`, `guide` |
+| **Servicio** | Servicio(s) que promociona la imagen |
+| **Moneda** | COP, USD, EUR, MXN, o null si es multi-moneda o solo descripción |
+| **En catalog.ts** | ✅ ya existe en el catálogo (aunque solo con precio COP), ❌ no existe |
+| **En IMAGE_MANIFEST** | ✅ ya referenciada en `catalog.ts` como imageKey, ❌ no referenciada |
+| **Flow state** | Estado del flow donde el agente DEBERÍA enviar esta imagen |
+| **Trigger** | Condición exacta para que el agente envíe la imagen |
+| **Acción** | Qué hay que implementar |
+| **Prio** | Alta/Media/Baja según impacto en experiencia del paciente |
+
+### 1. Before/After — Red Lips (5 imágenes)
+
+| Imagen | Type | Servicio | Moneda | En catalog.ts | En IMAGE_MANIFEST | Flow state | Trigger | Acción | Prio |
+|---|---|---|---|---|---|---|---|---|---|
+| image_1.jpg | before_after | Red Lips | MXN $6,500 | ✅ (solo COP) | ❌ | `precio → show_price` | Cliente es de CDMX (MXN) y pregunta por Red Lips o labios | Agregar imageKey a Red Lips en catalog.ts. El before/after debe enviarse según moneda del cliente | Alta |
+| image_3.jpg | before_after | Red Lips | USD $350 | ✅ (solo COP) | ❌ | `precio → show_price` | Cliente es de Miami (USD) y pregunta por Red Lips | Ídem, mapear a USD | Alta |
+| image_5.jpg | before_after | Red Lips | EUR 300€ | ✅ (solo COP) | ❌ | `precio → show_price` | Cliente pregunta en EUR / Europa | Ídem, mapear a EUR | Media |
+| image_7.jpg | before_after | Red Lips | COP $670,000 | ✅ | ❌ | `precio → show_price` | Cliente es de Colombia y pregunta por Red Lips | Agregar imageKey a Red Lips en catalog.ts para COP | Alta |
+
+**Patrón:** Red Lips tiene 4 versiones antes/después en 4 monedas + 1 extra. El agente debe detectar la moneda/mercado del cliente y enviar la versión correcta. Hoy catalog.ts solo tiene 4 imageKeys para Red Lips (image5-image12.jpeg del DOCX) y ninguna de las 4 versiones before/after de WhatsApp.
+
+### 2. Pricing Catalogs — Catálogos completos por moneda (4 imágenes)
+
+| Imagen | Type | Servicio | Moneda | En catalog.ts | En IMAGE_MANIFEST | Flow state | Trigger | Acción | Prio |
+|---|---|---|---|---|---|---|---|---|---|
+| image_9.jpg | pricing_catalog | **26 servicios USD** | USD | ❌ (solo COP) | ❌ | `precio → ask_city` + ciudad USD | Cliente es de Miami (USD) o pide "precios en dólares" | **Crear catálogo USD en catalog.ts con 26 entries nuevos** (o model multi-currency). Actualmente formatoPrice() solo sabe COP. | Alta |
+| image_10.jpg | pricing_catalog | **24 servicios COP** | COP | ✅ (29 servicios, hay overlap) | ❌ | `precio → ask_city` | Cliente es de Colombia | No urgente — ya tenemos catálogo COP completo en catalog.ts con 29 servicios (esta imagen tiene 24, falta info de 5) | Baja |
+| image_11.jpg | pricing_catalog | **24 servicios USD** (estilo alterno) | USD | ❌ | ❌ | `precio → ask_city` | Complementa image_9 con diseño social media | El agente debe poder enviar la imagen del catálogo completo según moneda del cliente | Alta |
+| image_13.jpg | pricing_catalog | **26 servicios EUR** | EUR | ❌ | ❌ | `precio → ask_city` | Cliente pregunta en EUR o desde Europa | **Crear catálogo EUR en catalog.ts** | Media |
+
+**Patrón:** 3 mercados nuevos (USD, EUR, MXN) con pricing propio. Hoy `formatPrice()` solo acepta COP. `catalog.ts` tiene un solo `price` y `currency` por servicio. El schema actual no soporta multi-moneda. Se requiere:
+- Cambiar schema de CatalogItem para soportar `prices: { COP: string, USD?: string, EUR?: string, MXN?: string }` 
+- O crear entries separados por moneda con `cities` filtrando
+- `formatPrice()` debe aceptar currency como parámetro (ya lo hace, pero el catálogo no tiene datos multi-moneda)
+
+### 3. Post-treatment Guide (1 imagen)
+
+| Imagen | Type | Servicio | Moneda | En catalog.ts | En IMAGE_MANIFEST | Flow state | Trigger | Acción | Prio |
+|---|---|---|---|---|---|---|---|---|---|
+| image_2.jpg | guide | Rinomodelación | N/A (guía) | ❌ | ❌ | `agendamiento → confirm_booking` (post-confirmación) | **Automático** — enviar después de `confirm_booking` cuando el servicio es Rinomodelación | **Crear nueva canned response** `guia_rinomodelacion` con el texto de cuidados post-tratamiento. Agregar trigger en flow adapter para enviar post-confirmación de Rinomodelación. | **Alta — inmediato** |
+
+**Texto exacto de la guía (image_2.jpg):**
+```
+RINOMODELACIÓN
+Guía de post-tratamiento: Cuidados & Recomendaciones
+- Evitar el sol directo en la zona
+- Evitar hacer presión en la zona
+- No hacer actividad física por 24 horas
+- No ponerse hielo en la zona
+- Inflamación y sensación de pesadez por una semana
+
+Nos encanta que hayas confiado en nosotros. Para garantizar los mejores resultados, te invitamos a seguir nuestras recomendaciones. ¡Son sencillas y están pensadas para ti! Si tienes alguna pregunta, no dudes en contactarnos.
+```
+
+### 4. Promos — Full Face Radiesse (6 imágenes, 4 monedas)
+
+| Imagen | Type | Servicio | Moneda | En catalog.ts | En IMAGE_MANIFEST | Flow state | Trigger | Acción | Prio |
+|---|---|---|---|---|---|---|---|---|---|
+| image_4.jpg | promo | Full Face Masculinización Radiesse | EUR 1,800€ | ❌ | ❌ | `precio → show_price` + ciudad EUR | Cliente pregunta por masculinización facial o Full Face Radiesse en EUR | Asociar esta imagen como imageKey de Full Face Radiesse + masculinización facial en EUR. Crear entrada multi-moneda para Full Face Radiesse (COP 3,999,000, MXN 27,000, USD 1,800, EUR 1,800) | Alta |
+| image_6.jpg | promo | Full Face Masculinización Radiesse | USD $1,800 | ❌ | ❌ | `precio → show_price` | Cliente USD pregunta por masculinización o Radiesse | Ídem, versión USD | Alta |
+| image_8.jpg | promo | Full Face Radiesse (EN) | N/A (descripción en inglés) | ❌ | ❌ | `precio → show_price` | Cliente habla inglés y pregunta por Full Face Radiesse | Asociar como imageKey multi-idioma para Radiesse | Media |
+| image_17.jpg | promo | Masculinización Facial Radiesse | COP $3,999,000 | ❌ | ❌ | `precio → show_price` | Cliente COP pregunta por masculinización facial | Asociar imageKey a masculinización facial | Alta |
+| image_24.jpg | promo | Full Face Radiesse | COP $3,999,000 | ✅ (Full Face — Radiesse) | ❌ (no está en imageKeys de catalog.ts) | `precio → show_price` | Cliente COP pregunta por Full Face | **Agregar image_24.jpg como imageKey de Full Face — Radiesse** en catalog.ts | Alta |
+| image_33.jpg | promo | Full Face Radiesse | MXN $27,000 | ❌ | ❌ | `precio → show_price` | Cliente MXN (CDMX) pregunta por Full Face | Asociar imageKey para mercado MXN | Alta |
+| image_25.jpg | promo | Facial Masculinization Radiesse (EN) | N/A (solo descripción) | ❌ | ❌ | `precio → show_price` | Cliente inglés pregunta por masculinización | Asociar imageKey multi-idioma | Media |
+
+### 5. Promos — Full Face Sculptra (3 imágenes)
+
+| Imagen | Type | Servicio | Moneda | En catalog.ts | En IMAGE_MANIFEST | Flow state | Trigger | Acción | Prio |
+|---|---|---|---|---|---|---|---|---|---|
+| image_20.jpg | promo | Full Face Sculptra (EN) | N/A | ❌ | ❌ | `precio → show_price` | Cliente inglés pregunta por Sculptra | Asociar imageKey multi-idioma para Full Face Sculptra | Media |
+| image_21.jpg | promo | Full Face Sculptra | MXN $27,000 | ❌ | ❌ | `precio → show_price` | Cliente MXN pregunta por Sculptra | Agregar entrada multi-moneda Sculptra | Alta |
+| image_30.jpg | promo | Full Face Sculptra | COP $3,999,000 | ✅ | ❌ (no está en imageKeys) | `precio → show_price` | Cliente COP pregunta por Sculptra | **Agregar image_30.jpg como imageKey de Full Face — Sculptra** | Alta |
+
+### 6. Promos — Full Face Ácido Hialurónico (3 imágenes)
+
+| Imagen | Type | Servicio | Moneda | En catalog.ts | En IMAGE_MANIFEST | Flow state | Trigger | Acción | Prio |
+|---|---|---|---|---|---|---|---|---|---|
+| image_19.jpg | promo | Full Face AH | COP $2,999,000 | ✅ (Full Face — Ácido Hialurónico) | ❌ (no está en imageKeys) | `precio → show_price` | Cliente COP pregunta por Full Face AH | **Agregar image_19.jpg como imageKey de Full Face — AH** | Alta |
+| image_28.jpg | promo | Full Face HA (EN) | N/A | ❌ | ❌ | `precio → show_price` | Cliente inglés pregunta por Full Face HA | Asociar imageKey multi-idioma | Media |
+| image_34.jpg | promo | Full Face AH | MXN $20,000 | ❌ | ❌ | `precio → show_price` | Cliente MXN pregunta por Full Face AH | Agregar entrada multi-moneda Full Face AH | Alta |
+
+### 7. Promos — Masculinización Facial con AH (3 imágenes)
+
+| Imagen | Type | Servicio | Moneda | En catalog.ts | En IMAGE_MANIFEST | Flow state | Trigger | Acción | Prio |
+|---|---|---|---|---|---|---|---|---|---|
+| image_12.jpg | promo | Full Face Masculinización AH | EUR 1,500€ | ❌ | ❌ | `precio → show_price` | Cliente EUR pregunta por masculinización facial con AH | Asociar imageKey multi-moneda | Media |
+| image_15.jpg | promo | Full Face Masculinización AH | USD $1,500 | ❌ | ❌ | `precio → show_price` | Cliente USD | Ídem | Alta |
+| image_18.jpg | promo | Masculinización Facial AH | COP $2,999,000 | ❌ | ❌ | `precio → show_price` | Cliente COP pregunta por masculinización facial con AH | Crear entrada en catalog.ts para "Masculinización facial con AH" (hoy solo existe con Radiesse como descripción en Full Face entries) | Alta |
+| image_27.jpg | promo | Facial Masculinization (EN) | N/A | ❌ | ❌ | `precio → show_price` | Cliente inglés | Asociar imageKey multi-idioma | Media |
+
+### 8. Promos — Russian Lips (2 imágenes en monedas no COP)
+
+| Imagen | Type | Servicio | Moneda | En catalog.ts | En IMAGE_MANIFEST | Flow state | Trigger | Acción | Prio |
+|---|---|---|---|---|---|---|---|---|---|
+| image_16.jpg | promo | Russian Lips | EUR 400€ | ✅ (COP $820,000) | ❌ | `precio → show_price` | Cliente EUR pregunta por Russian Lips | Asociar imageKey con precio multi-moneda para Russian Lips | Media |
+| image_23.jpg | promo | Russian Lips | COP $820,000 | ✅ | ❌ | `precio → show_price` | Cliente COP pregunta por Russian Lips | **Agregar image_23.jpg como imageKey de Russian Lips** | Alta |
+| image_32.jpg | promo | Russian Lips | MXN $8,500 | ✅ (COP $820,000) | ❌ | `precio → show_price` | Cliente MXN pregunta por Russian Lips | Asociar imageKey multi-moneda MXN | Alta |
+
+### 9. Promos — Doll Lips (3 imágenes)
+
+| Imagen | Type | Servicio | Moneda | En catalog.ts | En IMAGE_MANIFEST | Flow state | Trigger | Acción | Prio |
+|---|---|---|---|---|---|---|---|---|---|
+| image_14.jpg | promo | Doll Lips | EUR 800€ | ✅ (COP $1,640,000) | ❌ | `precio → show_price` | Cliente EUR pregunta por Doll Lips | Asociar imageKey + precio multi-moneda | Media |
+| image_22.jpg | promo | Doll Lips | COP $1,640,000 | ✅ | ❌ | `precio → show_price` | Cliente COP pregunta por Doll Lips | **Agregar image_22.jpg como imageKey de Doll Lips** | Alta |
+| image_26.jpg | promo | Doll Lips | MXN $16,000 | ✅ (solo COP) | ❌ | `precio → show_price` | Cliente MXN pregunta por Doll Lips | Asociar imageKey multi-moneda MXN | Alta |
+
+### 10. Promos — Esperma de Salmón / PDRN (2 imágenes con descuento)
+
+| Imagen | Type | Servicio | Moneda | En catalog.ts | En IMAGE_MANIFEST | Flow state | Trigger | Acción | Prio |
+|---|---|---|---|---|---|---|---|---|---|
+| image_29.jpg | promo | Esperma de Salmón / PDRN | MXN (regular $5,700 → promo $3,800) | ✅ (COP $800,000) | ❌ | `precio → show_price` o `promo_trigger` | Cliente MXN pregunta por Esperma de Salmón o el chatbot detecta interés | **Modelar descuento promocional.** El agente debe saber que existe un precio regular y uno promocional. Responder: "Tiene un valor de $5,700 MXN, pero tenemos una promoción activa a solo $3,800 MXN". | Alta |
+| image_31.jpg | promo | Esperma de Salmón / PDRN | COP ($800,000 → $499,000) | ✅ | ❌ | `precio → show_price` o `promo_trigger` | Cliente COP pregunta por Esperma de Salmón | Ídem. Pricing en COP: regular $800,000, promo $499,000. | Alta |
+
+**Patrón importante:** Estas 2 imágenes revelan un **modelo de promociones** que no existe hoy. El catalogo tiene un campo `promoLabel` opcional ("Mes del Padre"), pero no un sistema de precio regular vs precio promocional. Propuesta de schema:
+```
+promoPrice?: string  // Precio promocional
+promoCurrency?: string
+promoLabel?: string  // Ej: "Lanzamiento", "Mes del Padre"
+promoEndDate?: string
+```
+
+### 11. Servicios nuevos: Hand Rejuvenation (0 imágenes directas, aparece en catálogos USD/EUR)
+
+Hand Rejuvenation no tiene imagen dedicada en las 34 extraídas, pero aparece en los catálogos completos de USD (image_9.jpg) y EUR (image_13.jpg):
+
+| Catálogo | Servicio | Precio |
+|---|---|---|
+| USD | Hand Rejuvenation (Radiesse) | $699 |
+| USD | Hand Rejuvenation (Sculptra) | $699 |
+| EUR | Hand Rejuvenation (Radiesse) | 699€ |
+| EUR | Hand Rejuvenation (Sculptra) | 699€ |
+
+**No existe en catalog.ts en ninguna moneda.** Es un servicio nuevo completo. Se necesita crear 2 entries en catalog.ts con precios multi-moneda (falta precio COP — preguntar a Carlos).
+
+### Resumen de acción por sistema
+
+#### A. Catalog.ts — Lo que hay que cambiar
+
+| Cambio | Archivos | Descripción |
+|---|---|---|
+| Modelo multi-moneda | `catalog.ts` | Cambiar `price: string` + `currency: string` → `prices: Record<string, { price: string; promoPrice?: string; promoLabel?: string }>` |
+| Hand Rejuvenation x2 | `catalog.ts` | Agregar 2 nuevos servicios (Radiesse + Sculptra) con precios USD/EUR (COP pendiente) |
+| Masculinización facial con AH | `catalog.ts` | Agregar entry separado (hoy solo existe como descripción dentro de Full Face) |
+| imageKeys nuevas (18) | `catalog.ts` | Agregar las 18 imágenes WhatsApp al `imageKeys` de cada servicio. Ver tabla arriba. |
+
+#### B. IMAGE_MANIFEST — Lo que hay que agregar
+
+Las 34 imágenes AI Studio NO están en el IMAGE_MANIFEST actual. Hay que agregar entries para todas (o al menos las 18 asignadas a servicios). Propuesta:
+```typescript
+"image_1.jpg": { service: "Red Lips", description: "Red Lips Before/After — $6,500 MXN", type: "before_after" },
+"image_2.jpg": { service: "Rinomodelación", description: "Guía post-tratamiento Rinomodelación", type: "guide" },
+"image_3.jpg": { service: "Red Lips", description: "Red Lips Before/After — $350 USD", type: "before_after" },
+// ... las 34
+```
+
+#### C. Canned responses — Lo que hay que agregar
+
+| Nueva canned | Texto | Trigger |
+|---|---|---|
+| `guia_rinomodelacion` | Texto de cuidados post-Rinomodelación (de image_2.jpg) | Post `confirm_booking` cuando servicio = Rinomodelación, o cuando cliente pregunta "cuidados" después de agendar |
+| `promo_esperma_salmon_cop` | "¡Tenemos una promoción activa! El Esperma de Salmón/PDRN tiene un valor regular de $800,000 COP, pero hoy está a solo $499,000 COP. ¿Aprovechas esta oferta?" | Cuando cliente COP pregunta por Esperma de Salmón |
+| `promo_esperma_salmon_mxn` | Versión MXN: regular $5,700 → promo $3,800 | Cuando cliente MXN pregunta por Esperma de Salmón |
+
+#### D. Flows — Lo que hay que cambiar
+
+| Flow | Cambio |
+|---|---|
+| `PRECIO_FLOW → show_price` | Debe aceptar un parámetro de moneda (derivado de la ciudad del cliente). Actualmente `show_price` muestra {service_price} con moneda fija. Hay que pasar `currency` basado en `city`. |
+| `PRECIO_FLOW → show_price` | Después del precio, si el servicio tiene imágenes before/after, el agente debe preguntar "¿Quieres ver fotos de antes y después?" y enviar la imagen adecuada según moneda. |
+| `AGENDAMIENTO_FLOW → confirm_booking` | Si el servicio agendado es Rinomodelación, **enviar automáticamente** la guía post-tratamiento (image_2.jpg) como parte de la confirmación. |
+| `AGENDAMIENTO_FLOW` (nuevo estado) | Agregar estado `send_post_guide` entre `confirm_booking` y terminal para servicios con guías post-tratamiento. |
+| `PRECIO_FLOW` (nuevo) | Detectar si el servicio tiene `promoPrice` activo y mostrar precio regular + promocional. |
+
+#### E. Deterministic Domain Router — Lo que hay que cambiar
+
+| Patrón | Cambio |
+|---|---|
+| `Hand Rejuvenation`, `manos`, `rejuvenecimiento manos` | Agregar patrones en `deterministic-domain-route.ts` para detectar Hand Rejuvenation como `precio` o `agendamiento` |
+| `promo`, `promoción`, `descuento`, `oferta` | El routing de promos hoy escala a humano (keyword "descuento"). Las promos de Esperma de Salmón deberían responder con precio promocional antes de escalar. Considerar sub-categoría `promo_precio`. |
+| Detección de moneda por ciudad | El router ya tiene la ciudad del cliente. Refinar para que ciudades MXN y USD tengan routing de precios correcto. |
+
+#### F. Safety Pre-Router — Lo que hay que considerar
+
+Las imágenes de antes/después son contenido médico/estético. El safety pre-router no debería bloquearlas. Verificar que imágenes con texto "Red Lips Before/After" no disparen falsos positivos en los patrones de contenido sensible.
+
+#### G. Orchestrator / V2 Adapter — Lo que hay que cambiar
+
+| Cambio | Descripción |
+|---|---|
+| Enviar imágenes | El V2 adapter actualmente retorna solo `{ text, messageId, route, escalated, escalationReason }`. Para enviar imágenes, necesita un campo `imageUrl` o `mediaUrl` que el orchestrator (o el frontend) pueda procesar. Propuesta: agregar `media?: { url: string; type: string }[]` al response. |
+| Flow con imágenes | `FlowAdapter.handleStart()` y `handleResume()` deben poder retornar `media` además de `text`. Actualmente `evaluateFlow()` solo retorna `text`. |
+| Promo awareness | El agente necesita saber si hay promos activas al responder precios. Un servicio con `promoPrice` activo debe mencionarlo sin que el usuario pregunte explícitamente "hay descuento". |
+
+### Nuevos servicios completos para catalog.ts
+
+Basado en los catálogos USD y EUR, hay servicios en USD/EUR que NO existen en el catálogo COP actual:
+
+| Servicio | USD | EUR | COP | Estado |
+|---|---|---|---|---|
+| Hand Rejuvenation (Radiesse) | $699 | 699€ | ❌ Preguntar a Carlos | Nuevo |
+| Hand Rejuvenation (Sculptra) | $699 | 699€ | ❌ Preguntar a Carlos | Nuevo |
+| Consulta / Reservation fee | $80 | 80€ | $50,000 COP (ya existe como Valoración) | Ya existe |
+| Korean Face | $999 | 999€ | $1,899,000 COP | Ya existe |
+| Hyaluronidase | $300 | 300€ | $530,000 COP | Ya existe |
+
+### Discrepancias entre catálogos por moneda
+
+| Servicio | COP | USD | EUR | MXN | Nota |
+|---|---|---|---|---|---|
+| Full Face Botox | $1,580,000 | $900 | 899€ | ❌ | EUR tiene 899 vs USD 900 — pequeña diferencia |
+| Russian Lips | $820,000 | $499 | 400€ | $8,500 | EUR tiene 400€ (vs USD $499) — significativamente menor |
+| Doll Lips | $1,640,000 | $899 | 800€ | $16,000 | EUR 800€ vs USD $899 |
+| Red Lips | $670,000 | $350 | 300€ | $6,500 | Consistente entre mercados |
+| Full Face Radiesse | $3,999,000 | $1,800 | 1,800€ | $27,000 | USD y EUR iguales |
+| Full Face AH | $2,999,000 | $1,500 | 1,390€ | $20,000 | EUR 1,390 vs USD 1,500 — diferencia real |
+| Esperma de Salmón | $800K→$499K | $300 | 300€ | $5,700→$3,800 | USD y EUR sin promo, COP y MXN sí |
+
+### Nuevas tablas/estructuras de datos necesarias
+
+```typescript
+// Propuesta: nuevo schema para precios multi-moneda
+interface ServicePrices {
+  COP?: { price: string; promoPrice?: string; promoLabel?: string };
+  USD?: { price: string; promoPrice?: string; promoLabel?: string };
+  EUR?: { price: string; promoPrice?: string; promoLabel?: string };
+  MXN?: { price: string; promoPrice?: string; promoLabel?: string };
+}
+
+// Propuesta: nuevo campo en CatalogItem
+interface CatalogItem {
+  // ... existing fields
+  prices: ServicePrices;             // Reemplaza price + currency
+  imageKeysByCurrency?: {            // Imágenes específicas por moneda
+    COP?: string[];
+    USD?: string[];
+    EUR?: string[];
+    MXN?: string[];
+  };
+  guideKey?: string;                 // Canned response key para guía post-tratamiento
+  hasBeforeAfter?: boolean;          // Si tiene imágenes before/after
+}
+
+// Propuesta: modelo de promociones
+interface ActivePromotion {
+  serviceName: string;
+  market: "COP" | "USD" | "EUR" | "MXN";
+  regularPrice: string;
+  promoPrice: string;
+  promoLabel: string;               // "Lanzamiento", "Mes del Padre", etc.
+  startDate?: string;
+  endDate?: string;
+  imageKey?: string;                 // Imagen promocional específica
+}
+```
+
+### Data flow completo: de cliente a imagen
+
+```
+1. Cliente escribe: "¿Cuánto cuesta Red Lips?"
+2. V2 pipeline → deterministicDomainRoute detecta intent `precio`
+3. PRECIO_FLOW.ask_city → "¿Desde qué ciudad?"
+4. Cliente: "Miami"
+5. V2 determina currency = USD, city = Miami
+6. PRECIO_FLOW.ask_service → "¿Cuál servicio?"
+7. Cliente: "Red Lips"
+8. catalog.ts → busca Red Lips con prices.USD = $350
+9. show_price → "El tratamiento de Red Lips tiene un valor de $350 USD"
+10. ¿Quieres ver fotos de antes y después? (hasBeforeAfter = true)
+11. Si sí → envía image_3.jpg (Red Lips before/after USD)
+12. ¿Te gustaría agendar?
+13. Si sí → AGENDAMIENTO_FLOW
+14. Tras confirmación → si service.guideKey existe, enviar guía
+```
+
+### Estado de cada imagen - resumen ejecutivo
+
+| Imagen | Servicio | Acción principal | Prio |
+|---|---|---|---|
+| image_1.jpg | Red Lips MXN | Asociar imageKey | Alta |
+| image_2.jpg | Guía Rinomodelación | Crear canned + flow trigger | **Inmediata** |
+| image_3.jpg | Red Lips USD | Asociar imageKey | Alta |
+| image_4.jpg | Full Face Masculinización Radiesse EUR | Asociar imageKey + multi-moneda | Alta |
+| image_5.jpg | Red Lips EUR | Asociar imageKey | Media |
+| image_6.jpg | Full Face Masculinización Radiesse USD | Asociar imageKey + multi-moneda | Alta |
+| image_7.jpg | Red Lips COP | Asociar imageKey (before/after) | Alta |
+| image_8.jpg | Full Face Radiesse EN | Asociar imageKey | Media |
+| image_9.jpg | Catálogo USD (26 servicios) | Modelar multi-moneda + crear catálogo USD | **Alta** |
+| image_10.jpg | Catálogo COP (24 servicios) | Ya existe (verificar diferencias) | Baja |
+| image_11.jpg | Catálogo USD alterno | Asociar como imageKey secundaria | Alta |
+| image_12.jpg | Full Face Masculinización AH EUR | Asociar imageKey | Media |
+| image_13.jpg | Catálogo EUR (26 servicios) | Modelar multi-moneda + crear catálogo EUR | Media |
+| image_14.jpg | Doll Lips EUR | Asociar imageKey | Media |
+| image_15.jpg | Full Face Masculinización AH USD | Asociar imageKey | Alta |
+| image_16.jpg | Russian Lips EUR | Asociar imageKey | Media |
+| image_17.jpg | Masculinización Facial Radiesse COP | Asociar imageKey + entry catalog | Alta |
+| image_18.jpg | Masculinización Facial AH COP | Crear entry catalog + imageKey | Alta |
+| image_19.jpg | Full Face AH COP | Asociar imageKey | Alta |
+| image_20.jpg | Full Face Sculptra EN | Asociar imageKey | Media |
+| image_21.jpg | Full Face Sculptra MXN | Asociar imageKey + multi-moneda | Alta |
+| image_22.jpg | Doll Lips COP | Asociar imageKey | Alta |
+| image_23.jpg | Russian Lips COP | Asociar imageKey | Alta |
+| image_24.jpg | Full Face Radiesse COP | Asociar imageKey | Alta |
+| image_25.jpg | Facial Masculinization Radiesse EN | Asociar imageKey | Media |
+| image_26.jpg | Doll Lips MXN | Asociar imageKey | Alta |
+| image_27.jpg | Facial Masculinization EN | Asociar imageKey | Media |
+| image_28.jpg | Full Face HA EN | Asociar imageKey | Media |
+| image_29.jpg | Esperma de Salmón MXN promo | Modelar descuento + imageKey | **Alta** |
+| image_30.jpg | Full Face Sculptra COP | Asociar imageKey | Alta |
+| image_31.jpg | Esperma de Salmón COP promo | Modelar descuento + imageKey | **Alta** |
+| image_32.jpg | Russian Lips MXN | Asociar imageKey | Alta |
+| image_33.jpg | Full Face Radiesse MXN | Asociar imageKey + multi-moneda | Alta |
+| image_34.jpg | Full Face AH MXN | Asociar imageKey + multi-moneda | Alta |
+
+### Nuevos servicios a crear en catalog.ts
+
+| Servicio nuevo | Precios conocidos | Precio COP pendiente |
+|---|---|---|
+| Hand Rejuvenation (Radiesse) | USD $699, EUR 699€ | ❌ Preguntar a Carlos |
+| Hand Rejuvenation (Sculptra) | USD $699, EUR 699€ | ❌ Preguntar a Carlos |
+| Masculinización facial con AH | COP $2,999,000, MXN $20,000, USD $1,500, EUR 1,500€ | ✅ |
+
+---
+
+---
+
+## §15 — AI Studio: extracción textual completa de las 34 imágenes
+
+```json
+
+{
+  "clinic": "Santa María Estética",
+  "extraction_date": "2026-06-29",
+  "total_images": 34,
+  "images": {
+    "image_1.jpg": {
+      "content_type": "before_after",
+      "full_text": "Red Lips BY SANTA MARIA MEDICINA ESTÉTICA\n$6.500 MXN\nPRECIO DE LANZAMIENTO",
+      "participants": [],
+      "services": ["Red Lips"],
+      "prices": ["$6.500 MXN"],
+      "currency": "MXN",
+      "commercial_info": "Launch price promotion",
+      "language": "es",
+      "has_before_after": true,
+      "notes": "Before and after comparison of lip procedure"
+    },
+    "image_2.jpg": {
+      "content_type": "promo",
+      "full_text": "RINOMODELACIÓN\nGuía de post-tratamiento: Cuidados & Recomendaciones\n- Evitar el sol directo en la zona\n- Evitar hacer presión en la zona\n- No hacer actividad física por 24 horas\n- No ponere hielo en la zona\n- Inflamación y sensación de pesadez por una semana\nNos encanta que hayas confiado en nosotros. Para garantizar los mejores resultados, te invitamos a seguir nuestras recomendaciones. ¡Son sencillas y están pensadas para ti! Si tienes alguna pregunta, no dudes en contactarnos.",
+      "participants": [],
+      "services": ["Rinomodelación"],
+      "prices": [],
+      "currency": null,
+      "commercial_info": "Post-treatment guide and care instructions",
+      "language": "es",
+      "has_before_after": false,
+      "notes": "Post-treatment recommendation infographic"
+    },
+    "image_3.jpg": {
+      "content_type": "before_after",
+      "full_text": "Red Lips BY SANTA MARIA MEDICINA ESTÉTICA\n$350 USD\nPRECIO DE LANZAMIENTO",
+      "participants": [],
+      "services": ["Red Lips"],
+      "prices": ["$350 USD"],
+      "currency": "USD",
+      "commercial_info": "Launch price in USD",
+      "language": "es",
+      "has_before_after": true,
+      "notes": "Before and after lips photo with USD pricing"
+    },
+    "image_4.jpg": {
+      "content_type": "promo",
+      "full_text": "SANTA MARIA MEDICINA ESTÉTICA\nFULL FACE MASCULINIZACIÓN FACIAL CON RADIESSE\n- Radiesse Facial completo\n- Rinomodelación AH\n- Mentón AH\n- Marcación mandibular AH\n1.800 €",
+      "participants": [],
+      "services": ["Radiesse Facial completo", "Rinomodelación AH", "Mentón AH", "Marcación mandibular AH"],
+      "prices": ["1.800 €"],
+      "currency": "EUR",
+      "commercial_info": "Radiesse facial masculinization package",
+      "language": "es",
+      "has_before_after": false,
+      "notes": "Male model aesthetic promo in EUR"
+    },
+    "image_5.jpg": {
+      "content_type": "before_after",
+      "full_text": "Red Lips BY SANTA MARIA MEDICINA ESTÉTICA\n300 €\nPRECIO DE LANZAMIENTO",
+      "participants": [],
+      "services": ["Red Lips"],
+      "prices": ["300 €"],
+      "currency": "EUR",
+      "commercial_info": "Launch price in EUR",
+      "language": "es",
+      "has_before_after": true,
+      "notes": "Before and after lips photo in EUR"
+    },
+    "image_6.jpg": {
+      "content_type": "promo",
+      "full_text": "SANTA MARIA MEDICINA ESTÉTICA\nFULL FACE MASCULINIZACIÓN WITH RADIESSE\n- Complete Facial Rejuvenation with Radiesse\n- AH Rinomodelling\n- AH Mentum\n- AH Jawline Definition\n$1800 USD",
+      "participants": [],
+      "services": ["Complete Facial Rejuvenation with Radiesse", "AH Rinomodelling", "AH Mentum", "AH Jawline Definition"],
+      "prices": ["$1800 USD"],
+      "currency": "USD",
+      "commercial_info": "Full face masculinization package with Radiesse",
+      "language": "en",
+      "has_before_after": false,
+      "notes": "Male model aesthetic promo in USD"
+    },
+    "image_7.jpg": {
+      "content_type": "before_after",
+      "full_text": "Red Lips BY SANTA MARIA MEDICINA ESTÉTICA\n$670.000 COP\nPRECIO DE LANZAMIENTO",
+      "participants": [],
+      "services": ["Red Lips"],
+      "prices": ["$670.000 COP"],
+      "currency": "COP",
+      "commercial_info": "Launch price in COP",
+      "language": "es",
+      "has_before_after": true,
+      "notes": "Before and after lips photo in COP"
+    },
+    "image_8.jpg": {
+      "content_type": "promo",
+      "full_text": "SANTA MARÍA ESTÉTICA PRESENTS\nFULL FACE RADIESSE\n- Full face with Radiesse\n- Upper-face Botox\n- Non-surgical rhinoplasty (HA)\n- Russian Lips\n- Chin (HA)",
+      "participants": [],
+      "services": ["Full face with Radiesse", "Upper-face Botox", "Non-surgical rhinoplasty (HA)", "Russian Lips", "Chin (HA)"],
+      "prices": [],
+      "currency": null,
+      "commercial_info": "Treatment breakdown card",
+      "language": "en",
+      "has_before_after": false,
+      "notes": "Radiesse package description poster"
+    },
+    "image_9.jpg": {
+      "content_type": "pricing_catalog",
+      "full_text": "SANTA MARIA MEDICINA ESTÉTICA\nSERVICES & PRICES USD\nConsultation / Reservation $80 USD\nBotox (per area) (forehead, frown lines, crow's feet, masseters) $290 USD\nFull Face Botox $900 USD\nRussian Lips $499 USD\nDoll Lips $899 USD\nRed Lips $350 USD\nKorean Face $999 USD\nFull Face Hyaluronic Acid (HA) $1500 USD\nFull Face Radiesse $1800 USD\nFull Face Sculptra $1800 USD\nNCTF Skin Booster $300 USD\nRadiesse (per vial) $699 USD\nSculptra (per vial) $699 USD\nNon-surgical rhinoplasty $499 USD\nJawline Contouring (HA) $900 USD\nChin Augmentation (HA) $499 USD\nUnder Eye Filler (HA) $499 USD\nSalmon DNA (Skin Booster) $300 USD\nFacial Masculinization (Radiesse) $1800 USD\nFacial Masculinization (HA) $1500 USD\nHyaluronidase (filler dissolving) $300 USD\nNasolabial Folds (HA) $499 USD\nCheek Contouring (HA) $899 USD\nMesobotox $900 USD\nHand Rejuvenation (Radiesse) $699 USD\nHand Rejuvenation (Sculptra) $699 USD",
+      "participants": [],
+      "services": ["Consultation / Reservation", "Botox (per area)", "Full Face Botox", "Russian Lips", "Doll Lips", "Red Lips", "Korean Face", "Full Face Hyaluronic Acid (HA)", "Full Face Radiesse", "Full Face Sculptra", "NCTF Skin Booster", "Radiesse (per vial)", "Sculptra (per vial)", "Non-surgical rhinoplasty", "Jawline Contouring (HA)", "Chin Augmentation (HA)", "Under Eye Filler (HA)", "Salmon DNA (Skin Booster)", "Facial Masculinization (Radiesse)", "Facial Masculinization (HA)", "Hyaluronidase (filler dissolving)", "Nasolabial Folds (HA)", "Cheek Contouring (HA)", "Mesobotox", "Hand Rejuvenation (Radiesse)", "Hand Rejuvenation (Sculptra)"],
+      "prices": ["$80 USD", "$290 USD", "$900 USD", "$499 USD", "$899 USD", "$350 USD", "$999 USD", "$1500 USD", "$1800 USD", "$1800 USD", "$300 USD", "$699 USD", "$699 USD", "$499 USD", "$900 USD", "$499 USD", "$499 USD", "$300 USD", "$1800 USD", "$1500 USD", "$300 USD", "$499 USD", "$899 USD", "$900 USD", "$699 USD", "$699 USD"],
+      "currency": "USD",
+      "commercial_info": "Complete service catalog menu",
+      "language": "en",
+      "has_before_after": false,
+      "notes": "Full service price list poster"
+    },
+    "image_10.jpg": {
+      "content_type": "pricing_catalog",
+      "full_text": "SANTA MARIA MEDICINA ESTÉTICA\nSERVICIOS Y PRECIOS COP\nCosto de valoración o reserva $50.000 COP\nBótox por zona (frente, entrecejo, orbicular párpados, maseteros) $630.000 COP\nFull Face Bótox $1.580.000 COP\nRussian Lips $820.000 COP\nFull Face AH $2.999.000 COP\nFull Face Radiesse $3.999.000 COP\nFull Face Sculptra $3.999.000 COP\nNCTF $630.000 COP\nRadiesse $2.600.000 COP\nSculptra $2.500.000 COP\nRinomodelación $820.000 COP\nMarcación mandibular $1.640.000 COP\nMentón $820.000 COP\nDoll Lips $1.640.000 COP\nOjeras con AH $820.000 COP\nEsperma de salmón $800.000 COP\nMasculinización facial con Radiesse $3.999.000 COP\nMasculinización facial con AH $2.999.000 COP\nHialuronidasa $530.000 COP\nNasolabiales con AH $820.000 COP\nPómulos con AH $1.640.000 COP\nMesobotox $1.580.000 COP\nRed Lips $670.000 COP\nKorean face $1.899.000 COP",
+      "participants": [],
+      "services": ["Costo de valoración o reserva", "Bótox por zona", "Full Face Bótox", "Russian Lips", "Full Face AH", "Full Face Radiesse", "Full Face Sculptra", "NCTF", "Radiesse", "Sculptra", "Rinomodelación", "Marcación mandibular", "Mentón", "Doll Lips", "Ojeras con AH", "Esperma de salmón", "Masculinización facial con Radiesse", "Masculinización facial con AH", "Hialuronidasa", "Nasolabiales con AH", "Pómulos con AH", "Mesobotox", "Red Lips", "Korean face"],
+      "prices": ["$50.000 COP", "$630.000 COP", "$1.580.000 COP", "$820.000 COP", "$2.999.000 COP", "$3.999.000 COP", "$3.999.000 COP", "$630.000 COP", "$2.600.000 COP", "$2.500.000 COP", "$820.000 COP", "$1.640.000 COP", "$820.000 COP", "$1.640.000 COP", "$820.000 COP", "$800.000 COP", "$3.999.000 COP", "$2.999.000 COP", "$530.000 COP", "$820.000 COP", "$1.640.000 COP", "$1.580.000 COP", "$670.000 COP", "$1.899.000 COP"],
+      "currency": "COP",
+      "commercial_info": "Complete service catalog menu in COP",
+      "language": "es",
+      "has_before_after": false,
+      "notes": "Full service price list poster in COP"
+    },
+    "image_11.jpg": {
+      "content_type": "pricing_catalog",
+      "full_text": "SERVICIOS & PRECIOS USD\nFACIAL & TOXINA\nBótox por zona (frente, entrecejo, orbicular párpados, maseteros): 290usd\nFull Face Bótox: 900 usd\nRussian Lips: 499 usd\nDOLL LIPS: 899 usd\nRed lips: 350 usd\nkorean face: 999 usd\nFull Face AH: 1500 usd\nFull Face Radiesse: 1800 usd\nFull Face Sculptra: 1800 usd\nNCTF: 300 usd\nRadiesse: 699 usd\nSculptra: 699 usd\nRinomodelación: 499 usd\nMarcación mandibular: 900 usd\nMentón: 499 usd\nARMONIZACIÓN & BIOESTIMULADORES\nOjeras con AH: 499 usd\nEsperma de salmón: 300 usd\nMasculinización facial con Radiesse: 1800 usd\nMasculinización facial con AH: 1500 usd\nHialuronidasa: 300 usd\nNasolabiales con AH: 499 usd\nPómulos con AH: 899 usd\nMesobotox: 900 usd\nCosto de valoración o reserva: 80 usd\nAGENDA TU CITA [flecha] Cupos limitados",
+      "participants": [],
+      "services": ["Bótox por zona", "Full Face Bótox", "Russian Lips", "DOLL LIPS", "Red lips", "korean face", "Full Face AH", "Full Face Radiesse", "Full Face Sculptra", "NCTF", "Radiesse", "Sculptra", "Rinomodelación", "Marcación mandibular", "Mentón", "Ojeras con AH", "Esperma de salmón", "Masculinización facial con Radiesse", "Masculinización facial con AH", "Hialuronidasa", "Nasolabiales con AH", "Pómulos con AH", "Mesobotox", "Costo de valoración o reserva"],
+      "prices": ["290usd", "900 usd", "499 usd", "899 usd", "350 usd", "999 usd", "1500 usd", "1800 usd", "1800 usd", "300 usd", "699 usd", "699 usd", "499 usd", "900 usd", "499 usd", "499 usd", "300 usd", "1800 usd", "1500 usd", "300 usd", "499 usd", "899 usd", "900 usd", "80 usd"],
+      "currency": "USD",
+      "commercial_info": "Social media style pricing catalog sheet",
+      "language": "es",
+      "has_before_after": false,
+      "notes": "Alternative dark styling menu"
+    },
+    "image_12.jpg": {
+      "content_type": "promo",
+      "full_text": "SANTA MARIA MEDICINA ESTÉTICA\nFULL FACE MASCULINIZACIÓN FACIAL CON AH\n[visto] Botox tercio superior\n[visto] Rinomodelación AH\n[visto] Mentón AH\n[visto] Marcación mandibular AH\n1.500 €",
+      "participants": [],
+      "services": ["Botox tercio superior", "Rinomodelación AH", "Mentón AH", "Marcación mandibular AH"],
+      "prices": ["1.500 €"],
+      "currency": "EUR",
+      "commercial_info": "AH facial masculinization package",
+      "language": "es",
+      "has_before_after": false,
+      "notes": "Male model aesthetic promo in EUR with checklist"
+    },
+    "image_13.jpg": {
+      "content_type": "pricing_catalog",
+      "full_text": "SANTA MARIA MEDICINA ESTÉTICA\nSERVICES & PRICES EUR\nConsultation / Reservation 80 €\nBotox (per area) (forehead, frown lines, crow's feet, masseters) 290 €\nFull Face Botox 899 €\nRussian Lips Premium 400 €\nDoll Lips 800 €\nRed Lips 300 €\nKorean Face 999 €\nFull Face Hyaluronic Acid (HA) 1.390 €\nFull Face Radiesse 1.800 €\nFull Face Sculptra 1.800 €\nNCTF Skin Booster 300 €\nRadiesse (per vial) 699 €\nSculptra (per vial) 699 €\nNon-surgical rhinoplasty 499 €\nJawline Contouring (HA) 900 €\nChin Augmentation (HA) 499 €\nUnder Eye Filler (HA) 499 €\nSalmon DNA (Skin Booster) 300 €\nFacial Masculinization (Radiesse) 1.800 €\nFacial Masculinization (HA) 1.500 €\nHyaluronidase (filler dissolving) 300 €\nNasolabial Folds (HA) 499 €\nCheek Contouring (HA) 899 €\nMesobotox 900 €\nHand Rejuvenation (Radiesse) 699 €\nHand Rejuvenation (Sculptra) 699 €",
+      "participants": [],
+      "services": ["Consultation / Reservation", "Botox (per area)", "Full Face Botox", "Russian Lips Premium", "Doll Lips", "Red Lips", "Korean Face", "Full Face Hyaluronic Acid (HA)", "Full Face Radiesse", "Full Face Sculptra", "NCTF Skin Booster", "Radiesse (per vial)", "Sculptra (per vial)", "Non-surgical rhinoplasty", "Jawline Contouring (HA)", "Chin Augmentation (HA)", "Under Eye Filler (HA)", "Salmon DNA (Skin Booster)", "Facial Masculinization (Radiesse)", "Facial Masculinization (HA)", "Hyaluronidase (filler dissolving)", "Nasolabial Folds (HA)", "Cheek Contouring (HA)", "Mesobotox", "Hand Rejuvenation (Radiesse)", "Hand Rejuvenation (Sculptra)"],
+      "prices": ["80 €", "290 €", "899 €", "400 €", "800 €", "300 €", "999 €", "1.390 €", "1.800 €", "1.800 €", "300 €", "699 €", "699 €", "499 €", "900 €", "499 €", "499 €", "300 €", "1.800 €", "1.500 €", "300 €", "499 €", "899 €", "900 €", "699 €", "699 €"],
+      "currency": "EUR",
+      "commercial_info": "Complete service catalog menu in EUR",
+      "language": "en",
+      "has_before_after": false,
+      "notes": "Full service price list poster in EUR"
+    },
+    "image_14.jpg": {
+      "content_type": "promo",
+      "full_text": "SANTA MARIA MEDICINA ESTÉTICA\nDOLL LIPS\n[corazón] VOLUMEN NATURAL Aporta volumen sin perder naturalidad.\n[labios] DEFINICIÓN PERFECTA Contorno preciso y perfilado ideal.\n[corazón] FORMA DE CORAZÓN Diseño personalizado que realiza la forma natural de tus labios.\n[destellos] SIMETRÍA ARMÓNICA Resultados equilibrados y proporcionados para un acabado impecable.\n[gota] HIDRATACIÓN PROFUNDA Labios suaves, hidratados y con apariencia saludable.\n800 €",
+      "participants": [],
+      "services": ["Doll Lips"],
+      "prices": ["800 €"],
+      "currency": "EUR",
+      "commercial_info": "Doll lips highlighting benefits",
+      "language": "es",
+      "has_before_after": false,
+      "notes": "Feature description card for Doll Lips"
+    },
+    "image_15.jpg": {
+      "content_type": "promo",
+      "full_text": "SANTA MARIA MEDICINA ESTÉTICA\nFULL FACE MASCULINIZACIÓN WITH AH\n[visto] Upper third botox\n[visto] AH rhinomodelling\n[visto] AH mentum\n[visto] AH jawline definition\n[visto] AH mandibular marking\n$1500 USD",
+      "participants": [],
+      "services": ["Upper third botox", "AH rhinomodelling", "AH mentum", "AH jawline definition", "AH mandibular marking"],
+      "prices": ["$1500 USD"],
+      "currency": "USD",
+      "commercial_info": "AH facial masculinization package in USD",
+      "language": "en",
+      "has_before_after": false,
+      "notes": "Male model aesthetic promo in USD with checklist"
+    },
+    "image_16.jpg": {
+      "content_type": "promo",
+      "full_text": "SANTA MARIA MEDICINA ESTÉTICA\nRUSSIAN LIPS\n[destellos] Labios casi perfectos, carnosos y acordes a la fisonomía de cada persona.\n[gota] Ácido hialurónico. Aporta elasticidad y viscosidad muy parecidas al tejido natural.\n[pluma] Resultados armónicos y naturales.\n400 €",
+      "participants": [],
+      "services": ["Russian Lips"],
+      "prices": ["400 €"],
+      "currency": "EUR",
+      "commercial_info": "Russian lips highlighting benefits",
+      "language": "es",
+      "has_before_after": false,
+      "notes": "Feature description card for Russian Lips"
+    },
+    "image_17.jpg": {
+      "content_type": "promo",
+      "full_text": "Masculinización Facial Rejuvenecimiento\n- Radiesse Facial completo\n- Rinomodelación AH\n- Mentón AH\n- Marcación mandibular AH\n$3'999.000 COP",
+      "participants": [],
+      "services": ["Radiesse Facial completo", "Rinomodelación AH", "Mentón AH", "Marcación mandibular AH"],
+      "prices": ["$3'999.000 COP"],
+      "currency": "COP",
+      "commercial_info": "Package price in COP",
+      "language": "es",
+      "has_before_after": false,
+      "notes": "Facial masculinization promotion with male model"
+    },
+    "image_18.jpg": {
+      "content_type": "promo",
+      "full_text": "Masculinización facial\n- Botox tercio superior\n- Rinomodelación AH\n- Mentón AH\n- Marcación mandibular AH\n$2'999.000 COP",
+      "participants": [],
+      "services": ["Botox tercio superior", "Rinomodelación AH", "Mentón AH", "Marcación mandibular AH"],
+      "prices": ["$2'999.000 COP"],
+      "currency": "COP",
+      "commercial_info": "Alternative package price in COP",
+      "language": "es",
+      "has_before_after": false,
+      "notes": "Facial masculinization promotion with male model"
+    },
+    "image_19.jpg": {
+      "content_type": "promo",
+      "full_text": "FULL FACE ÁCIDO HIALURÓNICO\n- Botox tercio superior\n- Pómulos AH\n- Rinomodelación AH\n- Russian Lips\n- Menton AH\n- Marcación mandibular AH\n$2'999.000 COP",
+      "participants": [],
+      "services": ["Botox tercio superior", "Pómulos AH", "Rinomodelación AH", "Russian Lips", "Menton AH", "Marcación mandibular AH"],
+      "prices": ["$2'999.000 COP"],
+      "currency": "COP",
+      "commercial_info": "Hyaluronic Acid package pricing",
+      "language": "es",
+      "has_before_after": false,
+      "notes": "Female model full face promo"
+    },
+    "image_20.jpg": {
+      "content_type": "promo",
+      "full_text": "SANTA MARÍA ESTÉTICA PRESENTS\nFULL FACE SCULPTRA\nTreatment includes\n- Full face with Sculptra\n- Upper-face Botox\n- Non-surgical rhinoplasty (HA)\n- Russian Lips\n- Chin (HA)",
+      "participants": [],
+      "services": ["Full face with Sculptra", "Upper-face Botox", "Non-surgical rhinoplasty (HA)", "Russian Lips", "Chin (HA)"],
+      "prices": [],
+      "currency": null,
+      "commercial_info": "Treatment breakdown card",
+      "language": "en",
+      "has_before_after": false,
+      "notes": "Sculptra package description poster"
+    },
+    "image_21.jpg": {
+      "content_type": "promo",
+      "full_text": "FULL FACE SCULPTRA\n- Facial completo con Sculptra\n- Botox tercio superior\n- Rinomodelación AH\n- Russian Lips\n- Menton AH\n$27.000 MXN\nSANTA MARIA ESTETICA",
+      "participants": [],
+      "services": ["Facial completo con Sculptra", "Botox tercio superior", "Rinomodelación AH", "Russian Lips", "Menton AH"],
+      "prices": ["$27.000 MXN"],
+      "currency": "MXN",
+      "commercial_info": "Sculptra full face package",
+      "language": "es",
+      "has_before_after": false,
+      "notes": "Female model aesthetic promo in MXN"
+    },
+    "image_22.jpg": {
+      "content_type": "promo",
+      "full_text": "DOLL LIPS\nPerfilamiento y aumento labial buscando máxima simetría, volnen alto y marcación del arco de cupido en HD.\nIncluye: 2 ml de ácido hialurónico\nPRECIO $1.640.000",
+      "participants": [],
+      "services": ["Doll Lips"],
+      "prices": ["$1.640.000"],
+      "currency": "COP",
+      "commercial_info": "Special mapping analysis feature",
+      "language": "es",
+      "has_before_after": false,
+      "notes": "Lips graphic with overlay vectors"
+    },
+    "image_23.jpg": {
+      "content_type": "promo",
+      "full_text": "RUSSIAN LIPS\nDiseño labial de alta precisión que mejora la proyección del arco de cupido, respetando la armonía natural del rostro.\nIncluye: 1 ml de ácido hialurónico\nPRECIO $820.000",
+      "participants": [],
+      "services": ["Russian Lips"],
+      "prices": ["$820.000"],
+      "currency": "COP",
+      "commercial_info": "Special mapping analysis feature",
+      "language": "es",
+      "has_before_after": false,
+      "notes": "Lips graphic with overlay vectors"
+    },
+    "image_24.jpg": {
+      "content_type": "promo",
+      "full_text": "FULL FACE RADIESSE\n- Facial completo con Radiesse\n- Botox tercio superior\n- Rinomodelación AH\n- Russian Lips\n- Menton AH\n$3'999.000 COP",
+      "participants": [],
+      "services": ["Facial completo con Radiesse", "Botox tercio superior", "Rinomodelación AH", "Russian Lips", "Menton AH"],
+      "prices": ["$3'999.000 COP"],
+      "currency": "COP",
+      "commercial_info": "Radiesse package in COP",
+      "language": "es",
+      "has_before_after": false,
+      "notes": "Female model promo card"
+    },
+    "image_25.jpg": {
+      "content_type": "promo",
+      "full_text": "SANTA MARÍA ESTÉTICA PRESENTS\nFACIAL MASCULINIZATION REJUVENATION\n- Full face with Radiesse\n- Non-surgical rhinoplasty (HA)\n- Chin (HA)\n- Jawline definition (HA)",
+      "participants": [],
+      "services": ["Full face with Radiesse", "Non-surgical rhinoplasty (HA)", "Chin (HA)", "Jawline definition (HA)"],
+      "prices": [],
+      "currency": null,
+      "commercial_info": "Service breakdown checklist card",
+      "language": "en",
+      "has_before_after": false,
+      "notes": "Masculinization details card with male model"
+    },
+    "image_26.jpg": {
+      "content_type": "promo",
+      "full_text": "DOLL LIPS\nPerfilamiento y aumento labial buscando máxima simetría, volnen alto y marcación del arco de cupido en HD.\nIncluye: 2 ml de ácido hialurónico\nPRECIO $16.000 MXN",
+      "participants": [],
+      "services": ["Doll Lips"],
+      "prices": ["$16.000 MXN"],
+      "currency": "MXN",
+      "commercial_info": "Special mapping analysis feature in MXN",
+      "language": "es",
+      "has_before_after": false,
+      "notes": "Lips mapping analysis graphic"
+    },
+    "image_27.jpg": {
+      "content_type": "promo",
+      "full_text": "SANTA MARÍA ESTÉTICA PRESENTS\nFACIAL MASCULINIZATION\n- Upper-face Botox\n- Non-surgical rhinoplasty (HA)\n- Chin (HA)\n- Jawline definition (HA)",
+      "participants": [],
+      "services": ["Upper-face Botox", "Non-surgical rhinoplasty (HA)", "Chin (HA)", "Jawline definition (HA)"],
+      "prices": [],
+      "currency": null,
+      "commercial_info": "Service breakdown checklist card",
+      "language": "en",
+      "has_before_after": false,
+      "notes": "Alternative masculinization layout card"
+    },
+    "image_28.jpg": {
+      "content_type": "promo",
+      "full_text": "SANTA MARÍA ESTÉTICA PRESENTS\nFULL FACE HYALURONIC ACID\n- Upper-face Botox\n- Cheekbones (HA)\n- Non-surgical rhinoplasty (HA)\n- Russian Lips\n- Chin (HA)\n- Jawline definition (HA)",
+      "participants": [],
+      "services": ["Upper-face Botox", "Cheekbones (HA)", "Non-surgical rhinoplasty (HA)", "Russian Lips", "Chin (HA)", "Jawline definition (HA)"],
+      "prices": [],
+      "currency": null,
+      "commercial_info": "Full face breakdown poster",
+      "language": "en",
+      "has_before_after": false,
+      "notes": "Female model full face HA card"
+    },
+    "image_29.jpg": {
+      "content_type": "promo",
+      "full_text": "ESPERMA DE SALMÓN\nEL SECRETO DETRÁS DE UNA PIEL PERFECTA\nPDRN\nRegeneración avanzada para una piel visiblemente más luminosa\nAntes: 5,700 MXN\nHoy: $3,800 MXN",
+      "participants": [],
+      "services": ["Esperma de salmón / PDRN"],
+      "prices": ["5,700 MXN", "$3,800 MXN"],
+      "currency": "MXN",
+      "commercial_info": "Discounted PDRN treatment",
+      "language": "es",
+      "has_before_after": false,
+      "notes": "Female model facial promotion"
+    },
+    "image_30.jpg": {
+      "content_type": "promo",
+      "full_text": "FULL FACE SCULPTRA\n- Facial completo con Sculptra\n- Botox tercio superior\n- Rinomodelación AH\n- Russian Lips\n- Menton AH\n$3'999.000 COP",
+      "participants": [],
+      "services": ["Facial completo con Sculptra", "Botox tercio superior", "Rinomodelación AH", "Russian Lips", "Menton AH"],
+      "prices": ["$3'999.000 COP"],
+      "currency": "COP",
+      "commercial_info": "Sculptra package in COP",
+      "language": "es",
+      "has_before_after": false,
+      "notes": "Female model promo card in COP"
+    },
+    "image_31.jpg": {
+      "content_type": "promo",
+      "full_text": "ESPERMA DE SALMÓN\nEL SECRETO DETRÁS DE UNA PIEL PERFECTA\nPDRN\nRegeneración avanzada para una piel visiblemente más luminosa\nAntes: $800.000 COP\nHoy: $499.000 COP",
+      "participants": [],
+      "services": ["Esperma de salmón / PDRN"],
+      "prices": ["$800.000 COP", "$499.000 COP"],
+      "currency": "COP",
+      "commercial_info": "Discounted PDRN treatment in COP",
+      "language": "es",
+      "has_before_after": false,
+      "notes": "Female model facial promotion in COP"
+    },
+    "image_32.jpg": {
+      "content_type": "promo",
+      "full_text": "RUSSIAN LIPS\nDiseño labial de alta precisión que mejora la proyección del arco de cupido, respetando la armonía natural del rostro.\nIncluye: 1 ml de ácido hialurónico\nPRECIO $8.500 MXN",
+      "participants": [],
+      "services": ["Russian Lips"],
+      "prices": ["$8.500 MXN"],
+      "currency": "MXN",
+      "commercial_info": "Special mapping analysis feature in MXN",
+      "language": "es",
+      "has_before_after": false,
+      "notes": "Lips mapping analysis graphic in MXN"
+    },
+    "image_33.jpg": {
+      "content_type": "promo",
+      "full_text": "FULL FACE RADIESSE\n- Facial completo con Radiesse\n- Botox tercio superior\n- Rinomodelación AH\n- Russian Lips\n- Menton AH\n$27.000 MXN\nSANTA MARIA ESTETICA",
+      "participants": [],
+      "services": ["Facial completo con Radiesse", "Botox tercio superior", "Rinomodelación AH", "Russian Lips", "Menton AH"],
+      "prices": ["$27.000 MXN"],
+      "currency": "MXN",
+      "commercial_info": "Radiesse package in MXN",
+      "language": "es",
+      "has_before_after": false,
+      "notes": "Female model promo card in MXN"
+    },
+    "image_34.jpg": {
+      "content_type": "promo",
+      "full_text": "FULL FACE ÁCIDO HIALURÓNICO\n- Botox tercio superior\n- Pómulos AH\n- Rinomodelación AH\n- Russian Lips\n- Menton AH\n- Marcación mandibular AH\n$20.000 MXN\nSANTA MARIA ESTETICA",
+      "participants": [],
+      "services": ["Botox tercio superior", "Pómulos AH", "Rinomodelación AH", "Russian Lips", "Menton AH", "Marcación mandibular AH"],
+      "prices": ["$20.000 MXN"],
+      "currency": "MXN",
+      "commercial_info": "HA package in MXN",
+      "language": "es",
+      "has_before_after": false,
+      "notes": "Female model promo card in MXN"
+    }
+  },
+  "summary": {
+    "total_services_found": [
+      "Consultation / Reservation",
+      "Botox (per area)",
+      "Full Face Botox",
+      "Russian Lips",
+      "Doll Lips",
+      "Red Lips",
+      "Korean Face",
+      "Full Face Hyaluronic Acid (HA)",
+      "Full Face Radiesse",
+      "Full Face Sculptra",
+      "NCTF Skin Booster",
+      "Radiesse (per vial)",
+      "Sculptra (per vial)",
+      "Non-surgical rhinoplasty",
+      "Jawline Contouring (HA)",
+      "Chin Augmentation (HA)",
+      "Under Eye Filler (HA)",
+      "Salmon DNA (Skin Booster) / Esperma de salmón / PDRN",
+      "Facial Masculinization",
+      "Hyaluronidase",
+      "Nasolabial Folds (HA)",
+      "Cheek Contouring (HA)",
+      "Mesobotox",
+      "Hand Rejuvenation"
+    ],
+    "unique_prices": [
+      "$6.500 MXN",
+      "$350 USD",
+      "1.800 €",
+      "300 €",
+      "$1800 USD",
+      "$670.000 COP",
+      "$80 USD",
+      "$290 USD",
+      "$900 USD",
+      "$499 USD",
+      "$899 USD",
+      "$999 USD",
+      "$1500 USD",
+      "$300 USD",
+      "$699 USD",
+      "$50.000 COP",
+      "$630.000 COP",
+      "$1.580.000 COP",
+      "$820.000 COP",
+      "$2.999.000 COP",
+      "$3.999.000 COP",
+      "$2.600.000 COP",
+      "$2.500.000 COP",
+      "$1.640.000 COP",
+      "$800.000 COP",
+      "$530.000 COP",
+      "1.500 €",
+      "80 €",
+      "290 €",
+      "899 €",
+      "400 €",
+      "800 €",
+      "1.390 €",
+      "27.000 MXN",
+      "16.000 MXN",
+      "5,700 MXN",
+      "3,800 MXN",
+      "8.500 MXN",
+      "20.000 MXN"
+    ],
+    "currencies_found": ["MXN", "USD", "EUR", "COP"],
+    "image_types_distribution": {
+      "before_after": 5,
+      "promo": 24,
+      "pricing_catalog": 5
+    }
+  }
+}
+
+```
+

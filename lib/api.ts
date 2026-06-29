@@ -115,9 +115,12 @@ export function getCatalog(): Promise<{ data: CatalogItem[] }> {
 export interface BusinessProfile {
   persona: string
   rules: Record<string, unknown>
-  hours: Record<string, string>
+  hours: Record<string, { open: string; close: string }>
   booking_mode: string
   system_prompt_overrides: string | null
+  canned_responses: Record<string, string>
+  off_hours_message: string | null
+  google_maps_url: string | null
 }
 
 export function getProfile(): Promise<BusinessProfile> {

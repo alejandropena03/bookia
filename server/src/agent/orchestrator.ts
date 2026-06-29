@@ -24,12 +24,22 @@ export interface AgentRequest {
   text: string;
 }
 
+export interface MediaItem {
+  url: string;
+  type: "image" | "video" | "document";
+  imageKey: string;
+  alt: string;
+  service?: string;
+  currency?: string;
+}
+
 export interface AgentResponse {
   text: string;
   messageId: string;
   route: "flow" | "llm" | "canned" | "escalated" | "booking";
   escalated: boolean;
   escalationReason?: string;
+  media?: MediaItem[];
 }
 
 async function loadBusinessContext(tenantId: string, sql: any): Promise<BusinessContext & { bookingMode: string; escalationConfig: Record<string, unknown> | null }> {

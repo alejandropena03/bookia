@@ -285,7 +285,9 @@ export function safetyPreRoute(text: string): {
     // Eg: "Me diagnosticaron diabetes" = charla. "¿Puedo hacérmelo si tengo diabetes?" = contraindicaciones.
     const hasQuestionIntent = /[¿?]/.test(trimmed)
       || /\b(puedo|puede|pueden|pueda|se[púu]ede|debo|deber[ií]a|recomiendas?)\b/i.test(trimmed)
-      || /\b(agendar|cita|separar|reservar|pedir\s+cita|precio|cu[aá]nto|qu[eé]\\s+es)\b/i.test(trimmed);
+      || /\b(agendar|cita|separar|reservar|pedir\s+cita|precio|cu[aá]nto|qu[eé]\s+es)\b/i.test(trimmed)
+      || (/\b(embaraza(da|d[aá])|lactanc(ia|i[eé])|enferm[oa]|al[eé]rgic[oa]|diab[eé]tic[oa]|hipertens[oa])\b/i.test(trimmed)
+        && /\b(quiero|puedo|podr[ií]a|hacerme|aplicarme|ponerme|tratamiento|procedimiento|hac[eé]rmelo|hacerme\s+un)\b/i.test(trimmed));
     if (!hasQuestionIntent) {
       return {
         decision: null,

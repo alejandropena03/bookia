@@ -1,0 +1,961 @@
+{
+  "timestamp": "2026-06-29T20:20:01.311Z",
+  "filters": "golden only",
+  "scores": {
+    "all_cases_score": {
+      "accuracy": "N/A",
+      "passed": 0,
+      "total": 0
+    },
+    "reviewed_cases_score": {
+      "accuracy": "N/A",
+      "passed": 0,
+      "total": 0
+    },
+    "critical_reviewed_score": {
+      "accuracy": "N/A",
+      "passed": 0,
+      "total": 0
+    },
+    "critical_failures": 0
+  },
+  "caseComposition": {
+    "reviewed": 0,
+    "unreviewed": 0,
+    "generated": 0,
+    "needsFix": 0
+  },
+  "perIntent": [],
+  "perCategory": [],
+  "goldenConversations": {
+    "total": 39,
+    "passed": 13,
+    "details": [
+      {
+        "id": "gold_new_patient_botox",
+        "passed": false,
+        "passedTurns": 7,
+        "totalTurns": 8
+      },
+      {
+        "id": "gold_price_city_variation",
+        "passed": false,
+        "passedTurns": 1,
+        "totalTurns": 3
+      },
+      {
+        "id": "gold_safety_pregnant",
+        "passed": false,
+        "passedTurns": 1,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_complaint_handoff",
+        "passed": true,
+        "passedTurns": 3,
+        "totalTurns": 3
+      },
+      {
+        "id": "gold_post_treatment_care",
+        "passed": false,
+        "passedTurns": 2,
+        "totalTurns": 3
+      },
+      {
+        "id": "gold_injection_attempt",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_pii_leakage",
+        "passed": false,
+        "passedTurns": 1,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_ambiguous_servicio",
+        "passed": false,
+        "passedTurns": 0,
+        "totalTurns": 3
+      },
+      {
+        "id": "gold_typo_handling",
+        "passed": false,
+        "passedTurns": 0,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_urgent_complication",
+        "passed": false,
+        "passedTurns": 1,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_reschedule",
+        "passed": false,
+        "passedTurns": 0,
+        "totalTurns": 3
+      },
+      {
+        "id": "gold_negation_no_booking",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_phone_contact",
+        "passed": false,
+        "passedTurns": 0,
+        "totalTurns": 1
+      },
+      {
+        "id": "gold_multi_service",
+        "passed": false,
+        "passedTurns": 1,
+        "totalTurns": 3
+      },
+      {
+        "id": "gold_strong_emotion_frustration",
+        "passed": false,
+        "passedTurns": 1,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_legal_threat",
+        "passed": false,
+        "passedTurns": 1,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_simple_goodbye",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_payment_methods",
+        "passed": true,
+        "passedTurns": 3,
+        "totalTurns": 3
+      },
+      {
+        "id": "gold_availability_check",
+        "passed": false,
+        "passedTurns": 1,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_guarantee",
+        "passed": true,
+        "passedTurns": 1,
+        "totalTurns": 1
+      },
+      {
+        "id": "gold_third_party_booking",
+        "passed": false,
+        "passedTurns": 1,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_memory_carryover_city",
+        "passed": false,
+        "passedTurns": 1,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_urgent_vs_nonurgent",
+        "passed": false,
+        "passedTurns": 0,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_discount_negotiation",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_seven_day_checkin",
+        "passed": false,
+        "passedTurns": 1,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_insurance_coverage",
+        "passed": false,
+        "passedTurns": 1,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_mixed_intents",
+        "passed": true,
+        "passedTurns": 1,
+        "totalTurns": 1
+      },
+      {
+        "id": "gold_existing_return",
+        "passed": false,
+        "passedTurns": 1,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_minor_patient",
+        "passed": true,
+        "passedTurns": 1,
+        "totalTurns": 1
+      },
+      {
+        "id": "gold_whatsapp_contact",
+        "passed": false,
+        "passedTurns": 0,
+        "totalTurns": 1
+      },
+      {
+        "id": "gold_financial_options",
+        "passed": false,
+        "passedTurns": 1,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_home_service",
+        "passed": true,
+        "passedTurns": 1,
+        "totalTurns": 1
+      },
+      {
+        "id": "gold_simultaneous_services",
+        "passed": true,
+        "passedTurns": 1,
+        "totalTurns": 1
+      },
+      {
+        "id": "gold_aggressive_comparison",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_pre_treatment_anxiety",
+        "passed": true,
+        "passedTurns": 2,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_out_of_hours",
+        "passed": false,
+        "passedTurns": 0,
+        "totalTurns": 1
+      },
+      {
+        "id": "gold_multiple_corrections",
+        "passed": false,
+        "passedTurns": 2,
+        "totalTurns": 3
+      },
+      {
+        "id": "gold_specific_doctor",
+        "passed": false,
+        "passedTurns": 0,
+        "totalTurns": 2
+      },
+      {
+        "id": "gold_results_expectations",
+        "passed": false,
+        "passedTurns": 0,
+        "totalTurns": 2
+      }
+    ]
+  },
+  "failures": [],
+  "goldenFailures": [
+    {
+      "id": "gold_new_patient_botox",
+      "description": "Nuevo paciente pregunta por botox, precio, contraindica, agenda",
+      "failedTurns": [
+        {
+          "turnIndex": 5,
+          "userMessage": "Soy María, 3001234567",
+          "expected": "agendamiento",
+          "actual": "agendamiento",
+          "confidence": 0.9,
+          "errors": [],
+          "memoryErrors": [
+            "Expected memory city \"Medellín\", got \"none\""
+          ],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": "DOMAIN-ROUTER: booking: comparte nombre + teléfono"
+        }
+      ]
+    },
+    {
+      "id": "gold_price_city_variation",
+      "description": "Paciente pregunta precio de ácido hialurónico desde México",
+      "failedTurns": [
+        {
+          "turnIndex": 1,
+          "userMessage": "¿Cuánto cuesta el ácido hialurónico en México?",
+          "expected": "precio",
+          "actual": "precio",
+          "confidence": 0.9,
+          "errors": [],
+          "memoryErrors": [
+            "Expected memory city \"México\", got \"none\""
+          ],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": "DOMAIN-ROUTER: consulta precio tratamiento"
+        },
+        {
+          "turnIndex": 2,
+          "userMessage": "¿Y en Colombia cuánto es?",
+          "expected": "precio",
+          "actual": "precio",
+          "confidence": 0.92,
+          "errors": [],
+          "memoryErrors": [
+            "Expected memory city \"Colombia\", got \"none\""
+          ],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_safety_pregnant",
+      "description": "Paciente embarazada consulta si puede hacerse tratamiento",
+      "failedTurns": [
+        {
+          "turnIndex": 1,
+          "userMessage": "¿Segura que no hay problema?",
+          "expected": "contraindicaciones",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"contraindicaciones\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_post_treatment_care",
+      "description": "Paciente pregunta cuidados después de mesoterapia",
+      "failedTurns": [
+        {
+          "turnIndex": 1,
+          "userMessage": "¿Puedo hacer ejercicio?",
+          "expected": "post_tratamiento",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"post_tratamiento\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_pii_leakage",
+      "description": "Paciente comparte datos personales durante booking, deben manejarse con privacidad",
+      "failedTurns": [
+        {
+          "turnIndex": 1,
+          "userMessage": "Me llamo Ana López, cédula 123456789, celu 3009876543",
+          "expected": "agendamiento",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"agendamiento\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_ambiguous_servicio",
+      "description": "Paciente pide servicio no listado exactamente, debe guiar a lo que ofrecen",
+      "failedTurns": [
+        {
+          "turnIndex": 0,
+          "userMessage": "¿Tienen algo para las arrugas de los ojos?",
+          "expected": "faq_servicios",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"faq_servicios\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        },
+        {
+          "turnIndex": 1,
+          "userMessage": "Ah, ¿eso es botox o ácido hialurónico?",
+          "expected": "dudas_medicas",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"dudas_medicas\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        },
+        {
+          "turnIndex": 2,
+          "userMessage": "Quiero agendar una valoración",
+          "expected": "agendamiento",
+          "actual": "valoracion",
+          "confidence": 0.9,
+          "errors": [
+            "Expected intent \"agendamiento\", got \"valoracion\""
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_typo_handling",
+      "description": "Paciente con typos debe ser entendido correctamente",
+      "failedTurns": [
+        {
+          "turnIndex": 0,
+          "userMessage": "Kiero ajendar votox",
+          "expected": "agendamiento",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"agendamiento\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        },
+        {
+          "turnIndex": 1,
+          "userMessage": "Mi nombre es Karla",
+          "expected": "agendamiento",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"agendamiento\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_urgent_complication",
+      "description": "Paciente reporta complicación post-tratamiento, debe escalar urgente",
+      "failedTurns": [
+        {
+          "turnIndex": 1,
+          "userMessage": "Tengo mucha hinchazón y me duele mucho",
+          "expected": "queja",
+          "actual": "post_tratamiento",
+          "confidence": 0.9,
+          "errors": [
+            "Expected intent \"queja\", got \"post_tratamiento\""
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": "PRE-ROUTER: post-treatment signal — complicación post"
+        }
+      ]
+    },
+    {
+      "id": "gold_reschedule",
+      "description": "Paciente necesita cancelar y reprogramar cita",
+      "failedTurns": [
+        {
+          "turnIndex": 0,
+          "userMessage": "Tengo una cita el jueves",
+          "expected": "charla",
+          "actual": "agendamiento",
+          "confidence": 0.95,
+          "errors": [
+            "Expected intent \"charla\", got \"agendamiento\""
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        },
+        {
+          "turnIndex": 1,
+          "userMessage": "¿Puedo cambiarla para el viernes?",
+          "expected": "cancelacion_reprogramacion",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"cancelacion_reprogramacion\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        },
+        {
+          "turnIndex": 2,
+          "userMessage": "¿Pierdo el anticipo si la cambio?",
+          "expected": "cancelacion_reprogramacion",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"cancelacion_reprogramacion\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_phone_contact",
+      "description": "Paciente pide teléfono, debe dar datos de contacto",
+      "failedTurns": [
+        {
+          "turnIndex": 0,
+          "userMessage": "¿Cuál es el número de la clínica?",
+          "expected": "faq_contacto",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"faq_contacto\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_multi_service",
+      "description": "Paciente interesado en múltiples servicios, debe manejar memoria de intereses",
+      "failedTurns": [
+        {
+          "turnIndex": 0,
+          "userMessage": "Me interesa el botox",
+          "expected": "precio",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"precio\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        },
+        {
+          "turnIndex": 1,
+          "userMessage": "También el ácido hialurónico",
+          "expected": "precio",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"precio\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [
+            "Expected memory service \"botox,ácido hialurónico\", got \"Ácido hialurónico\""
+          ],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_strong_emotion_frustration",
+      "description": "Paciente frustrado porque nadie responde, debe escalar",
+      "failedTurns": [
+        {
+          "turnIndex": 1,
+          "userMessage": "Quiero que alguien me llame ya",
+          "expected": "hablar_humano",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"hablar_humano\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_legal_threat",
+      "description": "Paciente amenaza con acciones legales, debe escalar inmediatamente",
+      "failedTurns": [
+        {
+          "turnIndex": 1,
+          "userMessage": "Necesito los datos de su abogado",
+          "expected": "hablar_humano",
+          "actual": "queja",
+          "confidence": 0.9,
+          "errors": [
+            "Expected intent \"hablar_humano\", got \"queja\""
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_availability_check",
+      "description": "Paciente verifica disponibilidad antes de agendar",
+      "failedTurns": [
+        {
+          "turnIndex": 1,
+          "userMessage": "¿Cuál es el día más pronto?",
+          "expected": "agendamiento",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"agendamiento\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_third_party_booking",
+      "description": "Paciente quiere agendar para otra persona",
+      "failedTurns": [
+        {
+          "turnIndex": 1,
+          "userMessage": "Ella se llama Gloria, su número es 3007654321",
+          "expected": "agendamiento",
+          "actual": "charla",
+          "confidence": 0.85,
+          "errors": [
+            "Expected intent \"agendamiento\", got \"charla\""
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": "DOMAIN-ROUTER: comparte numero con código país"
+        }
+      ]
+    },
+    {
+      "id": "gold_memory_carryover_city",
+      "description": "Paciente mencionó ciudad antes, V2 debe recordar en precio",
+      "failedTurns": [
+        {
+          "turnIndex": 0,
+          "userMessage": "Soy de Bogotá",
+          "expected": "charla",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"charla\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_urgent_vs_nonurgent",
+      "description": "Paciente deja claro que no es urgente",
+      "failedTurns": [
+        {
+          "turnIndex": 0,
+          "userMessage": "No es nada urgente, solo quiero info",
+          "expected": "faq_servicios",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"faq_servicios\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        },
+        {
+          "turnIndex": 1,
+          "userMessage": "Tengo una pequeña molestia pero puede esperar",
+          "expected": "dudas_medicas",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"dudas_medicas\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_seven_day_checkin",
+      "description": "Paciente vuelve a los 7 días para seguimiento post-tratamiento",
+      "failedTurns": [
+        {
+          "turnIndex": 1,
+          "userMessage": "Me está saliendo un moretón, ¿es normal?",
+          "expected": "dudas_medicas",
+          "actual": "post_tratamiento",
+          "confidence": 0.9,
+          "errors": [
+            "Expected intent \"dudas_medicas\", got \"post_tratamiento\""
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": "PRE-ROUTER: post-treatment signal — hematoma"
+        }
+      ]
+    },
+    {
+      "id": "gold_insurance_coverage",
+      "description": "Paciente pregunta si seguro cubre tratamientos estéticos",
+      "failedTurns": [
+        {
+          "turnIndex": 1,
+          "userMessage": "Tengo Sura, ¿tienen convenio?",
+          "expected": "pago",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"pago\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_existing_return",
+      "description": "Paciente que ya visitó la clínica vuelve a consultar",
+      "failedTurns": [
+        {
+          "turnIndex": 0,
+          "userMessage": "Ya fui paciente antes, me hice radiofrecuencia",
+          "expected": "post_tratamiento",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"post_tratamiento\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_whatsapp_contact",
+      "description": "Paciente pide contacto por WhatsApp",
+      "failedTurns": [
+        {
+          "turnIndex": 0,
+          "userMessage": "¿Tienen WhatsApp?",
+          "expected": "faq_contacto",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"faq_contacto\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_financial_options",
+      "description": "Paciente explora opciones de financiación larga",
+      "failedTurns": [
+        {
+          "turnIndex": 1,
+          "userMessage": "¿Tienen crédito con alguna entidad?",
+          "expected": "pago",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"pago\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_out_of_hours",
+      "description": "Paciente escribe fuera del horario de atención",
+      "failedTurns": [
+        {
+          "turnIndex": 0,
+          "userMessage": "¿Están abiertos ahora?",
+          "expected": "horarios",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"horarios\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_multiple_corrections",
+      "description": "Paciente corrige información varias veces, debe seguirle el ritmo",
+      "failedTurns": [
+        {
+          "turnIndex": 1,
+          "userMessage": "En realidad soy de Bogotá",
+          "expected": "charla",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"charla\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_specific_doctor",
+      "description": "Paciente pide cita con doctor específico",
+      "failedTurns": [
+        {
+          "turnIndex": 0,
+          "userMessage": "Quiero cita con el doctor Elkin",
+          "expected": "agendamiento",
+          "actual": "dudas_medicas",
+          "confidence": 0.88,
+          "errors": [
+            "Expected intent \"agendamiento\", got \"dudas_medicas\""
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        },
+        {
+          "turnIndex": 1,
+          "userMessage": "¿Cuándo tiene disponible?",
+          "expected": "agendamiento",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"agendamiento\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    },
+    {
+      "id": "gold_results_expectations",
+      "description": "Paciente pregunta sobre resultados realistas",
+      "failedTurns": [
+        {
+          "turnIndex": 0,
+          "userMessage": "¿Puedo quedar como nueva?",
+          "expected": "resultados_esperados",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"resultados_esperados\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        },
+        {
+          "turnIndex": 1,
+          "userMessage": "¿Los resultados son naturales?",
+          "expected": "resultados_esperados",
+          "actual": "otro",
+          "confidence": 0.3,
+          "errors": [
+            "Expected intent \"resultados_esperados\", got \"otro\"",
+            "Low confidence: 0.300 < 0.7"
+          ],
+          "memoryErrors": [],
+          "funnelErrors": [],
+          "nbaErrors": [],
+          "trace": ""
+        }
+      ]
+    }
+  ]
+}

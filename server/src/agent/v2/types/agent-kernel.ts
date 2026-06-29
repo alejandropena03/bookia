@@ -1,4 +1,5 @@
 import type { DecisionTrace } from "./decision-trace.js";
+import type { MediaItem } from "./agent-intent.js";
 
 export interface AgentKernelInput {
   tenantId: string;
@@ -21,6 +22,7 @@ export interface AgentKernelOutput {
     text: string;
     route: "canned" | "flow" | "llm" | "hybrid" | "handoff" | "refusal";
     messageId?: string;
+    media?: MediaItem[];
   };
   decisionTrace: DecisionTrace;
   memoryUpdates: MemoryUpdate[];

@@ -226,7 +226,8 @@ dashboard.get("/profile", async (c) => {
   const { tenantId } = ctx(c);
   return withTenant(tenantId, async (sql) => {
     const [profile] = await sql`
-      SELECT persona, rules, hours, booking_mode, system_prompt_overrides
+      SELECT persona, rules, hours, booking_mode, system_prompt_overrides,
+             canned_responses, off_hours_message, google_maps_url
       FROM business_profile WHERE tenant_id = ${tenantId}
       LIMIT 1
     `;
@@ -242,6 +243,11 @@ dashboard.put("/profile", async (c) => {
     persona?: string;
     booking_mode?: string;
     hours?: Record<string, { open: string | null; close: string | null }>;
+    rules?: Record<string, unknown>;
+    system_prompt_overrides?: string | null;
+    canned_responses?: Record<string, string>;
+    off_hours_message?: string | null;
+    google_maps_url?: string | null;
   }>();
   return withTenant(tenantId, async (sql) => {
     if (body.persona !== undefined)
@@ -250,6 +256,16 @@ dashboard.put("/profile", async (c) => {
       await sql`UPDATE business_profile SET booking_mode = ${body.booking_mode} WHERE tenant_id = ${tenantId}`;
     if (body.hours !== undefined)
       await sql`UPDATE business_profile SET hours = ${sql.json(body.hours)} WHERE tenant_id = ${tenantId}`;
+    if (body.rules !== undefined)
+      await sql`UPDATE business_profile SET rules = ${sql.json(body.rules as unknown as Record<string, string>)} WHERE tenant_id = ${tenantId}`;
+    if (body.system_prompt_overrides !== undefined)
+      await sql`UPDATE business_profile SET system_prompt_overrides = ${body.system_prompt_overrides} WHERE tenant_id = ${tenantId}`;
+    if (body.canned_responses !== undefined)
+      await sql`UPDATE business_profile SET canned_responses = ${sql.json(body.canned_responses)} WHERE tenant_id = ${tenantId}`;
+    if (body.off_hours_message !== undefined)
+      await sql`UPDATE business_profile SET off_hours_message = ${body.off_hours_message} WHERE tenant_id = ${tenantId}`;
+    if (body.google_maps_url !== undefined)
+      await sql`UPDATE business_profile SET google_maps_url = ${body.google_maps_url} WHERE tenant_id = ${tenantId}`;
     return c.json({ success: true });
   });
 });
