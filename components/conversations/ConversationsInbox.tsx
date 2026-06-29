@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { formatRelativeTime } from "@/lib/time"
 import { Button } from "@/components/ui/button"
-import { replyConversation } from "@/lib/api"
+import { replyConversation, takeoverConversation } from "@/lib/api"
 
 const CANAL_STYLES: Record<string, string> = {
   whatsapp: "bg-green-50 text-green-700",
@@ -72,6 +72,10 @@ export default function ConversationsInbox({ conversations, activeConversation }
   const [replyText, setReplyText] = useState("")
   const [sending, setSending] = useState(false)
   const [sentMsg, setSentMsg] = useState(false)
+  const [escalating, setEscalating] = useState(false)
+  const [escalatedIds, setEscalatedIds] = useState<Set<string>>(new Set())
+
+  const getEstado = (conv: Conversation) => escalatedIds.has(conv.id) ? "human_active" : conv.estado
 
   const filtered = conversations.filter((c) => {
     const matchSearch = c.contact_name.toLowerCase().includes(search.toLowerCase())
@@ -105,6 +109,18 @@ export default function ConversationsInbox({ conversations, activeConversation }
       // fallback silently
     }
     setSending(false)
+  }
+
+  async function handleEscalate() {
+    if (!activeConversation || escalating) return
+    setEscalating(true)
+    try {
+      await takeoverConversation(activeConversation.id)
+      setEscalatedIds(prev => new Set(prev).add(activeConversation.id))
+    } catch {
+      // fallback silently
+    }
+    setEscalating(false)
   }
 
   return (
@@ -150,7 +166,7 @@ export default function ConversationsInbox({ conversations, activeConversation }
                   </div>
                   <div className="flex items-center gap-1.5 mb-1">
                     <Badge className={`text-[10px] py-0 px-1 border-0 ${CANAL_STYLES[conv.canal] ?? "bg-gray-50 text-gray-600"}`}>{conv.canal}</Badge>
-                    <Badge className={`text-[10px] py-0 px-1 border-0 ${STATUS_STYLES[conv.estado] ?? "bg-gray-50 text-gray-500"}`}>{STATUS_LABELS[conv.estado] ?? conv.estado}</Badge>
+                    <Badge className={`text-[10px] py-0 px-1 border-0 ${STATUS_STYLES[getEstado(conv)] ?? "bg-gray-50 text-gray-500"}`}>{STATUS_LABELS[getEstado(conv)] ?? getEstado(conv)}</Badge>
                   </div>
                   <p className="text-xs app-text-mid truncate">{last?.content?.slice(0, 50)}...</p>
                 </div>
@@ -177,7 +193,7 @@ export default function ConversationsInbox({ conversations, activeConversation }
                 <span className="font-semibold app-text-hi text-sm">{activeConversation.contact_name}</span>
                 <Badge className={`text-xs py-0 px-1.5 border-0 ${CANAL_STYLES[activeConversation.canal] ?? "bg-gray-50 text-gray-600"}`}>{activeConversation.canal}</Badge>
               </div>
-              <span className={`text-xs ${STATUS_STYLES[activeConversation.estado]?.replace("bg-", "text-").replace("-50", "-600") ?? "text-gray-500"}`}>{STATUS_LABELS[activeConversation.estado] ?? activeConversation.estado}</span>
+              <span className={`text-xs ${STATUS_STYLES[getEstado(activeConversation)]?.replace("bg-", "text-").replace("-50", "-600") ?? "text-gray-500"}`}>{STATUS_LABELS[getEstado(activeConversation)] ?? getEstado(activeConversation)}</span>
             </div>
           </div>
 
@@ -234,8 +250,8 @@ export default function ConversationsInbox({ conversations, activeConversation }
               >
                 Editar
               </Button>
-              <Button size="sm" variant="outline" className="h-7 text-xs text-red-500 border-red-200 hover:bg-red-50" aria-label="Escalar conversación a humano">
-                Escalar
+              <Button size="sm" variant="outline" className="h-7 text-xs text-red-500 border-red-200 hover:bg-red-50" onClick={handleEscalate} disabled={escalating} aria-label="Escalar conversación a humano">
+                {escalating ? "..." : "Escalar"}
               </Button>
                         </div>
                       )}
@@ -295,7 +311,7 @@ export default function ConversationsInbox({ conversations, activeConversation }
           <div className="space-y-3">
             <div>
               <p className="text-xs app-text-lo uppercase font-medium mb-1">Estado</p>
-              <Badge className={`text-xs border-0 ${STATUS_STYLES[activeConversation.estado] ?? "bg-gray-50 text-gray-500"}`}>{STATUS_LABELS[activeConversation.estado] ?? activeConversation.estado}</Badge>
+              <Badge className={`text-xs border-0 ${STATUS_STYLES[getEstado(activeConversation)] ?? "bg-gray-50 text-gray-500"}`}>{STATUS_LABELS[getEstado(activeConversation)] ?? getEstado(activeConversation)}</Badge>
             </div>
             <div>
               <p className="text-xs app-text-lo uppercase font-medium mb-1">Servicio</p>
