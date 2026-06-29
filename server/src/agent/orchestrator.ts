@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { isAgentKernelV2 } from "../env.js";
 import { withTenant } from "../lib/tenant-db.js";
 import { isOutOfHours } from "../lib/hours.js";
 import { evaluateFlow, startFlow, FlowDefinition, CatalogItem, formatPrice } from "../flows/engine.js";
@@ -425,7 +426,7 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
   return withTenant(req.tenantId, async (sql) => {
     const { text, conversationId, contactName, tenantSlug } = req;
 
-    if (process.env.AGENT_KERNEL_V2 === 'true') {
+    if (isAgentKernelV2()) {
       const { processMessageV2 } = await import("./v2/core/v2-adapter.js");
       const v2Result = await processMessageV2({ ...req, sql });
       // A2: persist outbound + emit SSE (parity with V1's persistAndEmitSegmented).

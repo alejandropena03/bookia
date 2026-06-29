@@ -48,3 +48,12 @@ function parseEnv() {
 
 export const env = parseEnv();
 export type Env = z.infer<typeof envSchema>;
+
+/**
+ * Runtime V2 kernel toggle. Reads process.env dynamically so tests can override
+ * per-suite (vitest sets AGENT_KERNEL_V2=false globally; v2-persistence sets true).
+ * Default: true (north star — V2 is the active kernel). Explicit "false" rolls back to V1.
+ */
+export function isAgentKernelV2(): boolean {
+  return process.env.AGENT_KERNEL_V2 !== "false";
+}

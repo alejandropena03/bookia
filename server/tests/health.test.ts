@@ -10,6 +10,8 @@ describe("GET /health", () => {
     expect(body).toHaveProperty("status");
     expect(body).toHaveProperty("db");
     expect(body).toHaveProperty("timestamp");
+    expect(body).toHaveProperty("agentKernel");
+    expect(["v1", "v2"]).toContain(body.agentKernel);
   });
 
   it("returns 200 for root", async () => {

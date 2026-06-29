@@ -4,7 +4,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { env } from "./env.js";
+import { env, isAgentKernelV2 } from "./env.js";
 import { checkDbConnection, db } from "./db/client.js";
 import { sim } from "./api/sim.js";
 import { webhooks } from "./api/webhooks.js";
@@ -47,6 +47,7 @@ app.get("/health", async (c) => {
       catalogItems: catalogCount,
       conversations: convCount,
       llmProvider: env.LLM_PROVIDER,
+      agentKernel: isAgentKernelV2() ? "v2" : "v1",
       timestamp: new Date().toISOString(),
     },
     statusCode
