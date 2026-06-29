@@ -1,3 +1,9 @@
+export interface MarketPrice {
+  price: string;
+  promoPrice?: string;
+  promoLabel?: string;
+}
+
 export interface CatalogItem {
   name: string;
   description: string;
@@ -8,6 +14,7 @@ export interface CatalogItem {
   cities: string[];
   imageKeys: string[];
   promoLabel?: string;
+  prices?: Record<string, MarketPrice>;
 }
 
 const CO_CITIES = ["Medellín", "Bogotá", "Cali", "Bucaramanga", "Barranquilla"];
@@ -24,6 +31,11 @@ export const SANTA_MARIA_CATALOG: CatalogItem[] = [
     durationMinutes: 30,
     cities: ALL_CITIES,
     imageKeys: [],
+    prices: {
+      COP: { price: "50000" },
+      USD: { price: "80" },
+      EUR: { price: "80" },
+    },
   },
   {
     name: "Botox por zona",
@@ -46,6 +58,11 @@ export const SANTA_MARIA_CATALOG: CatalogItem[] = [
     durationMinutes: 30,
     cities: ALL_CITIES,
     imageKeys: [],
+    prices: {
+      COP: { price: "1580000" },
+      USD: { price: "900" },
+      EUR: { price: "899" },
+    },
   },
   {
     name: "Russian Lips",
@@ -57,6 +74,12 @@ export const SANTA_MARIA_CATALOG: CatalogItem[] = [
     durationMinutes: 30,
     cities: ALL_CITIES,
     imageKeys: ["image6.jpeg", "image7.jpeg"],
+    prices: {
+      COP: { price: "820000" },
+      MXN: { price: "8500" },
+      USD: { price: "499" },
+      EUR: { price: "400" },
+    },
   },
   {
     name: "Doll Lips",
@@ -68,6 +91,12 @@ export const SANTA_MARIA_CATALOG: CatalogItem[] = [
     durationMinutes: 30,
     cities: ALL_CITIES,
     imageKeys: ["image8.jpeg", "image9.jpeg", "image14.jpeg", "image15.jpeg"],
+    prices: {
+      COP: { price: "1640000" },
+      MXN: { price: "16000" },
+      USD: { price: "899" },
+      EUR: { price: "800" },
+    },
   },
   {
     name: "Red Lips",
@@ -79,6 +108,12 @@ export const SANTA_MARIA_CATALOG: CatalogItem[] = [
     durationMinutes: 30,
     cities: ALL_CITIES,
     imageKeys: ["image5.jpeg", "image10.jpeg", "image11.jpeg", "image12.jpeg"],
+    prices: {
+      COP: { price: "670000" },
+      MXN: { price: "6500" },
+      USD: { price: "350" },
+      EUR: { price: "300" },
+    },
   },
   {
     name: "Full Face — Ácido Hialurónico",
@@ -90,6 +125,12 @@ export const SANTA_MARIA_CATALOG: CatalogItem[] = [
     durationMinutes: 60,
     cities: ALL_CITIES,
     imageKeys: ["image16.jpeg", "image28.jpeg"],
+    prices: {
+      COP: { price: "2999000" },
+      MXN: { price: "20000" },
+      USD: { price: "1500" },
+      EUR: { price: "1390" },
+    },
   },
   {
     name: "Full Face — Radiesse",
@@ -101,6 +142,12 @@ export const SANTA_MARIA_CATALOG: CatalogItem[] = [
     durationMinutes: 60,
     cities: ALL_CITIES,
     imageKeys: ["image23.jpeg"],
+    prices: {
+      COP: { price: "3999000" },
+      MXN: { price: "27000" },
+      USD: { price: "1800" },
+      EUR: { price: "1800" },
+    },
   },
   {
     name: "Full Face — Sculptra",
@@ -112,6 +159,12 @@ export const SANTA_MARIA_CATALOG: CatalogItem[] = [
     durationMinutes: 60,
     cities: ALL_CITIES,
     imageKeys: ["image24.jpeg"],
+    prices: {
+      COP: { price: "3999000" },
+      MXN: { price: "27000" },
+      USD: { price: "1800" },
+      EUR: { price: "1800" },
+    },
   },
   {
     name: "Radiesse (por vial)",
@@ -156,6 +209,11 @@ export const SANTA_MARIA_CATALOG: CatalogItem[] = [
     durationMinutes: 60,
     cities: CO_CITIES,
     imageKeys: ["image27.jpeg"],
+    prices: {
+      COP: { price: "1899000" },
+      USD: { price: "999" },
+      EUR: { price: "999" },
+    },
   },
   {
     name: "PNDR — Esperma de Salmón",
@@ -167,17 +225,25 @@ export const SANTA_MARIA_CATALOG: CatalogItem[] = [
     durationMinutes: 30,
     cities: CO_CITIES,
     imageKeys: [],
+    prices: {
+      COP: { price: "800000", promoPrice: "499000", promoLabel: "Lanzamiento" },
+      MXN: { price: "5700", promoPrice: "3800", promoLabel: "Lanzamiento" },
+    },
   },
   {
     name: "Rinomodelación",
     description:
-      "Rinomodelación sin cirugía. Procedimiento no quirúrgico en el que utilizamos ácido hialurónico para mejorar la forma de la nariz. Nos permite perfilar el dorso, levantar la punta y corregir pequeñas asimetrías, logrando un resultado más armónico y natural sin necesidad de cirugía. Tratamiento rápido, con resultados inmediatos y mínima incapacidad. Valor en MXN: $8.500.",
+      "Rinomodelación sin cirugía. Procedimiento no quirúrgico en el que utilizamos ácido hialurónico para mejorar la forma de la nariz. Nos permite perfilar el dorso, levantar la punta y corregir pequeñas asimetrías, logrando un resultado más armónico y natural sin necesidad de cirugía. Tratamiento rápido, con resultados inmediatos y mínima incapacidad.",
     price: "820000",
     currency: "COP",
     category: "facial",
     durationMinutes: 30,
     cities: ALL_CITIES,
     imageKeys: ["image25.jpeg"],
+    prices: {
+      COP: { price: "820000" },
+      MXN: { price: "8500" },
+    },
   },
   {
     name: "Marcación mandibular",
@@ -189,6 +255,11 @@ export const SANTA_MARIA_CATALOG: CatalogItem[] = [
     durationMinutes: 30,
     cities: ALL_CITIES,
     imageKeys: ["image17.jpeg"],
+    prices: {
+      COP: { price: "1640000" },
+      USD: { price: "899" },
+      EUR: { price: "800" },
+    },
   },
   {
     name: "Proyección de mentón",
@@ -288,6 +359,11 @@ export const SANTA_MARIA_CATALOG: CatalogItem[] = [
     durationMinutes: 15,
     cities: CO_CITIES,
     imageKeys: [],
+    prices: {
+      COP: { price: "530000" },
+      USD: { price: "300" },
+      EUR: { price: "300" },
+    },
   },
   {
     name: "Mesobotox para acné",
