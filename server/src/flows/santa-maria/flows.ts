@@ -93,3 +93,30 @@ export const FIRST_CONTACT_FLOW: FlowDefinition = {
     },
   },
 };
+
+export const PRECIO_FLOW: FlowDefinition = {
+  initial: "ask_city",
+  states: {
+    ask_city: {
+      prompt:
+        "¡Claro! Para mostrarte los precios exactos según tu ubicación, cuéntame ¿desde qué ciudad nos escribes? 😊",
+      collects: "city",
+      next: "ask_service",
+      description: "Pedir ciudad para filtrar precios por moneda (PR9)",
+    },
+    ask_service: {
+      prompt:
+        "¿Cuál servicio te gustaría conocer? Tenemos valoración, botox, rellenos, rinomodelación, armonización facial y más 😊",
+      collects: "service",
+      next: "show_price",
+      description: "Pedir servicio sin menú de botones (PR9)",
+    },
+    show_price: {
+      prompt:
+        "El tratamiento de {service_name} tiene un valor de {service_price}.\n\n¿Te gustaría agendar una valoración personalizada con el doctor? 😊",
+      collects: null,
+      next: null,
+      description: "Mostrar precio + CTA agendamiento — estado terminal (PR9)",
+    },
+  },
+};

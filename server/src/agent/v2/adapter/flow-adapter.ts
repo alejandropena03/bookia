@@ -5,6 +5,7 @@ import { type MemoryService } from "../memory/memory-service.js";
 const INTENT_TO_FLOW_KEY: Record<string, string> = {
   saludo: "first_contact",
   agendamiento: "agendamiento",
+  precio: "precio",
 };
 
 export interface FlowAdapterResult {
@@ -69,6 +70,25 @@ export class FlowAdapter {
     return flow.definition as unknown as FlowDefinition;
   }
 
+  private advanceKnownSlots(
+    definition: FlowDefinition,
+    flowContext: FlowContext,
+    catalogItems: CatalogItem[],
+  ): FlowResult {
+    let context = { ...flowContext };
+    let result: FlowResult = { response: "", context, completed: false };
+    let safety = 5;
+    while (safety-- > 0) {
+      const state = definition.states[context.currentState];
+      if (!state?.collects) break;
+      const knownValue = context.slots[state.collects];
+      if (!knownValue) break;
+      result = evaluateFlow(definition, context, knownValue, catalogItems);
+      context = result.context;
+    }
+    return result;
+  }
+
   private async handleResume(
     active: { flowKey: string; currentState: string; slots: Record<string, string> },
     text: string,
@@ -94,19 +114,25 @@ export class FlowAdapter {
 
     await this.memoryService.onDataCollected(tenantId, contactId, conversationId, result.context.slots);
 
-    if (result.completed) {
-      await this.memoryService.onFlowCompleted(tenantId, contactId, conversationId, active.flowKey, result.context.slots);
-      await this.maybeCreateBooking(tenantId, conversationId, contactId, active.flowKey, result.context.slots);
+    const slots = await this.memoryService.hydrateFlowSlots(tenantId, contactId, result.context.slots);
+    let flowContext: FlowContext = { flowKey: active.flowKey, currentState: result.context.currentState, slots };
+    const advancedResult = this.advanceKnownSlots(definition, flowContext, this.catalogItems);
+    flowContext = advancedResult.context;
+    const finalResult = advancedResult.response ? advancedResult : result;
+
+    if (finalResult.completed) {
+      await this.memoryService.onFlowCompleted(tenantId, contactId, conversationId, active.flowKey, flowContext.slots);
+      await this.maybeCreateBooking(tenantId, conversationId, contactId, active.flowKey, flowContext.slots);
       await this.sql`DELETE FROM conversation_state WHERE conversation_id = ${conversationId}`;
     } else {
       await this.sql`
         UPDATE conversation_state
-        SET current_state = ${result.context.currentState}, slots = ${this.sql.json(result.context.slots)}, updated_at = NOW()
+        SET current_state = ${flowContext.currentState}, slots = ${this.sql.json(flowContext.slots)}, updated_at = NOW()
         WHERE conversation_id = ${conversationId}
       `;
     }
 
-    return { response: result.response, route: "flow" };
+    return { response: finalResult.response, route: "flow" };
   }
 
   private async handleStart(
@@ -124,20 +150,13 @@ export class FlowAdapter {
     const result = startFlow(definition, contactName, this.catalogItems);
     const slots = await this.memoryService.hydrateFlowSlots(tenantId, contactId, result.context.slots);
 
-    // Auto-advance through states whose collected data is already known from memory
     let flowContext: FlowContext = { flowKey, currentState: result.context.currentState, slots };
-    let flowResult: FlowResult = { ...result, context: flowContext };
-    let safety = 5;
-    while (safety-- > 0 && !flowResult.completed) {
-      const state = definition.states[flowContext.currentState];
-      if (!state?.collects) break;
-      const knownValue = flowContext.slots[state.collects];
-      if (!knownValue) break;
-      flowResult = evaluateFlow(definition, flowContext, knownValue, this.catalogItems);
-      flowContext = flowResult.context;
-    }
+    const flowResult = this.advanceKnownSlots(definition, flowContext, this.catalogItems);
+    flowContext = flowResult.context;
+    const finalResponse = flowResult.response || result.response;
+    const isCompleted = flowResult.response ? flowResult.completed : result.completed;
 
-    if (!flowResult.completed) {
+    if (!isCompleted) {
       await this.sql`
         INSERT INTO conversation_state (tenant_id, conversation_id, flow_key, current_state, slots)
         VALUES (${tenantId}, ${conversationId}, ${flowKey}, ${flowContext.currentState}, ${this.sql.json(flowContext.slots)})
@@ -146,7 +165,7 @@ export class FlowAdapter {
       `;
     }
 
-    return { response: flowResult.response, route: "flow" };
+    return { response: finalResponse, route: "flow" };
   }
 
   private async maybeCreateBooking(

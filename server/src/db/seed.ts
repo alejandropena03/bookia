@@ -3,7 +3,7 @@ import { tenants, channelAccounts, catalogItems, flows, users } from "./schema.j
 import { sql } from "drizzle-orm";
 import { SANTA_MARIA_CATALOG } from "../flows/santa-maria/catalog.js";
 import { SANTA_MARIA_CANNED, SANTA_MARIA_ESCALATION_RULES } from "../flows/santa-maria/canned-responses.js";
-import { AGENDAMIENTO_FLOW, FIRST_CONTACT_FLOW } from "../flows/santa-maria/flows.js";
+import { AGENDAMIENTO_FLOW, FIRST_CONTACT_FLOW, PRECIO_FLOW } from "../flows/santa-maria/flows.js";
 import { hashPassword } from "../auth/password.js";
 
 function buildProfileData() {
@@ -110,6 +110,7 @@ async function seed() {
   const flowDefs = [
     { key: "agendamiento", name: "Flujo de agendamiento — Santa María", def: AGENDAMIENTO_FLOW },
     { key: "first_contact", name: "Saludo inicial natural — Santa María", def: FIRST_CONTACT_FLOW },
+    { key: "precio", name: "Flujo de precios — Santa María", def: PRECIO_FLOW },
   ];
   for (const f of flowDefs) {
     const [ef] = await queryClient`SELECT id FROM flows WHERE tenant_id = ${tenantId} AND key = ${f.key} LIMIT 1`;
@@ -122,7 +123,7 @@ async function seed() {
       `;
     }
   }
-  console.log('✓ Flows synced (agendamiento + first_contact)');
+  console.log('✓ Flows synced (agendamiento + first_contact + precio)');
 
   const adminHash = await hashPassword("bookia2024");
   if (isNewTenant) {
