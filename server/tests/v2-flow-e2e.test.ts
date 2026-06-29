@@ -79,8 +79,13 @@ function createMockSql() {
     const joined = strings.reduce((acc, s, i) => acc + s + (i < values.length ? `$${i}` : ""), "");
 
     if (matchQuery(joined, "INSERT INTO bookings")) {
-      const bookingSlots = values.find((v: any) => v && typeof v === "object" && !Array.isArray(v));
-      const booking = { id: `booking-${bookingStore.length + 1}`, ...(bookingSlots || {}) };
+      const cols = joined.match(/\(([^)]+)\)/)?.at(1)?.split(",").map(c => c.trim().replace(/"/g, "")) ?? [];
+      const booking: any = { id: `booking-${bookingStore.length + 1}` };
+      cols.forEach((col: string, i: number) => {
+        const v = values[i];
+        if (typeof v === "object" && v !== null && !Array.isArray(v)) Object.assign(booking, v);
+        else if (typeof v === "string" || typeof v === "number" || v === null) booking[col] = v;
+      });
       bookingStore.push(booking);
       return [booking];
     }
@@ -336,13 +341,15 @@ describe("PR8.1 — Flow Adapter E2E", () => {
       expect(mockSql.stateStore.has("conv-full")).toBe(false);
       // Funnel advanced
       mem = await memoryService.getUserContext("t1", "c1");
-      expect(mem.paymentStatus).toBe("sent_proof");
+      expect(mem.paymentStatus).toBe("confirmed");
 
       // Booking created
       expect(mockSql.bookingStore.length).toBeGreaterThanOrEqual(1);
       const booking = mockSql.bookingStore[mockSql.bookingStore.length - 1];
       expect(booking.service).toBe("Botox");
       expect(booking.city).toBe("Bogotá");
+      expect(booking.status).toBe("confirmed");
+      expect(booking.payment_status).toBe("paid");
     });
   });
 

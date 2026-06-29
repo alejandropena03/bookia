@@ -185,8 +185,30 @@ export class FlowAdapter {
         c.name.toLowerCase().includes(serviceName.toLowerCase()),
     );
 
+    const hasPaymentProof = !!slots.payment_proof;
+    const bookingStatus = hasPaymentProof ? "confirmed" : "pending";
+    const paymentStatus = hasPaymentProof ? "paid" : "pending";
+
+    const [existing] = await this.sql`
+      SELECT id, status FROM bookings WHERE conversation_id = ${conversationId} LIMIT 1
+    `;
+
+    if (existing) {
+      if (hasPaymentProof && existing.status === "pending") {
+        await this.sql`
+          UPDATE bookings
+          SET status = 'confirmed', payment_status = 'paid', service_name = ${serviceName},
+              service_price = ${selected ? selected.price : null}, city = ${slots.city ?? null},
+              datetime = ${slots.datetime ?? null}, data = ${this.sql.json(slots)}
+          WHERE id = ${existing.id}
+        `;
+        await this.memoryService.onBookingConfirmed(tenantId, contactId, conversationId);
+      }
+      return;
+    }
+
     await this.sql`
-      INSERT INTO bookings (tenant_id, conversation_id, contact_id, service_name, service_price, city, datetime, status, data)
+      INSERT INTO bookings (tenant_id, conversation_id, contact_id, service_name, service_price, city, datetime, status, payment_status, data)
       VALUES (
         ${tenantId},
         ${conversationId},
@@ -195,10 +217,14 @@ export class FlowAdapter {
         ${selected ? selected.price : null},
         ${slots.city ?? null},
         ${slots.datetime ?? null},
-        'pending',
+        ${bookingStatus},
+        ${paymentStatus},
         ${this.sql.json(slots)}
       )
-      ON CONFLICT DO NOTHING
     `;
+
+    if (hasPaymentProof) {
+      await this.memoryService.onBookingConfirmed(tenantId, contactId, conversationId);
+    }
   }
 }
