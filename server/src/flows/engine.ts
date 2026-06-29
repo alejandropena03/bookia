@@ -79,8 +79,33 @@ function buildTemplateContext(slots: Record<string, string>, catalogItems?: Cata
     return cleanName.includes(cn) || cn.includes(cleanName);
   });
 
+  const city = slots.city || slots.ciudad || "";
+  const market = resolveMarketFromCity(city);
+
+  // Check for promo pricing based on market
+  const anyPrices = (selected as Record<string, unknown>)?.prices as Record<string, { price: string; promoPrice?: string; promoLabel?: string }> | undefined;
+  let servicePromoInfo = "";
+  if (selected && anyPrices?.[market]?.promoPrice) {
+    const mp = anyPrices[market]!;
+    const regularStr = formatPrice(mp.price, market);
+    const promoStr = formatPrice(mp.promoPrice, market);
+    const label = mp.promoLabel ? ` (${mp.promoLabel})` : "";
+    servicePromoInfo = `\n\n🎉 ¡Tenemos una promoción activa${label}! Precio regular ${regularStr} — ahora a solo ${promoStr}.`;
+  } else if (selected && anyPrices) {
+    // Check any market for promo
+    for (const [m, mp] of Object.entries(anyPrices)) {
+      if (mp.promoPrice) {
+        const regularStr = formatPrice(mp.price, m);
+        const promoStr = formatPrice(mp.promoPrice, m);
+        const label = mp.promoLabel ? ` (${mp.promoLabel})` : "";
+        servicePromoInfo = `\n\n🎉 ¡Tenemos una promoción activa${label}! Precio regular ${regularStr} — ahora a solo ${promoStr} (aplica en mercados seleccionados).`;
+        break;
+      }
+    }
+  }
+
   // Filter catalog by city slot for catalog_list
-  const cityFilter = (slots.city || slots.ciudad || "").toLowerCase().trim();
+  const cityFilter = city.toLowerCase().trim();
   const cityFiltered = catalog.filter((c) => {
     if (!cityFilter || !c.cities || c.cities.length === 0) return true;
     return c.cities.some((ct) => ct.toLowerCase().trim() === cityFilter);
@@ -98,13 +123,28 @@ function buildTemplateContext(slots: Record<string, string>, catalogItems?: Cata
     return v;
   }
 
+  function resolveMarketFromCity(c: string): string {
+    const key = c.toLowerCase().trim();
+    const map: Record<string, string> = {
+      "medellín": "COP", medellin: "COP",
+      "bogotá": "COP", bogota: "COP",
+      cali: "COP",
+      bucaramanga: "COP",
+      barranquilla: "COP",
+      cdmx: "MXN", "ciudad de méxico": "MXN", "méxico": "MXN", mexico: "MXN",
+      miami: "USD",
+    };
+    return map[key] || "COP";
+  }
+
   return {
     ...slots,
     nombre: slots.nombre || "",
-    city: cleanSlot(slots.city || slots.ciudad || ""),
+    city: cleanSlot(city),
     service_name: selected?.name ?? cleanSlot(slots.service_name ?? slots.service ?? ""),
     service_price: selected ? formatPrice(selected.price, selected.currency) : slots.service_price ?? "",
     service_description: selected?.description ?? "",
+    service_promo_info: servicePromoInfo,
     datetime: cleanSlot(slots.datetime || ""),
     client_name: slots.client_name || slots.clientData || "",
     catalog_list: cityFiltered.length > 0

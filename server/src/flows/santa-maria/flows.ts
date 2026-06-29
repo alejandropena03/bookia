@@ -113,10 +113,10 @@ export const PRECIO_FLOW: FlowDefinition = {
     },
     show_price: {
       prompt:
-        "El tratamiento de {service_name} tiene un valor de {service_price}.\n\n¿Te gustaría agendar una valoración personalizada con el doctor? 😊",
+        "El tratamiento de {service_name} tiene un valor de {service_price}.{service_promo_info}\n\n¿Te gustaría agendar una valoración personalizada con el doctor? 😊",
       collects: null,
       next: null,
-      description: "Mostrar precio + CTA agendamiento — estado terminal (PR9)",
+      description: "Mostrar precio + promo si aplica + CTA agendamiento (PR9)",
     },
   },
 };
