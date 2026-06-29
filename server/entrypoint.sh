@@ -14,6 +14,15 @@ done
 
 echo "  Postgres ready"
 
+# Run SQL migrations before seeds (idempotent, tracked in bookia_migrations)
+echo "  Running migrations..."
+node dist/db/run-sql-migrations.js
+if [ $? -ne 0 ]; then
+  echo "  ❌ Migration failed — aborting startup"
+  exit 1
+fi
+echo "  Migrations OK"
+
 # Always ensure seed data exists (seed is idempotent)
 echo "  Running seed..."
 node dist/db/seed.js 2>/dev/null || echo "  (seed skipped — already exists)"
