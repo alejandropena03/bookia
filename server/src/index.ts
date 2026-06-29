@@ -6,6 +6,8 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { env, isAgentKernelV2 } from "./env.js";
 import { checkDbConnection, db } from "./db/client.js";
+import { hashPassword, verifyPassword } from "./auth/password.js";
+import { findUserByEmail } from "./auth/user-repository.js";
 import { sim } from "./api/sim.js";
 import { webhooks } from "./api/webhooks.js";
 import { dashboard } from "./api/dashboard.js";
@@ -67,14 +69,45 @@ app.post("/api/auth/register", async (c) => {
     const adminSql = postgres(env.DATABASE_URL, { max: 1, connect_timeout: 5 });
     const [tenant] = await adminSql`INSERT INTO tenants (name, slug) VALUES (${businessName}, ${slug}) RETURNING id`;
     await adminSql`SELECT set_config('app.current_tenant', ${tenant.id}, true)`;
+    const hash = await hashPassword(password);
     await adminSql`
-      INSERT INTO users (tenant_id, email, name, role)
-      VALUES (${tenant.id}, ${email}, ${businessName}, 'owner')
+      INSERT INTO users (tenant_id, email, password_hash, name, role)
+      VALUES (${tenant.id}, ${email}, ${hash}, ${businessName}, 'owner')
     `;
     await adminSql.end();
     return c.json({ success: true, slug, tenantId: tenant.id }, 201);
   } catch (err: any) {
     return c.json({ error: err?.message ?? "Registration failed" }, 500);
+  }
+});
+
+// ── POST /api/auth/login — DB-backed login with password hash ──
+app.post("/api/auth/login", async (c) => {
+  const { email, password } = await c.req.json<{ email: string; password: string }>();
+  if (!email || !password) return c.json({ error: "Missing email or password" }, 400);
+
+  const adminSql = postgres(env.DATABASE_URL, { max: 1, connect_timeout: 5 });
+  try {
+    const user = await findUserByEmail(adminSql, email);
+    if (!user || !user.passwordHash) {
+      return c.json({ error: "Invalid credentials" }, 401);
+    }
+    const ok = await verifyPassword(password, user.passwordHash);
+    if (!ok) return c.json({ error: "Invalid credentials" }, 401);
+
+    return c.json({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      tenantId: user.tenantId,
+      tenantSlug: user.tenantSlug,
+      businessName: user.businessName,
+    });
+  } catch (err: any) {
+    return c.json({ error: err?.message ?? "Login failed" }, 500);
+  } finally {
+    await adminSql.end();
   }
 });
 

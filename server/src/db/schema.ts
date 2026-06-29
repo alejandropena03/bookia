@@ -52,10 +52,13 @@ export const users = pgTable("users", {
   id: uuid("id").defaultRandom().primaryKey(),
   tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
   email: text("email").notNull(),
+  passwordHash: text("password_hash"),
   name: text("name").notNull(),
   role: userRoleEnum("role").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (t) => ({
+  emailUnique: uniqueIndex("users_email_unique").on(t.email),
+}));
 
 export const conversations = pgTable("conversations", {
   id: uuid("id").defaultRandom().primaryKey(),

@@ -4,6 +4,7 @@ import { sql } from "drizzle-orm";
 import { SANTA_MARIA_CATALOG } from "../flows/santa-maria/catalog.js";
 import { SANTA_MARIA_CANNED, SANTA_MARIA_ESCALATION_RULES } from "../flows/santa-maria/canned-responses.js";
 import { AGENDAMIENTO_FLOW, FIRST_CONTACT_FLOW } from "../flows/santa-maria/flows.js";
+import { hashPassword } from "../auth/password.js";
 
 function buildProfileData() {
   return {
@@ -123,16 +124,20 @@ async function seed() {
   }
   console.log('✓ Flows synced (agendamiento + first_contact)');
 
+  const adminHash = await hashPassword("bookia2024");
   if (isNewTenant) {
     await db.insert(users).values({
       tenantId: tenantId,
       email: "admin@santamaria.test",
+      passwordHash: adminHash,
       name: "Admin Santa María",
       role: "owner",
     });
-    console.log('✓ Owner user created');
+    console.log('✓ Owner user created (password: bookia2024)');
   } else {
-    console.log('✓ Owner user already exists');
+    // Ensure existing admin has a password hash (migration 0012 added column)
+    await db.execute(sql`UPDATE users SET password_hash = ${adminHash} WHERE email = 'admin@santamaria.test' AND password_hash IS NULL`);
+    console.log('✓ Owner user ensured (password: bookia2024)');
   }
 
   const [{ count: t }] = await db.execute(sql`SELECT COUNT(*)::text AS count FROM tenants`);

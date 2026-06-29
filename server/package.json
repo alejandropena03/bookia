@@ -31,6 +31,8 @@
   "dependencies": {
     "@hono/node-server": "^2.0.4",
     "@hono/zod-validator": "^0.4.3",
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.40.1",
     "hono": "^4.7.8",

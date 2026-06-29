@@ -1,12 +1,7 @@
 import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
-import { readFileSync } from "fs"
-import path from "path"
 
-function getUsers() {
-  const filePath = path.join(process.cwd(), "data", "users.json")
-  return JSON.parse(readFileSync(filePath, "utf-8"))
-}
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -16,40 +11,47 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Contraseña", type: "password" },
       },
       async authorize(credentials) {
-        const users = getUsers()
-        const user = users.find(
-          (u: { email: string; password: string }) =>
-            u.email === credentials.email && u.password === credentials.password
-        )
-        if (!user) return null
+        if (!credentials?.email || !credentials?.password) return null
+        const res = await fetch(`${API_URL}/api/auth/login`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            email: credentials.email,
+            password: credentials.password,
+          }),
+        })
+        if (!res.ok) return null
+        const user = await res.json()
         return {
           id: user.id,
           email: user.email,
-          name: user.businessName,
+          name: user.name,
+          role: user.role,
+          tenantId: user.tenantId,
+          tenantSlug: user.tenantSlug,
           businessName: user.businessName,
-          businessType: user.businessType,
-          city: user.city,
-          plan: user.plan,
         }
       },
     }),
   ],
   session: { strategy: "jwt" },
-  pages: {
-    signIn: "/login",
-  },
+  pages: { signIn: "/login" },
   callbacks: {
     jwt({ token, user }) {
       if (user) {
+        token.role = (user as { role?: string }).role
+        token.tenantId = (user as { tenantId?: string }).tenantId
+        token.tenantSlug = (user as { tenantSlug?: string }).tenantSlug
         token.businessName = (user as { businessName?: string }).businessName
-        token.plan = (user as { plan?: string }).plan
       }
       return token
     },
     session({ session, token }) {
       if (session.user) {
-        (session.user as { businessName?: string; plan?: string }).businessName = token.businessName as string
-        ;(session.user as { businessName?: string; plan?: string }).plan = token.plan as string
+        ;(session.user as { role?: string }).role = token.role as string
+        ;(session.user as { tenantId?: string }).tenantId = token.tenantId as string
+        ;(session.user as { tenantSlug?: string }).tenantSlug = token.tenantSlug as string
+        ;(session.user as { businessName?: string }).businessName = token.businessName as string
       }
       return session
     },
