@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut, useSession, SessionProvider } from "next-auth/react"
@@ -13,6 +13,7 @@ import { QueryProvider } from "@/app/providers"
 import DemoLive from "@/components/dashboard/DemoLive"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { setTenant } from "@/lib/tenant"
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -26,6 +27,16 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { data: session } = useSession()
   const userName = session?.user?.name ?? session?.user?.email?.split("@")[0] ?? "Admin"
+
+  const businessName = (session?.user as { businessName?: string } | undefined)?.businessName ?? "Estética Santa María"
+  const tenantSlug = (session?.user as { tenantSlug?: string } | undefined)?.tenantSlug
+  const initials = businessName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()
+
+  useEffect(() => {
+    if (tenantSlug && businessName) {
+      setTenant(tenantSlug, businessName)
+    }
+  }, [tenantSlug, businessName])
 
   return (
     <QueryProvider>
@@ -71,10 +82,10 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
           <div className="p-4 border-t app-border">
             <div className="flex items-center gap-3">
               <Avatar className="w-8 h-8">
-                <AvatarFallback className="bg-indigo-100 text-indigo-700 text-xs font-semibold">SM</AvatarFallback>
+                <AvatarFallback className="bg-indigo-100 text-indigo-700 text-xs font-semibold">{initials}</AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium app-text-hi truncate">Estética Santa María</p>
+                <p className="text-sm font-medium app-text-hi truncate">{businessName}</p>
                 <p className="text-xs app-text-lo">Plan Growth</p>
               </div>
               <button onClick={() => signOut({ callbackUrl: "/login" })} className="app-text-lo hover:text-red-500 transition-colors">
@@ -96,7 +107,7 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
             </button>
             <div className="flex items-center gap-2 cursor-pointer">
               <Avatar className="w-8 h-8">
-                <AvatarFallback className="bg-indigo-100 text-indigo-700 text-xs font-semibold">SM</AvatarFallback>
+                <AvatarFallback className="bg-indigo-100 text-indigo-700 text-xs font-semibold">{userName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()}</AvatarFallback>
               </Avatar>
               <span className="hidden sm:block text-sm font-medium app-text-hi">{userName}</span>
               <ChevronDown className="w-4 h-4 app-text-mid" />

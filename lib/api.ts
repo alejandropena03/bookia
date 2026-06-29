@@ -1,12 +1,13 @@
+import { getTenantSlug } from "./tenant"
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787"
-const TENANT_SLUG = "santa-maria"
 
 async function apiFetch<T>(path: string, opts?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     ...opts,
     headers: {
       "Content-Type": "application/json",
-      "x-tenant-slug": TENANT_SLUG,
+      "x-tenant-slug": getTenantSlug(),
       ...opts?.headers,
     },
   })
@@ -131,14 +132,15 @@ export function updateProfile(data: Partial<BusinessProfile>): Promise<{ success
 }
 
 export function sendSimMessage(text: string): Promise<{ messageId: string; conversationId: string; agentResponse?: unknown }> {
+  const slug = getTenantSlug()
   return apiFetch<{ messageId: string; conversationId: string; agentResponse?: unknown }>("/api/sim/message", {
     method: "POST",
-    body: JSON.stringify({ text, tenantSlug: TENANT_SLUG, from: "demo-user", name: "Tú (demo)", channel: "mock" }),
+    body: JSON.stringify({ text, tenantSlug: slug, from: "demo-user", name: "Tú (demo)", channel: "mock" }),
   })
 }
 
 export function subscribeToSSE(onMessage: (data: unknown) => void, onError?: (err: Event) => void): () => void {
-  const es = new EventSource(`${API_BASE}/api/sim/stream?tenantSlug=${TENANT_SLUG}`)
+  const es = new EventSource(`${API_BASE}/api/sim/stream?tenantSlug=${getTenantSlug()}`)
   es.onmessage = (event) => {
     try {
       const parsed = JSON.parse(event.data)
