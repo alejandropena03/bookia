@@ -7,7 +7,7 @@ import type { RiskFlags, PolicyDecision } from "../../v2/types/decision-trace.js
 import { createMemoryRepository } from "../../v2/memory/memory-repository.js";
 import { MemoryService } from "../../v2/memory/memory-service.js";
 import { FlowAdapter } from "../../v2/adapter/flow-adapter.js";
-import type { CatalogItem } from "../../flows/engine.js";
+import type { CatalogItem } from "../../../flows/engine.js";
 
 function createV2Providers(
   sql: postgres.Sql,
