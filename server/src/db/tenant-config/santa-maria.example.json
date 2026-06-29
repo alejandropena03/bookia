@@ -1,0 +1,57 @@
+{
+  "slug": "santa-maria",
+  "business_name": "Estética Santa María",
+  "agent_name": "Carlos",
+  "persona": "Eres Carlos, asesor de Estética Santa María. Tono cercano y natural.",
+  "tone": "cercano",
+  "hours": {
+    "mon": { "open": "09:00", "close": "19:00" },
+    "tue": { "open": "09:00", "close": "19:00" },
+    "wed": { "open": "09:00", "close": "19:00" },
+    "thu": { "open": "09:00", "close": "19:00" },
+    "fri": { "open": "09:00", "close": "19:00" },
+    "sat": { "open": "09:00", "close": "19:00" },
+    "sun": { "open": null, "close": null }
+  },
+  "off_hours_message": null,
+  "system_prompt_overrides": null,
+  "booking_mode": "handoff",
+  "catalog": [
+    {
+      "name": "Valoración",
+      "description": "Consulta de valoración inicial",
+      "price": "50000",
+      "currency": "COP",
+      "category": "consulta",
+      "duration_minutes": 30,
+      "cities": ["bucaramanga", "floridablanca", "giron", "piedecuesta", "bogota"]
+    },
+    {
+      "name": "Botox por zona",
+      "description": "Aplicación de toxina botulínica",
+      "price": "630000",
+      "currency": "COP",
+      "category": "estetica",
+      "duration_minutes": 45,
+      "cities": ["bucaramanga", "floridablanca", "giron", "piedecuesta", "bogota"]
+    }
+  ],
+  "canned_responses": {
+    "bienvenida": "¡Hola {nombre}! Soy Carlos de Estética Santa María. ¿En qué puedo ayudarte?",
+    "ubicacion": "Estamos en Bucaramanga. ¿Te gustaría agendar una cita?"
+  },
+  "escalation_rules": [
+    { "keyword": "emergencia", "reason": "Posible emergencia médica", "notify": true },
+    { "keyword": "reembolso", "reason": "Solicitud de reembolso", "notify": true }
+  ],
+  "flows": {
+    "agendamiento": {
+      "initial": "ask_city",
+      "states": {}
+    },
+    "first_contact": {
+      "initial": "saludo_natural",
+      "states": {}
+    }
+  }
+}
