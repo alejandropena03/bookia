@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { formatRelativeTime } from "@/lib/time"
 import { Button } from "@/components/ui/button"
-import { replyConversation, takeoverConversation } from "@/lib/api"
+import { replyConversation, takeoverConversation, handbackConversation } from "@/lib/api"
 
 const CANAL_STYLES: Record<string, string> = {
   whatsapp: "bg-green-50 text-green-700",
@@ -73,6 +73,7 @@ export default function ConversationsInbox({ conversations, activeConversation }
   const [sending, setSending] = useState(false)
   const [sentMsg, setSentMsg] = useState(false)
   const [escalating, setEscalating] = useState(false)
+  const [handingBack, setHandingBack] = useState(false)
   const [escalatedIds, setEscalatedIds] = useState<Set<string>>(new Set())
 
   const getEstado = (conv: Conversation) => escalatedIds.has(conv.id) ? "human_active" : conv.estado
@@ -121,6 +122,18 @@ export default function ConversationsInbox({ conversations, activeConversation }
       // fallback silently
     }
     setEscalating(false)
+  }
+
+  async function handleHandback() {
+    if (!activeConversation || handingBack) return
+    setHandingBack(true)
+    try {
+      await handbackConversation(activeConversation.id)
+      setEscalatedIds(prev => { const next = new Set(prev); next.delete(activeConversation.id); return next })
+    } catch {
+      // fallback silently
+    }
+    setHandingBack(false)
   }
 
   return (
@@ -193,7 +206,9 @@ export default function ConversationsInbox({ conversations, activeConversation }
                 <span className="font-semibold app-text-hi text-sm">{activeConversation.contact_name}</span>
                 <Badge className={`text-xs py-0 px-1.5 border-0 ${CANAL_STYLES[activeConversation.canal] ?? "bg-gray-50 text-gray-600"}`}>{activeConversation.canal}</Badge>
               </div>
-              <span className={`text-xs ${STATUS_STYLES[getEstado(activeConversation)]?.replace("bg-", "text-").replace("-50", "-600") ?? "text-gray-500"}`}>{STATUS_LABELS[getEstado(activeConversation)] ?? getEstado(activeConversation)}</span>
+              <span className={`text-xs ${STATUS_STYLES[getEstado(activeConversation)]?.replace("bg-", "text-").replace("-50", "-600") ?? "text-gray-500"}`}>
+                {getEstado(activeConversation) === "human_active" ? "Tú" : STATUS_LABELS[getEstado(activeConversation)] ?? getEstado(activeConversation)}
+              </span>
             </div>
           </div>
 
@@ -263,6 +278,14 @@ export default function ConversationsInbox({ conversations, activeConversation }
           </div>
 
           <div className="app-surface border-t app-border p-4">
+            {getEstado(activeConversation) === "human_active" && (
+              <div className="flex items-center justify-between mb-3 px-1">
+                <span className="text-xs text-emerald-600 font-medium">Estás al frente de esta conversación</span>
+                <Button size="sm" variant="outline" className="h-7 text-xs" onClick={handleHandback} disabled={handingBack} aria-label="Devolver conversación al bot">
+                  {handingBack ? "..." : "Devolver al bot"}
+                </Button>
+              </div>
+            )}
             <form
               onSubmit={(e) => { e.preventDefault(); handleReply() }}
               className="flex gap-2"
@@ -311,7 +334,7 @@ export default function ConversationsInbox({ conversations, activeConversation }
           <div className="space-y-3">
             <div>
               <p className="text-xs app-text-lo uppercase font-medium mb-1">Estado</p>
-              <Badge className={`text-xs border-0 ${STATUS_STYLES[getEstado(activeConversation)] ?? "bg-gray-50 text-gray-500"}`}>{STATUS_LABELS[getEstado(activeConversation)] ?? getEstado(activeConversation)}</Badge>
+              <Badge className={`text-xs border-0 ${STATUS_STYLES[getEstado(activeConversation)] ?? "bg-gray-50 text-gray-500"}`}>{getEstado(activeConversation) === "human_active" ? "Tú al frente" : STATUS_LABELS[getEstado(activeConversation)] ?? getEstado(activeConversation)}</Badge>
             </div>
             <div>
               <p className="text-xs app-text-lo uppercase font-medium mb-1">Servicio</p>
