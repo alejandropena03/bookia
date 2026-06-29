@@ -8,7 +8,6 @@ import { safetyPreRoute, hasInjectionSignal } from "./safety-pre-router.js";
 import { deterministicDomainRoute } from "./deterministic-domain-route.js";
 import { ClinicalSafetyAudit } from "../policy/clinical-safety-audit.js";
 import { evaluateClinicalSafety } from "../policy/clinical-safety.js";
-import { enforceClinicalSafety } from "../policy/policy-engine.js";
 
 const V2_INTENTS = AGENT_INTENTS;
 
@@ -436,12 +435,11 @@ export async function classifyIntentStructured(text: string, isFirstMessage?: bo
       safetyLevel: preRouted.safetyLevel,
       detectedPII: preRouted.detectedPII,
     };
-    const enforcedPre = enforceClinicalSafety(text, preRoutedDecision.intent, preRoutedDecision);
-    audit.setAppliedAction(enforcedPre);
-    audit.setRequiredAction(evaluateClinicalSafety(text, enforcedPre.intent));
+    audit.setRequiredAction(evaluateClinicalSafety(text, preRoutedDecision.intent));
+    audit.setAppliedAction(preRoutedDecision);
     audit.resolveVerdict();
     audit.export();
-    return enforcedPre;
+    return preRoutedDecision;
   }
 
   // Deterministic domain router — common intent patterns without LLM
@@ -453,13 +451,12 @@ export async function classifyIntentStructured(text: string, isFirstMessage?: bo
       safetyLevel: preRouted.safetyLevel,
       detectedPII: preRouted.detectedPII,
     };
-    const enforcedDomain = enforceClinicalSafety(text, domainDecision.intent, domainDecision);
     audit.markPhase("domain_router");
-    audit.setAppliedAction(enforcedDomain);
-    audit.setRequiredAction(evaluateClinicalSafety(text, enforcedDomain.intent));
+    audit.setRequiredAction(evaluateClinicalSafety(text, domainDecision.intent));
+    audit.setAppliedAction(domainDecision);
     audit.resolveVerdict();
     audit.export();
-    return enforcedDomain;
+    return domainDecision;
   }
 
   const llm = getLlm();
@@ -491,13 +488,12 @@ export async function classifyIntentStructured(text: string, isFirstMessage?: bo
     detectedPII: preRouted.detectedPII,
   };
   if (!result.text || result.text.trim().length === 0) {
-    const enforcedEmpty = enforceClinicalSafety(text, emptyDecision.intent, emptyDecision);
     audit.markPhase("llm_router");
-    audit.setAppliedAction(enforcedEmpty);
-    audit.setRequiredAction(evaluateClinicalSafety(text, enforcedEmpty.intent));
+    audit.setRequiredAction(evaluateClinicalSafety(text, emptyDecision.intent));
+    audit.setAppliedAction(emptyDecision);
     audit.resolveVerdict();
     audit.export();
-    return enforcedEmpty;
+    return emptyDecision;
   }
 
   try {
@@ -525,13 +521,12 @@ export async function classifyIntentStructured(text: string, isFirstMessage?: bo
       safetyLevel: postRiskFlags.hasPromptInjection ? "blocked" : preRouted.safetyLevel,
       detectedPII: preRouted.detectedPII,
     };
-    const enforcedLlm = enforceClinicalSafety(text, llmDecision.intent, llmDecision);
     audit.markPhase("llm_router");
-    audit.setAppliedAction(enforcedLlm);
-    audit.setRequiredAction(evaluateClinicalSafety(text, enforcedLlm.intent));
+    audit.setRequiredAction(evaluateClinicalSafety(text, llmDecision.intent));
+    audit.setAppliedAction(llmDecision);
     audit.resolveVerdict();
     audit.export();
-    return enforcedLlm;
+    return llmDecision;
   } catch {
     const parseErrorDecision: RouterDecision = {
       intent: "otro",
@@ -545,12 +540,11 @@ export async function classifyIntentStructured(text: string, isFirstMessage?: bo
       safetyLevel: postRiskFlags.hasPromptInjection ? "blocked" : preRouted.safetyLevel,
       detectedPII: preRouted.detectedPII,
     };
-    const enforcedParse = enforceClinicalSafety(text, parseErrorDecision.intent, parseErrorDecision);
     audit.markPhase("llm_router");
-    audit.setAppliedAction(enforcedParse);
-    audit.setRequiredAction(evaluateClinicalSafety(text, enforcedParse.intent));
+    audit.setRequiredAction(evaluateClinicalSafety(text, parseErrorDecision.intent));
+    audit.setAppliedAction(parseErrorDecision);
     audit.resolveVerdict();
     audit.export();
-    return enforcedParse;
+    return parseErrorDecision;
   }
 }
