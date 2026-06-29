@@ -10,5 +10,9 @@ export default defineConfig({
         singleFork: true,
       },
     },
+    env: {
+      LLM_PROVIDER: "mock",
+      NODE_ENV: "test",
+    },
   },
 });

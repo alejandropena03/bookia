@@ -40,3 +40,6 @@ Tasks en orden de dependencia:
 - Eval score: AGENTS dice "87.7% (164/187)" → real **62.8% (258/411)**.
 - tsc: AGENTS dice "1 error pre-existente" → **clean tras A1**.
 - PR8: bridge decía "iniciando" → **DONE**.
+
+## Pendientes fuera del plan GPT-5 (solicitados por Alejandro)
+- **REGENERAR SEED-DEMO CON CONVERSACIONES REALES DEL AGENTE:** actualmente `seed-demo.ts` crea 15 contactos con mensajes hardcoded (strings literales sin sentido). Alejandro quiere que las conversaciones del dashboard sean simulaciones reales generadas por el agente (DeepSeek + flows + canned responses), no texto dummy. Task nuevo: crear un script que corra escenarios de conversación contra el agente real (saludo, precio, agendamiento, escalación) y persista las respuestas reales del bot en `messages`. Así el dashboard mostrará conversaciones coherentes con el comportamiento real del agente. Priorizar después de A2-A3 (V2 persistencia + activación) para que las conversaciones generadas pasen por el pipeline V2.
