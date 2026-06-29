@@ -17,6 +17,7 @@
     "seed:demo": "tsx src/db/seed-demo.ts",
     "import:tenant": "tsx src/db/import-tenant.ts",
     "smoke-test": "bash scripts/smoke-test.sh",
+    "secrets:check": "bash scripts/check-secrets.sh",
     "test:v2:unit": "vitest run tests/v2-agent.test.ts tests/v2-memory-persistence.test.ts",
     "test:v2:integration": "vitest run tests/v2-memory-integration.test.ts tests/rls.test.ts",
     "eval:router-v1": "tsx src/agent/eval/runner.ts",

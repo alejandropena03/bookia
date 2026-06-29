@@ -13,6 +13,10 @@ services:
       # Proveedor LLM parametrizable. deepseek (default, requiere API key) o mock.
       # Override al evaluar UI: LLM_PROVIDER=mock docker compose up -d api
       LLM_PROVIDER: ${LLM_PROVIDER:-deepseek}
+      # Agent kernel V2 activado por defecto (north star). false = rollback a V1.
+      AGENT_KERNEL_V2: ${AGENT_KERNEL_V2:-true}
+      # Workers scheduler (reminders/reengagement/crm). true en container local.
+      WORKERS_ENABLED: ${WORKERS_ENABLED:-true}
     env_file:
       - ./server/.env
     depends_on:
