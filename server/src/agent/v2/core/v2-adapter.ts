@@ -2,12 +2,15 @@ import type postgres from "postgres";
 import type { AgentResponse } from "../../orchestrator.js";
 import type { AgentKernelInput } from "../../v2/types/agent-kernel.js";
 import { AgentKernel } from "./agent-kernel.js";
-import type { RouterDecision } from "../../v2/types/agent-intent.js";
+import type { RouterDecision, AgentIntent } from "../../v2/types/agent-intent.js";
 import type { RiskFlags, PolicyDecision } from "../../v2/types/decision-trace.js";
 import { createMemoryRepository } from "../../v2/memory/memory-repository.js";
 import { MemoryService } from "../../v2/memory/memory-service.js";
 import { FlowAdapter } from "../../v2/adapter/flow-adapter.js";
 import type { CatalogItem } from "../../../flows/engine.js";
+import { getCannedResponse as _getCannedResponse } from "../../responder.js";
+import { evaluatePolicy as _evaluatePolicy } from "../../v2/policy/policy-engine.js";
+import { scanRisks as _scanRisks } from "../../v2/understanding/risk-scanner.js";
 
 function createV2Providers(
   sql: postgres.Sql,
@@ -26,8 +29,7 @@ function createV2Providers(
       return classifyIntentStructured(text);
     },
     getCannedResponse: (key: string, vars?: Record<string, string>): string | null => {
-      const { getCannedResponse } = require("../../responder.js");
-      return getCannedResponse(key, vars ?? {});
+      return _getCannedResponse(key, vars ?? {});
     },
     generateLlmResponse: async (text: string, context: Record<string, unknown>): Promise<string> => {
       const { generateLlmResponse } = await import("../../responder.js");
@@ -37,12 +39,10 @@ function createV2Providers(
       return flowAdapter.evaluateFlow(conversationId, intent, text, tenantId, contactId, contactName);
     },
     evaluatePolicy: (text: string, intent: string, riskFlags: RiskFlags): PolicyDecision => {
-      const { evaluatePolicy } = require("../../v2/policy/policy-engine.js");
-      return evaluatePolicy(text, intent, riskFlags);
+      return _evaluatePolicy(text, intent as AgentIntent, riskFlags);
     },
     detectRisks: (text: string, intent: string): RiskFlags => {
-      const { scanRisks } = require("../../v2/understanding/risk-scanner.js");
-      return scanRisks(text, intent);
+      return _scanRisks(text, intent as AgentIntent);
     },
     loadContext: async (input: AgentKernelInput): Promise<Record<string, unknown>> => ({}),
   };

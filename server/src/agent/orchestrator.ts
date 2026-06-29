@@ -427,7 +427,13 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
 
     if (process.env.AGENT_KERNEL_V2 === 'true') {
       const { processMessageV2 } = await import("./v2/core/v2-adapter.js");
-      return processMessageV2({ ...req, sql });
+      const v2Result = await processMessageV2({ ...req, sql });
+      // A2: persist outbound + emit SSE (parity with V1's persistAndEmitSegmented).
+      // The kernel/adapters compute the response; the orchestrator owns persistence.
+      const msgId = await persistAndEmitSegmented(
+        sql, req.tenantId, conversationId, tenantSlug, v2Result.text, "bot", v2Result.route
+      );
+      return { ...v2Result, messageId: msgId };
     }
 
     const sentiment = detectSentiment(text);
