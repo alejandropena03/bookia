@@ -1,45 +1,52 @@
-# Current Task: Sprint 0 — Estabilización (Plan GPT-5)
+# Current Task — Bookia MVP (actualizado 2026-06-29 por Claude Code)
 
-> **Línea de trabajo oficial:** `docs/PLAN_IMPLEMENTACION_BOOKIA_MVP_AGENTEV2.md` (plan GPT-5, 25 tasks, 5 sprints).
-> **North star:** MVP Fase 1 completo + agente V2 100%, listo para enchufar credenciales Meta en Fase 2.
-> **Stream prioritario:** A (agente V2). Restricciones: NO Meta real, NO Agenda Pro real, NO pagos live.
+> **Plan oficial:** `docs/PLAN_IMPLEMENTACION_BOOKIA_MVP_AGENTEV2.md`
+> **North star:** MVP Fase 1 completo + V2 100%. NO Meta real, NO Agenda Pro real, NO pagos live.
+> **Tests baseline:** 310/310 pass | tsc clean
 
-## Estado Sprint 0 (M0 — Estable)
+---
 
-| Task | Status | Commit | Notas |
-|---|---|---|---|
-| **C1** Git commit + push snapshot V2 | ✅ DONE | `47d2df6` | 30 modified + 157 untracked preservados en origin/main. Riesgo operativo #1 mitigado. |
-| **A1** Fix tsc TS2307 import path | ✅ DONE | `bd9553a` | `v2-adapter.ts:10` `../../flows/engine.js` → `../../../flows/engine.js`. tsc clean exit 0. |
-| **C2** Runner de migraciones automático | 🔴 PENDING | — | drizzle-kit trackea 3/12 SQL; entrypoint.sh no corre migraciones. 1-1.5 días. |
-| **C3** Secrets management local DeepSeek | 🔴 PENDING | — | `.env.example` completo + Zod validation + secret scan. 0.5 días. |
+## Estado real por sprint (verificado en git log)
 
-## Gate M0 — verificado parcial
-- ✅ `git status --short` limpio tras commits.
-- ✅ `git push origin main` confirmado (`e1aa2de..47d2df6`).
-- ✅ `cd server && npx tsc --noEmit` sin errores (A1 aplicado).
-- ✅ `cd server && npx vitest run` → **283/283 tests verdes** (3.72s, DB corriendo).
-- 🔴 Migraciones reproducibles en DB limpia — pendiente C2.
-- 🔴 Secrets hygiene — pendiente C3.
+| Sprint | Milestone | Estado | Tasks |
+|--------|-----------|--------|-------|
+| Sprint 0 | M0 — Estable | ✅ COMPLETO | C1, C2, C3, C6, A1 |
+| Sprint 1 | M1 — V2 activado | ✅ COMPLETO | A2, A3, A4, A10, B1 |
+| Sprint 2 | M2 parcial | ✅ COMPLETO | A5/PR6.1, A6, A7, B2, B3, B4, C9 |
+| Sprint 3 | M2 cierre | ✅ COMPLETO | A8, A9 (golden validators 34/39), A11 |
+| Sprint 4 | M3 + M4 | 🟡 EN PROGRESO | A6.2✅ A6.3✅ A6.4✅ — pendientes abajo |
 
-## Próximo: Sprint 1 — Activación V2 end-to-end (semana 1)
-Tasks en orden de dependencia:
-- **A2** — V2 message persistence + SSE (`v2-adapter.ts:77-83` no persiste outbound).
-- **A3** — `AGENT_KERNEL_V2` en env schema Zod + `.env.example`, default `true`.
-- **A4** — `loadContext` real (no `{}` en `v2-adapter.ts:47`).
-- **A10** — Eliminar `require()` CommonJS en ESM (`v2-adapter.ts:29,40,44`).
-- **B1** — Auth real local (password hash + DB adapter + sesión tenant-aware).
-- **C6** — Crear `src/db/tenant-config/` o ajustar import contract.
+---
 
-## Contexto previo (cerrado)
-- **PR8 — Flow Adapter V2**: funcionalmente DONE (archivos en disco, 27 tests flow verdes). El bridge no se había cerrado formalmente; este commit lo cierra.
-- **Auditoría MVP**: `docs/AUDITORIA-MVP-GPT.md` (56KB, verificado en disco con file:line).
-- **Plan GPT-5**: `docs/PLAN_IMPLEMENTACION_BOOKIA_MVP_AGENTEV2.md` (67KB, 1332 líneas).
+## Sprint 4 — Pendientes reales
 
-## Discrepancias docs vs disco (a corregir en C5)
-- Tests: AGENTS raíz dice "167" → real **283**.
-- Eval score: AGENTS dice "87.7% (164/187)" → real **62.8% (258/411)**.
-- tsc: AGENTS dice "1 error pre-existente" → **clean tras A1**.
-- PR8: bridge decía "iniciando" → **DONE**.
+| Task | Status | Descripción |
+|------|--------|-------------|
+| **A6.1** | ✅ DONE | Clinical policy enforcement single-source |
+| **A6.2** | ✅ DONE | Multi-market catalog COP/USD/EUR/MXN |
+| **A6.3** | ✅ DONE | Promos Esperma de Salmón/PDRN |
+| **A6.4** | ✅ DONE | Media contract: media[] en V2 response pipeline |
+| **A6.5** | 🔴 PENDING | Integrar imágenes Santa María al agente desde `server/data/santamaria-extraction/ai-studio-result.json` (34 imágenes ya analizadas). Runtime usa DeepSeek API, no visión externa. |
+| **A6.6** | 🔴 PENDING | Guía post-tratamiento Rinomodelación en agente |
+| **A12** | 🔴 PENDING | Eval V2 actualizado 411 casos, reporte honesto |
+| **B5** | ✅ DONE | Settings persiste todos los campos |
+| **B6** | 🔴 PENDING | SSE /api/sim/stream con auth |
+| **B7** | 🔴 PENDING | Cleanup dead code frontend |
+| **B8** | 🔴 PENDING | Playwright E2E actualizado |
+| **C4** | 🔴 PENDING | Scheduler local workers |
+| **C5** | 🔴 PENDING | Sync docs + bridge con verdad en disco |
+| **C7** | 🔴 PENDING | Meta Adapter Spec diseñado (no implementado) |
+| **C8** | 🔴 PENDING | Observabilidad mínima |
 
-## Pendientes fuera del plan GPT-5 (solicitados por Alejandro)
-- **REGENERAR SEED-DEMO CON CONVERSACIONES REALES DEL AGENTE:** actualmente `seed-demo.ts` crea 15 contactos con mensajes hardcoded (strings literales sin sentido). Alejandro quiere que las conversaciones del dashboard sean simulaciones reales generadas por el agente (DeepSeek + flows + canned responses), no texto dummy. Task nuevo: crear un script que corra escenarios de conversación contra el agente real (saludo, precio, agendamiento, escalación) y persista las respuestas reales del bot en `messages`. Así el dashboard mostrará conversaciones coherentes con el comportamiento real del agente. Priorizar después de A2-A3 (V2 persistencia + activación) para que las conversaciones generadas pasen por el pipeline V2.
+## Sin bloqueantes externos activos
+Las imágenes de Santa María ya están analizadas en `server/data/santamaria-extraction/ai-studio-result.json`. A6.5 es integración pura, no requiere API de visión.
+
+## Tarea pendiente fuera del plan
+- **Seed-demo con conversaciones reales del agente** (solicitado por Alejandro): reemplazar strings dummy en seed-demo.ts con simulaciones reales generadas por el agente. Hacer post-A2/A3 para que pasen por V2.
+
+---
+
+## Próximo paso sugerido
+1. Decisión sobre A6.5 (imágenes) — ¿qué proveedor/approach?
+2. A6.6 (guía post-tratamiento Rinomodelación) — no requiere decisión externa
+3. A12 (eval actualizado 411 casos) — importante para medir dónde estamos realmente

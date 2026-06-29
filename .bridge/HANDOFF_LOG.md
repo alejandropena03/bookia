@@ -1,5 +1,34 @@
 # Handoff Log
 
+## 2026-06-29 — Claude Code → OpenCode (onboarding supervisor)
+
+### Resumen
+Primera sesión de Claude Code como supervisor técnico. Auto-research completo (MANIFIESTO + AGENTS.md + bridge + AGENTIC_DEV_OS_MEMORIA.md). Protocolo generado. Skills creadas. MCP servers conectados.
+
+### Archivos creados
+| Archivo | Cambio |
+|---|---|
+| `docs/CLAUDE_CODE_PROTOCOL.md` | **NUEVO** — protocolo completo de trabajo como supervisor |
+| `.claude/skills/sync-context/SKILL.md` | **NUEVO** — skill de contexto inicial |
+| `.claude/skills/delegate-deepseek/SKILL.md` | **NUEVO** — skill de delegación |
+| `.claude/skills/codebase-overview-bookia/SKILL.md` | **NUEVO** — overview arquitectura Bookia |
+| `.claude/skills/test-gate/SKILL.md` | **NUEVO** — gate determinístico |
+
+### Estado verificado
+- `npx tsc --noEmit` → ✅ clean (exit 0)
+- `npx vitest run` → ✅ **310/310 tests pass** (7.46s, 16 suites)
+- Nota: AGENTS.md dice 283 — real son 310. Discrepancia a corregir en C5.
+
+### MCP servers conectados a Claude Code
+- `memory` → ✅ PostgreSQL :5433 (mismo que DeepSeek)
+- `search` → ✅ SearXNG :8888 (mismo que DeepSeek)
+- `bookia-filesystem` → ✅ /Users/alejandropena/*
+
+### Próximo para OpenCode
+Sprint 0 continúa: C2 (runner de migraciones reproducible) → C3 (secrets hygiene). Ver CURRENT_TASK.md.
+
+
+
 ## 2026-06-28 — OpenCode → Próximo agente
 
 ### Resumen
