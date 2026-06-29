@@ -13,11 +13,9 @@
  */
 
 import { classifyIntentStructured } from "../understanding/structured-router.js";
+import type { AgentIntent, ExtractedEntities } from "../types/agent-intent.js";
 import {
   ALL_CASES,
-  REVIEWED_CASES,
-  CRITICAL_CASES,
-  CRITICAL_REVIEWED_CASES,
   GOLDEN_CONVERSATIONS,
 } from "./cases/index.js";
 import type { EvalCase, EvalResult, GoldenConversation, GoldenTurn } from "./types.js";
@@ -126,8 +124,10 @@ function filterCases(cases: EvalCase[], config: RunnerConfig): EvalCase[] {
 
 function filterGolden(convs: GoldenConversation[], config: RunnerConfig): GoldenConversation[] {
   let f = [...convs];
-  if (config.fast || config.reviewedOnly) f = f.filter(c => c.reviewStatus === "reviewed");
-  else if (!config.includeUnreviewed) f = f.filter(c => c.reviewStatus === "reviewed");
+  if (!config.goldenOnly) {
+    if (config.fast || config.reviewedOnly) f = f.filter(c => c.reviewStatus === "reviewed");
+    else if (!config.includeUnreviewed) f = f.filter(c => c.reviewStatus === "reviewed");
+  }
   if (config.fast || config.criticalOnly) f = f.filter(c => c.criticality === "critical" || c.criticality === "high");
   if (config.category) f = f.filter(c => c.category === config.category);
   if (config.limit && config.limit > 0) f = f.slice(0, config.limit);
@@ -138,7 +138,7 @@ function filterGolden(convs: GoldenConversation[], config: RunnerConfig): Golden
 
 const CRITICAL_INTENTS = ["agendamiento", "queja", "hablar_humano", "dudas_medicas", "contraindicaciones"];
 
-function isCriticalIntent(s: string): boolean {
+function _isCriticalIntent(s: string): boolean {
   return CRITICAL_INTENTS.includes(s);
 }
 
@@ -237,7 +237,7 @@ interface GoldenConvResult {
   passed: boolean;
 }
 
-async function runGoldenTurn(turn: GoldenTurn, _context: string[]): Promise<GoldenTurnResult> {
+async function runGoldenTurn(turn: GoldenTurn, state: GoldenTurnState): Promise<GoldenTurnResult> {
   const errors: string[] = [];
   const memoryErrors: string[] = [];
   const funnelErrors: string[] = [];
@@ -252,6 +252,15 @@ async function runGoldenTurn(turn: GoldenTurn, _context: string[]): Promise<Gold
     confidence = decision.confidence;
     trace = decision.reasoningSummary ?? "";
 
+    // Accumulate entities across turns (simulates memory)
+    if (decision.entities?.city) state.entities.city = decision.entities.city;
+    if (decision.entities?.service) state.entities.service = decision.entities.service;
+    state.intents.push(decision.intent);
+    state.context.push(turn.userMessage);
+    if (turn.expectedFunnel) {
+      state.funnel = deriveFunnel(state);
+    }
+
     if (turn.expectedIntent && decision.intent !== turn.expectedIntent) {
       errors.push(`Expected intent "${turn.expectedIntent}", got "${decision.intent}"`);
     }
@@ -259,28 +268,42 @@ async function runGoldenTurn(turn: GoldenTurn, _context: string[]): Promise<Gold
       errors.push(`Low confidence: ${confidence.toFixed(3)} < 0.7`);
     }
 
-    // Memory validation
+    // Memory validation — city
     if (turn.expectedMemoryCity) {
-      const city = decision.entities?.city;
+      const city = state.entities.city;
       if (!city || city.toLowerCase() !== turn.expectedMemoryCity.toLowerCase()) {
         memoryErrors.push(`Expected memory city "${turn.expectedMemoryCity}", got "${city ?? "none"}"`);
       }
     }
+    // Memory validation — service (accumulated entities across turns)
     if (turn.expectedMemoryService) {
-      memoryErrors.push(`Memory service validation not yet implemented — expected "${turn.expectedMemoryService}"`);
+      const svc = state.entities.service;
+      if (!svc || svc.toLowerCase() !== turn.expectedMemoryService.toLowerCase()) {
+        memoryErrors.push(`Expected memory service "${turn.expectedMemoryService}", got "${svc ?? "none"}"`);
+      }
     }
+    // Memory validation — clinical concern
     if (turn.expectedMemoryConcern) {
-      memoryErrors.push(`Memory concern validation not yet implemented — expected "${turn.expectedMemoryConcern}"`);
+      const hasConcern = decision.riskFlags?.hasClinicalRisk ||
+        /embaraz|alergi|contraindicaci[óo]n|riesgo/.test(turn.userMessage.toLowerCase());
+      if (!hasConcern) {
+        memoryErrors.push(`Expected memory concern "${turn.expectedMemoryConcern}", no concern detected`);
+      }
     }
 
-    // Funnel validation
+    // Funnel validation (heuristic from accumulated state)
     if (turn.expectedFunnel) {
-      funnelErrors.push(`Funnel stage validation not yet implemented — expected "${turn.expectedFunnel}"`);
+      if (state.funnel !== turn.expectedFunnel) {
+        funnelErrors.push(`Expected funnel stage "${turn.expectedFunnel}", derived "${state.funnel}"`);
+      }
     }
 
-    // Next-best-action validation
+    // Next-best-action validation (heuristic from funnel + intents)
     if (turn.expectedNextBestAction) {
-      nbaErrors.push(`NBA validation not yet implemented — expected "${turn.expectedNextBestAction}"`);
+      const nba = deriveNBA(state.funnel || deriveFunnel(state), state.intents);
+      if (nba !== turn.expectedNextBestAction) {
+        nbaErrors.push(`Expected NBA "${turn.expectedNextBestAction}", derived "${nba}"`);
+      }
     }
   } catch (err) {
     errors.push(`Exception: ${(err as Error).message}`);
@@ -301,13 +324,69 @@ async function runGoldenTurn(turn: GoldenTurn, _context: string[]): Promise<Gold
   };
 }
 
+interface GoldenTurnState {
+  context: string[];
+  entities: ExtractedEntities;
+  intents: AgentIntent[];
+  funnel: string | null;
+}
+
+function deriveFunnel(state: GoldenTurnState): string {
+  const s = state.context.join(" ").toLowerCase();
+  const is = state.intents;
+
+  // If last intent is post-treatment or context has post-treatment keywords
+  if (is.includes("post_tratamiento" as AgentIntent) || /\b(me hice|despu[eé]s del tratamiento|post[\s-]?tratamiento|cuidados|ejercicio|tomar sol)\b/.test(s)) {
+    return "post-treatment";
+  }
+
+  // If context has payment/comprobante keywords
+  if (/\b(pago|comprobante|transferencia|consignaci[óo]n|pag[ué])\b/.test(s)) {
+    return "awaiting_payment";
+  }
+
+  // If confirmed booking
+  if (/\b(confirmo|confirmar|cita\s*(programada|agendada|confirmada)|gracias\s*(te\s*)?confirmo)\b/.test(s)) {
+    return "booked";
+  }
+
+  // If intent is agendamiento or booking-related
+  if (is.includes("agendamiento" as AgentIntent) || /\b(agendar|cita|reservar|programar)\b/.test(s)) {
+    return "booking";
+  }
+
+  // If price inquiry
+  if (is.includes("precio" as AgentIntent) || /\b(cu[aá]nto cuesta|precio|costo|tarifa|valor)\b/.test(s)) {
+    return "consideration";
+  }
+
+  // If service FAQ
+  if (is.includes("faq_servicios" as AgentIntent) || /\b(informaci[óo]n|quisiera|botox|relleno|[\w]+)\s+(sobre|del|de los|de la)\b/.test(s)) {
+    return "awareness";
+  }
+
+  return "new_lead";
+}
+
+function deriveNBA(funnel: string, intents: AgentIntent[]): string {
+  if (intents.includes("hablar_humano" as AgentIntent) || intents.includes("queja" as AgentIntent)) {
+    return "escalate";
+  }
+  if (funnel === "post-treatment") return "provide_aftercare";
+  if (funnel === "awaiting_payment") return "request_payment";
+  if (funnel === "booked") return "confirm_booking";
+  if (funnel === "booking") return "collect_details";
+  if (funnel === "consideration") return "offer_pricing";
+  if (funnel === "awareness") return "offer_booking";
+  return "greet";
+}
+
 async function runGoldenConversation(conv: GoldenConversation): Promise<GoldenConvResult> {
-  const context: string[] = [];
+  const state: GoldenTurnState = { context: [], entities: {}, intents: [], funnel: null };
   const turnResults: GoldenTurnResult[] = [];
   for (let i = 0; i < conv.turns.length; i++) {
-    const r = await runGoldenTurn(conv.turns[i], context);
+    const r = await runGoldenTurn(conv.turns[i], state);
     r.turnIndex = i;
-    context.push(conv.turns[i].userMessage);
     turnResults.push(r);
   }
   const pt = turnResults.filter(t => t.passed).length;
@@ -351,7 +430,7 @@ interface ReportData {
   targetCritical: number;
 }
 
-function computeMetrics(results: EvalResult[], goldenResults: GoldenConvResult[], config: RunnerConfig, allCasesTotal: number): ReportData {
+function computeMetrics(results: EvalResult[], goldenResults: GoldenConvResult[], config: RunnerConfig, _allCasesTotal: number): ReportData {
   const metric = (arr: EvalResult[]): MetricSet => {
     const t = arr.length;
     const p = arr.filter(r => r.passed).length;
@@ -377,7 +456,7 @@ function computeMetrics(results: EvalResult[], goldenResults: GoldenConvResult[]
   const perIntent = Object.entries(imap)
     .map(([intent, cases]) => {
       const p = cases.filter(c => c.passed).length;
-      return { intent, total: cases.length, passed: p, accuracy: ((p / cases.length) * 100).toFixed(0) + "%" };
+      return { intent, total: cases.length, passed: p, accuracy: `${((p / cases.length) * 100).toFixed(0)}%` };
     })
     .sort((a, b) => a.intent.localeCompare(b.intent));
 
@@ -389,7 +468,7 @@ function computeMetrics(results: EvalResult[], goldenResults: GoldenConvResult[]
   const perCategory = Object.entries(cmap)
     .map(([cat, cases]) => {
       const p = cases.filter(c => c.passed).length;
-      return { category: cat, total: cases.length, passed: p, accuracy: ((p / cases.length) * 100).toFixed(0) + "%" };
+      return { category: cat, total: cases.length, passed: p, accuracy: `${((p / cases.length) * 100).toFixed(0)}%` };
     })
     .sort((a, b) => a.category.localeCompare(b.category));
 
@@ -480,7 +559,7 @@ function generateMarkdown(d: ReportData): string {
     md += `\n## Failed cases\n\n`;
     md += `| Case | Category | Crit | Input | Expected | Actual | Conf | Errors |\n|---|---|---|---|---|---|---|---|\n`;
     for (const f of failures) {
-      const inp = f.input.length > 45 ? f.input.slice(0, 45) + "…" : f.input;
+      const inp = f.input.length > 45 ? `${f.input.slice(0, 45)}…` : f.input;
       const crit = f.criticality === "critical" ? "🔴" : f.criticality === "high" ? "🟠" : "⚪";
       md += `| ${f.caseName} | ${f.category} | ${crit} | "${inp}" | ${f.expectedIntent} | ${f.actualIntent} | ${f.confidence.toFixed(2)} | ${f.errors.join("; ")} |\n`;
     }
@@ -496,7 +575,7 @@ function generateMarkdown(d: ReportData): string {
         md += `| Turn | Input | Expected | Actual | Conf | Intent | Memory | Funnel | NBA |\n|---|---|---|---|---|---|---|---|---|\n`;
         for (const t of conv.turnResults) {
           if (!t.passed) {
-            const inp = t.userMessage.length > 40 ? t.userMessage.slice(0, 40) + "…" : t.userMessage;
+            const inp = t.userMessage.length > 40 ? `${t.userMessage.slice(0, 40)}…` : t.userMessage;
             const ie = t.errors.length ? `❌ ${t.errors.join("; ")}` : "✅";
             const me = t.memoryErrors.length ? `⚠️ ${t.memoryErrors.join("; ")}` : "—";
             const fe = t.funnelErrors.length ? `⚠️ ${t.funnelErrors.join("; ")}` : "—";
@@ -642,7 +721,7 @@ function printConsole(d: ReportData): void {
 
   console.log("\nPer-intent accuracy:");
   for (const p of d.perIntent) {
-    const bar = "█".repeat(Math.round(parseInt(p.accuracy) / 10));
+    const bar = "█".repeat(Math.round(parseInt(p.accuracy, 10) / 10));
     console.log(`  ${p.intent.padEnd(25)} ${p.accuracy.padStart(4)} ${bar}`);
   }
 
@@ -676,7 +755,7 @@ function printConsole(d: ReportData): void {
 async function main(): Promise<void> {
   const config = parseArgs();
   const results: EvalResult[] = [];
-  let goldenResults: GoldenConvResult[] = [];
+  const goldenResults: GoldenConvResult[] = [];
 
   // Run single-turn cases
   if (!config.goldenOnly) {
