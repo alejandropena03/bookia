@@ -283,7 +283,7 @@ async function seedDemo() {
       await sql`
         INSERT INTO conversation_state (tenant_id, conversation_id, flow_key, current_state, slots, created_at, updated_at)
         VALUES (
-          ${tenantId}, ${conv.id}, 'agendamiento', 'precio',
+          ${tenantId}, ${conv.id}, 'precio', 'ask_city',
           ${sql.json({ servicio: svc.name })},
           ${convStart.toISOString()}, ${convStart.toISOString()}
         )
@@ -298,6 +298,24 @@ async function seedDemo() {
       INSERT INTO messages (tenant_id, conversation_id, direction, sender_type, content_type, text, created_at)
       VALUES (${tenantId}, ${msg.convId}, ${msg.direction}, ${msg.sender}, 'text', ${msg.text}, ${msg.createdAt.toISOString()})
     `;
+  }
+
+  // ── Validate conversation_state entries ──
+  const demoStates = await sql`
+    SELECT cs.flow_key, cs.current_state, f.definition
+    FROM conversation_state cs
+    LEFT JOIN flows f ON f.tenant_id = cs.tenant_id AND f.key = cs.flow_key
+    WHERE cs.tenant_id = ${tenantId}
+  `;
+  for (const st of demoStates) {
+    if (!st.definition) {
+      console.warn(`  ⚠️  flow_key '${st.flow_key}' not found in flows table`);
+      continue;
+    }
+    const def = st.definition as { states: Record<string, unknown> };
+    if (!def.states[st.current_state as string]) {
+      throw new Error(`Invalid current_state '${st.current_state}' for flow '${st.flow_key}'. Valid states: ${Object.keys(def.states).join(", ")}`);
+    }
   }
 
   // ── Summary ──
