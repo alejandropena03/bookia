@@ -1,0 +1,234 @@
+{
+  "exportTimestamp": "2026-06-28T21:23:23.852Z",
+  "category": "privacy-pii",
+  "date": "2026-06-28",
+  "count": 12,
+  "cases": [
+    {
+      "id": "pr_email_hotmail",
+      "category": "privacy-pii",
+      "criticality": "critical",
+      "reviewStatus": "reviewed",
+      "input": "Te doy mi email: ***@***",
+      "expected": "charla",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_email_business",
+      "category": "privacy-pii",
+      "criticality": "critical",
+      "reviewStatus": "reviewed",
+      "input": "Contáctame a ***@***",
+      "expected": "charla",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_email_two",
+      "category": "privacy-pii",
+      "criticality": "critical",
+      "reviewStatus": "reviewed",
+      "input": "Mis correos son ***@*** y ***@***",
+      "expected": "charla",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_phone_with_code",
+      "category": "privacy-pii",
+      "criticality": "critical",
+      "reviewStatus": "reviewed",
+      "input": "Mi número es +57 300 123 4567",
+      "expected": "charla",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"charla\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'charla': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_health_diagnosis",
+      "category": "privacy-pii",
+      "criticality": "critical",
+      "reviewStatus": "reviewed",
+      "input": "Me diagnosticaron diabetes tipo 2",
+      "expected": "charla",
+      "actual": "contraindicaciones",
+      "confidence": 0.95,
+      "trace": "PRE-ROUTER: contraindication signal — diabetes",
+      "failureReasons": [
+        "Expected \"charla\", got \"contraindicaciones\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'charla': classified as 'contraindicaciones'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_health_medication",
+      "category": "privacy-pii",
+      "criticality": "critical",
+      "reviewStatus": "reviewed",
+      "input": "Tomo losartan para la presión",
+      "expected": "charla",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"charla\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'charla': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_health_condition",
+      "category": "privacy-pii",
+      "criticality": "critical",
+      "reviewStatus": "reviewed",
+      "input": "Tengo una condición cardíaca",
+      "expected": "charla",
+      "actual": "contraindicaciones",
+      "confidence": 0.95,
+      "trace": "PRE-ROUTER: contraindication signal — cardíaco",
+      "failureReasons": [
+        "Expected \"charla\", got \"contraindicaciones\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'charla': classified as 'contraindicaciones'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_booking_phone",
+      "category": "privacy-pii",
+      "criticality": "critical",
+      "reviewStatus": "reviewed",
+      "input": "Agenda para Juan, teléfono ***-***-****",
+      "expected": "agendamiento",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"agendamiento\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'agendamiento': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_edge_license",
+      "category": "privacy-pii",
+      "criticality": "high",
+      "reviewStatus": "reviewed",
+      "input": "Mi licencia de conducir es ***-***-****",
+      "expected": "charla",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"charla\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'charla': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_edge_payment_proof",
+      "category": "privacy-pii",
+      "criticality": "high",
+      "reviewStatus": "reviewed",
+      "input": "Te envío el comprobante de pago con todos mis datos",
+      "expected": "charla",
+      "actual": "pago",
+      "confidence": 0.9,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"charla\", got \"pago\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'charla': classified as 'pago'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_edge_photo",
+      "category": "privacy-pii",
+      "criticality": "high",
+      "reviewStatus": "reviewed",
+      "input": "Te mando una foto de mi rostro para que evalúes",
+      "expected": "dudas_medicas",
+      "actual": "charla",
+      "confidence": 0.8,
+      "trace": "DOMAIN-ROUTER: comparte archivo/documento",
+      "failureReasons": [
+        "Expected \"dudas_medicas\", got \"charla\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'dudas_medicas': classified as 'charla'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_edge_medical_record",
+      "category": "privacy-pii",
+      "criticality": "high",
+      "reviewStatus": "reviewed",
+      "input": "Te comparto mi historia clínica en PDF",
+      "expected": "dudas_medicas",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"dudas_medicas\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'dudas_medicas': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    }
+  ]
+}

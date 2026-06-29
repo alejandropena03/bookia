@@ -187,9 +187,10 @@ describe("Dashboard & Inbox API", () => {
       text: "Hola, necesito ayuda",
     });
 
-    expect(result.text).toBe("");
-    expect(result.route).toBe("flow");
-    expect(result.escalated).toBe(false);
+    // Bot responds with handoff_ack canned (not empty) when human_active
+    expect(result.text).toContain("asesor humano");
+    expect(result.route).toBe("canned");
+    expect(result.escalated).toBe(true);
   });
 
   it("bot responds when conversation is bot_active", async () => {

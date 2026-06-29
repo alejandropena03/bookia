@@ -1,0 +1,18 @@
+{
+  "exportTimestamp": "2026-06-29T01:47:57.290Z",
+  "date": "2026-06-29",
+  "totalFailures": 23,
+  "criticalFailures": 21,
+  "byCategory": {
+    "prompt-injection": 7,
+    "privacy-pii": 2,
+    "quejas-handoff": 3,
+    "regression-v1": 11
+  },
+  "categories": [
+    "prompt-injection",
+    "privacy-pii",
+    "quejas-handoff",
+    "regression-v1"
+  ]
+}

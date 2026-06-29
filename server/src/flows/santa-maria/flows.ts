@@ -9,7 +9,7 @@ export const AGENDAMIENTO_FLOW: FlowDefinition = {
   states: {
     ask_city: {
       prompt:
-        "¡Hola! ✨ Bienvenido(a) a Santa María Clínica Estética. Mi nombre es Carlos y estaré acompañándote en todo tu proceso para resolver tus dudas y ayudarte a encontrar la mejor opción para ti. Para brindarte una atención personalizada, cuéntame por favor ¿desde qué ciudad nos escribes? 😊",
+        "¡Perfecto! Para brindarte una atención personalizada, cuéntame por favor ¿desde qué ciudad nos escribes? 😊",
       collects: "city",
       next: "show_service",
       description: "Bienvenida de Carlos + pedir ciudad (Flujo 1 paso 1)",
@@ -68,8 +68,8 @@ export const AGENDAMIENTO_FLOW: FlowDefinition = {
       prompt:
         "Apreciado(a) paciente, su cita ha sido programada exitosamente en Santa María Clínica Estética ✨ Los detalles fueron enviados a su correo electrónico.\n\n*Recuerde asistir con su documento de identidad original, ya que es requerido para el cumplimiento de nuestros protocolos médicos y el ingreso a nuestras instalaciones.*\n\n*En caso de cancelación, debe informarse con mínimo 24 horas de anticipación; de lo contrario, el abono no será reembolsable.*\n\nAgradecemos su puntualidad. Muchas gracias por confiar en nosotros 🤍",
       collects: null,
-      next: "farewell",
-      description: "Confirmación final (textoexacto §4.2)",
+      next: null,
+      description: "Confirmación final (texto exacto §4.2) — estado terminal",
     },
     farewell: {
       prompt:

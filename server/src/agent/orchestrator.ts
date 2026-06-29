@@ -1,14 +1,18 @@
 import crypto from "crypto";
 import { withTenant } from "../lib/tenant-db.js";
 import { isOutOfHours } from "../lib/hours.js";
-import { evaluateFlow, startFlow, FlowDefinition, CatalogItem } from "../flows/engine.js";
+import { evaluateFlow, startFlow, FlowDefinition, CatalogItem, formatPrice } from "../flows/engine.js";
 import { evaluateEscalation } from "./escalation.js";
-import { getCannedResponse, generateLlmResponse, BusinessContext } from "./responder.js";
+import { getCannedResponse, generateLlmResponse, BusinessContext, addValidationPrefix } from "./responder.js";
 import { classifyIntent } from "./router.js";
 import { getBookingProvider } from "../booking/index.js";
 import { getPaymentProvider } from "../payment/index.js";
 import { summarizeConversation } from "./summarizer.js";
 import { eventBus } from "../lib/event-bus.js";
+import { detectSentiment, type SentimentLabel } from "../lib/sentiment.js";
+import { segmentResponse } from "../lib/segmentation.js";
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export interface AgentRequest {
   tenantId: string;
@@ -87,6 +91,127 @@ async function persistAndEmit(
   return msg.id;
 }
 
+async function emitTypingIndicator(tenantSlug: string, conversationId: string, tenantId: string): Promise<void> {
+  eventBus.emit(tenantSlug, {
+    tenantId,
+    conversationId,
+    message: {
+      id: `typing_${crypto.randomUUID()}`,
+      direction: "outbound",
+      senderType: "bot",
+      text: null,
+      contentType: "typing",
+      createdAt: new Date().toISOString(),
+    },
+  });
+}
+
+async function persistAndEmitSegmented(
+  sql: any,
+  tenantId: string,
+  conversationId: string,
+  tenantSlug: string,
+  text: string,
+  senderType: "bot" | "human",
+  route: string
+): Promise<string> {
+  const segments = segmentResponse(text);
+  let lastId = "";
+
+  for (let i = 0; i < segments.length; i++) {
+    const seg = segments[i];
+
+    if (i === 0) {
+      await emitTypingIndicator(tenantSlug, conversationId, tenantId);
+    }
+
+    await sleep(seg.delayMs);
+
+    const providerMsgId = `bot_${crypto.randomUUID()}`;
+    const [msg] = await sql`
+      INSERT INTO messages (tenant_id, conversation_id, direction, sender_type, provider_message_id, content_type, text, created_at)
+      VALUES (${tenantId}, ${conversationId}, 'outbound', ${senderType}, ${providerMsgId}, 'text', ${seg.text}, NOW())
+      RETURNING id, created_at
+    `;
+
+    eventBus.emit(tenantSlug, {
+      tenantId,
+      conversationId,
+      message: {
+        id: msg.id,
+        direction: "outbound",
+        senderType,
+        text: seg.text,
+        createdAt: msg.created_at,
+      },
+    });
+
+    lastId = msg.id;
+  }
+
+  return lastId;
+}
+
+function withValidation(text: string, sentimentLabel: SentimentLabel | undefined): string {
+  return addValidationPrefix(text, sentimentLabel);
+}
+
+async function persistAndEmitBotResponse(
+  sql: any,
+  tenantId: string,
+  conversationId: string,
+  tenantSlug: string,
+  text: string,
+  route: string,
+  sentimentLabel?: SentimentLabel
+): Promise<string> {
+  const finalText = withValidation(text, sentimentLabel);
+  return persistAndEmitSegmented(sql, tenantId, conversationId, tenantSlug, finalText, "bot", route);
+}
+
+async function sendServiceImages(
+  sql: any,
+  tenantId: string,
+  conversationId: string,
+  tenantSlug: string,
+  catalogItems: CatalogItem[],
+  slots: Record<string, string>
+): Promise<string[]> {
+  const rawName = slots.service || slots.service_name || "";
+  if (!rawName) return [];
+  const clean = rawName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim()
+    .replace(/^(quiero |me gustaria |quisiera |necesito |el |la |un |una |los |las )/, "");
+  const selected = catalogItems.find((c) => {
+    const cn = c.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+    return clean.includes(cn) || cn.includes(clean);
+  });
+  if (!selected?.imageKeys?.length) return [];
+  const imageIds: string[] = [];
+  for (const key of selected.imageKeys) {
+    const providerMsgId = `img_${crypto.randomUUID()}`;
+    const [msg] = await sql`
+      INSERT INTO messages (tenant_id, conversation_id, direction, sender_type, provider_message_id, content_type, text, media_url, created_at)
+      VALUES (${tenantId}, ${conversationId}, 'outbound', 'bot', ${providerMsgId}, 'image', ${selected.name}, ${`/images/${key}`}, NOW())
+      RETURNING id, created_at
+    `;
+    eventBus.emit(tenantSlug, {
+      tenantId,
+      conversationId,
+      message: {
+        id: msg.id,
+        direction: "outbound",
+        senderType: "bot",
+        contentType: "image",
+        mediaUrl: `/images/${key}`,
+        text: selected.name,
+        createdAt: msg.created_at,
+      },
+    });
+    imageIds.push(msg.id);
+  }
+  return imageIds;
+}
+
 async function tryExecuteFlow(
   sql: any,
   conversationId: string,
@@ -121,6 +246,18 @@ async function tryExecuteFlow(
         currentState: state.current_state as string,
         slots: state.slots as Record<string, string>,
       };
+      const stateDef = definition.states[currentContext.currentState];
+      // Estado terminal one-shot (sin next y sin transitions): no debería persistir
+      // — pero si llegó aquí es porque un startFlow viejo lo guardó. Borrar y dejar
+      // caer al router sin devolver el mismo saludo como respuesta "farewell".
+      const isTerminal =
+        stateDef &&
+        !stateDef.transitions &&
+        (stateDef.next == null || stateDef.next === "farewell" || !definition.states[stateDef.next ?? ""]);
+      if (isTerminal) {
+        await sql`DELETE FROM conversation_state WHERE conversation_id = ${conversationId}`;
+        return { response: "", context: { flowKey: "", currentState: "", slots: {} }, executed: false, completed: true };
+      }
       const result = evaluateFlow(definition, currentContext, text, catalogItems);
 
       if (result.completed) {
@@ -198,12 +335,16 @@ async function tryStartFlow(
     const result = startFlow(definition, contactName, catalogItems);
     const context = { ...result.context, flowKey: flow.key as string };
 
-    await sql`
-      INSERT INTO conversation_state (tenant_id, conversation_id, flow_key, current_state, slots)
-      VALUES (${conv.tenant_id}, ${conversationId}, ${flow.key}, ${result.context.currentState}, ${context.slots})
-      ON CONFLICT (conversation_id) DO UPDATE
-        SET flow_key = EXCLUDED.flow_key, current_state = EXCLUDED.current_state, slots = EXCLUDED.slots, updated_at = NOW()
-    `;
+    // Flow terminal (one-shot, p.ej. first_contact saludo): no persistimos state.
+    // El siguiente mensaje pasará tryExecuteFlow → ejecuta:false → router.
+    if (!result.completed) {
+      await sql`
+        INSERT INTO conversation_state (tenant_id, conversation_id, flow_key, current_state, slots)
+        VALUES (${conv.tenant_id}, ${conversationId}, ${flow.key}, ${result.context.currentState}, ${context.slots})
+        ON CONFLICT (conversation_id) DO UPDATE
+          SET flow_key = EXCLUDED.flow_key, current_state = EXCLUDED.current_state, slots = EXCLUDED.slots, updated_at = NOW()
+      `;
+    }
 
     return { response: result.response, context, executed: true };
   }
@@ -212,9 +353,12 @@ async function tryStartFlow(
 }
 
 async function isFirstMessage(sql: any, conversationId: string): Promise<boolean> {
+  // Cuenta solo respuestas previas del bot (outbound). Si el bot nunca respondió,
+  // es la primera interacción — el inbound actual ya está persistido por
+  // ingestInbound antes de processMessage, así que no podemos usar COUNT(*)=0.
   const [result] = await sql`
     SELECT COUNT(*)::int AS count FROM messages
-    WHERE conversation_id = ${conversationId}
+    WHERE conversation_id = ${conversationId} AND direction = 'outbound'
   `;
   return (result?.count ?? 0) === 0;
 }
@@ -236,7 +380,7 @@ async function completeBooking(
   );
 
   const serviceName = selected?.name ?? selectedName;
-  const servicePrice = selected ? `${selected.price} ${selected.currency}` : undefined;
+  const servicePrice = selected ? formatPrice(selected.price, selected.currency) : undefined;
 
   const provider = getBookingProvider(bookingMode);
   const result = await provider.createBooking({
@@ -281,22 +425,39 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
   return withTenant(req.tenantId, async (sql) => {
     const { text, conversationId, contactName, tenantSlug } = req;
 
-    const [convStatus] = await sql`SELECT status FROM conversations WHERE id = ${conversationId} LIMIT 1`;
-    if (convStatus && (convStatus.status === "human_active" || convStatus.status === "escalated")) {
-      return { text: "", messageId: "", route: "flow", escalated: false };
+    if (process.env.AGENT_KERNEL_V2 === 'true') {
+      const { processMessageV2 } = await import("./v2/core/v2-adapter.js");
+      return processMessageV2({ ...req, sql });
     }
+
+    const sentiment = detectSentiment(text);
+    const sentimentLabel = sentiment.isNegative ? sentiment.label : undefined;
 
     const bizContext = await loadBusinessContext(req.tenantId, sql);
 
-    // Check if out of hours
-    if (Object.keys(bizContext.hoursRaw).length > 0 && isOutOfHours(bizContext.hoursRaw)) {
-      const offMsg = bizContext.offHoursMessage ?? "Gracias por escribirnos. Te responderemos en nuestro horario de atención.";
-      const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, offMsg, "bot", "canned");
-      return { text: offMsg, messageId: msgId, route: "canned", escalated: false };
+    const [convStatus] = await sql`SELECT status FROM conversations WHERE id = ${conversationId} LIMIT 1`;
+    if (convStatus && (convStatus.status === "human_active" || convStatus.status === "escalated")) {
+      // En vez de silencio, respondemos un canned claro. Así el usuario sabe que
+      // un humano lo atenderá y la conversación no parece colgada.
+      const handoffText =
+        bizContext.cannedResponses?.handoff_ack ??
+        "🙌 Gracias por escribir. Un asesor humano está revisando tu caso y te responderá en breve. Gracias por tu paciencia 🤍";
+      const msgId = await persistAndEmit(
+        sql, req.tenantId, conversationId, tenantSlug, handoffText, "bot", "canned"
+      );
+      return { text: handoffText, messageId: msgId, route: "canned", escalated: true,
+        escalationReason: convStatus.status === "human_active" ? "already_handoff" : "already_escalated" };
+    }
+
+    // Check if out of hours — only if tenant explicitly configured an off-hours message
+    // DOCX §9: Carlos prefiere "responde normal, sin mencionar el horario" (off_hours_message = null)
+    if (bizContext.offHoursMessage && Object.keys(bizContext.hoursRaw).length > 0 && isOutOfHours(bizContext.hoursRaw)) {
+      const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, bizContext.offHoursMessage, "bot", "canned");
+      return { text: bizContext.offHoursMessage, messageId: msgId, route: "canned", escalated: false };
     }
 
     const catalogItems: CatalogItem[] = await sql`
-      SELECT name, price::text, currency, COALESCE(cities, '[]') AS cities, COALESCE(image_keys, '[]') AS image_keys, promo_label
+      SELECT name, price::text, currency, COALESCE(cities, '[]') AS cities, COALESCE(image_keys, '[]') AS "imageKeys", promo_label AS "promoLabel"
       FROM catalog_items WHERE tenant_id = ${req.tenantId} AND is_active = 1 ORDER BY name
     `;
 
@@ -328,7 +489,7 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
     if (await isFirstMessage(sql, conversationId)) {
       const firstResult = await tryStartFlow(sql, conversationId, "first_contact", catalogItems, contactName);
       if (firstResult.executed) {
-        const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, firstResult.response, "bot", "flow");
+        const msgId = await persistAndEmitBotResponse(sql, req.tenantId, conversationId, tenantSlug, firstResult.response, "flow", sentimentLabel);
         return { text: firstResult.response, messageId: msgId, route: "flow", escalated: false };
       }
     }
@@ -341,17 +502,42 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
         if (slots.service || slots.service_name) {
           const [conv] = await sql`SELECT contact_id FROM conversations WHERE id = ${conversationId} LIMIT 1`;
           const bookingResult = await completeBooking(sql, req.tenantId, conversationId, conv.contact_id, slots, bizContext.bookingMode, catalogItems, contactName);
-          const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, bookingResult.text, "bot", "booking");
+          const msgId = await persistAndEmitBotResponse(sql, req.tenantId, conversationId, tenantSlug, bookingResult.text, "booking", sentimentLabel);
           return { text: bookingResult.text, messageId: msgId, route: "booking", escalated: bookingResult.escalated, escalationReason: bookingResult.escalationReason };
         }
       }
       const textWithPayment = await injectPaymentLink(resumeResult.response, resumeResult.context.currentState, resumeResult.context.slots, catalogItems);
-      const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, textWithPayment, "bot", "flow");
+      const msgId = await persistAndEmitBotResponse(sql, req.tenantId, conversationId, tenantSlug, textWithPayment, "flow", sentimentLabel);
+      // Fire-and-forget send service images
+      sendServiceImages(sql, req.tenantId, conversationId, tenantSlug, catalogItems, resumeResult.context.slots).catch(() => {});
       return { text: textWithPayment, messageId: msgId, route: "flow", escalated: false };
     }
 
     // 2. Classify intent
     const routerResult = await classifyIntent(text);
+
+    // 2b. If router classifies as "queja", ALWAYS escalate — even without keyword match.
+    // The LLM detects complaints the keyword list might miss (e.g. "no me gustó el trato").
+    if (routerResult.intent === "queja") {
+      await sql`UPDATE conversations SET status = 'human_active' WHERE id = ${conversationId}`;
+      try {
+        const rawMsgs = await sql`
+          SELECT sender_type, text, created_at FROM messages
+          WHERE conversation_id = ${conversationId} AND tenant_id = ${req.tenantId}
+          ORDER BY created_at DESC LIMIT 20
+        `;
+        const msgs = rawMsgs.reverse().map((r: any) => ({
+          senderType: r.sender_type as string,
+          text: r.text as string | null,
+          createdAt: r.created_at as string,
+        }));
+        const summary = await summarizeConversation(msgs, contactName ?? "Cliente");
+        await sql`UPDATE conversations SET handoff_summary = ${summary} WHERE id = ${conversationId}`;
+      } catch { /* best-effort */ }
+      const escText = "Tu consulta será atendida por un asesor humano en breve.";
+      const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, escText, "bot", "escalated");
+      return { text: escText, messageId: msgId, route: "escalated", escalated: true, escalationReason: "intento_queja" };
+    }
 
     // 3. Check escalation (low-confidence fallback — keywords already caught above)
     const escalation = evaluateEscalation(text, routerResult.confidence, bizContext.escalationConfig);
@@ -383,7 +569,7 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
     const startResult = await tryStartFlow(sql, conversationId, routerResult.intent, catalogItems, contactName);
     if (startResult.executed) {
       const textWithPayment = await injectPaymentLink(startResult.response, startResult.context.currentState, startResult.context.slots, catalogItems);
-      const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, textWithPayment, "bot", "flow");
+      const msgId = await persistAndEmitBotResponse(sql, req.tenantId, conversationId, tenantSlug, textWithPayment, "flow", sentimentLabel);
       return { text: textWithPayment, messageId: msgId, route: "flow", escalated: false };
     }
 
@@ -401,18 +587,44 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
     const cannedCtx: Record<string, string> = { nombre: contactName ?? "" };
     for (const ci of cityItems) {
       const key = ci.name.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "").slice(0, 30);
-      cannedCtx[`precio_${key}`] = `${ci.price} ${ci.currency}`;
+      cannedCtx[`precio_${key}`] = formatPrice(ci.price, ci.currency);
     }
-    cannedCtx["catalog_list"] = cityItems.map((c) => `- ${c.name}: ${c.price} ${c.currency}`).join("\n");
+    cannedCtx["catalog_list"] = cityItems.map((c) => `- ${c.name}: ${formatPrice(c.price, c.currency)}`).join("\n");
     const canned = getCannedResponse(routerResult.intent, cannedCtx, bizContext.cannedResponses);
     if (canned) {
-      const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, canned, "bot", "canned");
+      const msgId = await persistAndEmitBotResponse(sql, req.tenantId, conversationId, tenantSlug, canned, "canned", sentimentLabel);
       return { text: canned, messageId: msgId, route: "canned", escalated: false };
     }
 
-    // 6. LLM responder
-    const llmText = await generateLlmResponse(text, bizContext);
-    const msgId = await persistAndEmit(sql, req.tenantId, conversationId, tenantSlug, llmText, "bot", "llm");
+    // 6. LLM responder — with conversation context (last 10 messages + active flow slots)
+    const histRows = await sql`
+      SELECT sender_type, text FROM messages
+      WHERE conversation_id = ${conversationId} AND tenant_id = ${req.tenantId}
+        AND (direction = 'inbound' OR (direction = 'outbound' AND sender_type = 'bot'))
+      ORDER BY created_at DESC LIMIT 10
+    `;
+    let historyMessages: { role: "user" | "assistant"; text: string }[] = [];
+    let historySlots: Record<string, string> = {};
+    try {
+      if (histRows && Array.isArray(histRows)) {
+        historyMessages = (histRows as any[]).reverse().map((r) => ({
+          role: r.sender_type === "contact" ? "user" as const : "assistant" as const,
+          text: r.text ?? "",
+        })).filter((m) => m.text.length > 0);
+      }
+    } catch { /* ignore */ }
+    try {
+      const [slotsRow] = await sql`SELECT slots FROM conversation_state WHERE conversation_id = ${conversationId} LIMIT 1`;
+      if (slotsRow?.slots) historySlots = slotsRow.slots as Record<string, string>;
+    } catch { /* ignore */ }
+
+    const llmText = await generateLlmResponse(text, bizContext, {
+      messages: historyMessages,
+      slots: historySlots,
+      contactName,
+      sentiment: sentimentLabel,
+    });
+    const msgId = await persistAndEmitBotResponse(sql, req.tenantId, conversationId, tenantSlug, llmText, "llm", sentimentLabel);
     return { text: llmText, messageId: msgId, route: "llm", escalated: false };
   });
 }

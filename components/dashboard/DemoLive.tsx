@@ -87,15 +87,21 @@ export default function DemoLive() {
       <button
         onClick={() => setOpen(true)}
         className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full gradient-brand-bg text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 flex items-center justify-center"
-        aria-label="Demo en vivo"
+        aria-label="Abrir demo en vivo"
+        aria-expanded={open}
       >
         <Bot className="w-6 h-6" />
       </button>
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-end justify-center sm:justify-end p-4 sm:p-6 pointer-events-none">
-          <div className="absolute inset-0 bg-black/20 pointer-events-auto" onClick={() => setOpen(false)} />
-          <div className="relative w-full sm:w-96 h-[520px] sm:h-[560px] app-surface rounded-2xl shadow-2xl border app-border flex flex-col overflow-hidden pointer-events-auto animate-in fade-in slide-in-from-bottom-4 duration-200">
+          <div className="absolute inset-0 bg-black/20 pointer-events-auto" onClick={() => setOpen(false)} aria-hidden="true" />
+          <div
+            className="relative w-full sm:w-96 h-[520px] sm:h-[560px] app-surface rounded-2xl shadow-2xl border app-border flex flex-col overflow-hidden pointer-events-auto animate-in fade-in slide-in-from-bottom-4 duration-200"
+            role="dialog"
+            aria-label="Demo en vivo — agente IA Bookia"
+            aria-modal="true"
+          >
             <div className="gradient-brand-bg px-4 py-3 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-2.5">
                 <Avatar className="w-7 h-7">
@@ -109,12 +115,12 @@ export default function DemoLive() {
                   </p>
                 </div>
               </div>
-              <button onClick={() => setOpen(false)} className="text-white/70 hover:text-white transition-colors">
+              <button onClick={() => setOpen(false)} className="text-white/70 hover:text-white transition-colors" aria-label="Cerrar demo en vivo">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gradient-to-b from-indigo-50/20 to-transparent">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gradient-to-b from-indigo-50/20 to-transparent" aria-live="polite" aria-label="Mensajes del agente">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
                   {msg.sender === "bot" ? (
@@ -169,8 +175,9 @@ export default function DemoLive() {
                   placeholder="Escribe como cliente..."
                   className="flex-1 h-10 text-sm"
                   disabled={sending}
+                  aria-label="Escribe un mensaje como cliente del bot"
                 />
-                <Button type="submit" size="icon" className="h-10 w-10 app-brand-bg text-white shrink-0" disabled={sending || !input.trim()}>
+                <Button type="submit" size="icon" className="h-10 w-10 app-brand-bg text-white shrink-0" disabled={sending || !input.trim()} aria-label="Enviar mensaje">
                   {sending ? (
                     <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : (

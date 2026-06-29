@@ -1,0 +1,134 @@
+[
+  {
+    "task": "M3_dashboard",
+    "shot": "main",
+    "viewport": "desktop",
+    "file": "docs/eval-ui/2026-06-27/shots/M3_dashboard_main_desktop.png",
+    "url": "http://localhost:3001/dashboard",
+    "consoleErrors": [],
+    "reqFailures": [],
+    "gemma": {
+      "scores": {
+        "visual": 2,
+        "contenido": 3,
+        "accesibilidad": 2,
+        "responsivo": 2,
+        "ux": 3,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "Dashboard de inteligencia",
+          "what": "Consistencia visual en la presentación de métricas clave.",
+          "evidence": "Ingreso potencial en conversaciones activas: $2.4M / 0% vs mes anterior",
+          "suggestedFix": "Aunque los datos son claros, se recomienda utilizar un sistema de tarjetas más uniforme para agrupar las tres métricas principales (Conversaciones Activas, Ingreso Potencial y Citas Agendadas) para mejorar la escaneabilidad visual."
+        },
+        {
+          "sev": "P2",
+          "where": "Embudo de conversión",
+          "what": "Mejorar la accesibilidad de los porcentajes dentro del embudo.",
+          "evidence": "0% dejearon de avanzar aquí / 57% dejaron de avanzar aquí",
+          "suggestedFix": "Asegurar que todos los puntos porcentuales críticos (como '0% dejearon de avanzar aquí') tengan etiquetas ARIA o tooltips descriptivos para usuarios con lectores de pantalla, ya que la información es crucial."
+        },
+        {
+          "sev": "P2",
+          "where": "General Dashboard Layout",
+          "what": "Optimización del espacio superior (Header/KPIs).",
+          "evidence": "Bookia | Dashboard / Selector de fecha y perfil de usuario en la esquina superior derecha.",
+          "suggestedFix": "El área superior está muy densa. Considerar mover el selector de fecha o los filtros secundarios a un menú desplegable más compacto para liberar espacio visual y reducir la carga cognitiva al inicio del dashboard."
+        }
+      ],
+      "summary": "El MVP presenta una estructura de contenido excelente (3/3) y una experiencia de usuario muy intuitiva, especialmente en el manejo del 'Embudo de conversión'. Visualmente es limpio, pero se pueden mejorar los grupos de métricas clave para aumentar la escaneabilidad. Se recomienda revisar la consistencia visual entre las tarjetas KPI principales y asegurar que todos los porcentajes críticos sean accesibles mediante etiquetas ARIA."
+    }
+  },
+  {
+    "task": "M3_dashboard",
+    "shot": "scrolled",
+    "viewport": "desktop",
+    "file": "docs/eval-ui/2026-06-27/shots/M3_dashboard_scrolled_desktop.png",
+    "url": "http://localhost:3001/dashboard",
+    "consoleErrors": [],
+    "reqFailures": [],
+    "gemma": {
+      "scores": {
+        "visual": 3,
+        "contenido": 3,
+        "accesibilidad": 2,
+        "responsivo": 2,
+        "ux": 2,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "Dashboard de inteligencia",
+          "what": "Sobrecarga cognitiva (Information Overload). El dashboard presenta una cantidad excesiva de métricas y datos en un solo vistazo.",
+          "evidence": "Sección 'Dashboard de inteligencia' que contiene múltiples tarjetas de métrica ($2.4M, $9.0M) junto con el embudo completo de conversión.",
+          "suggestedFix": "Implementar la divulgación progresiva (progressive disclosure). Agrupar las métricas en pestañas o secciones colapsables, permitiendo al usuario enfocarse primero en los KPIs principales y profundizar después."
+        },
+        {
+          "sev": "P2",
+          "where": "Embudo de conversión",
+          "what": "Falta de contexto para la tasa de conversión. Aunque se muestran porcentajes (ej. 57% dejaron de avanzar aquí), no hay una explicación clara sobre qué significa 'avanzar' o cuál es el objetivo final del embudo.",
+          "evidence": "Sección 'Embudo de conversión' con pasos como 'Mensajes recibidos' y 'Mostraron interés'.",
+          "suggestedFix": "Añadir un texto explicativo (tooltip o subtítulo) que defina claramente la métrica principal del embudo y el proceso ideal de conversión."
+        },
+        {
+          "sev": "P1",
+          "where": "Navegación/Dashboard general",
+          "what": "Mejorar la gestión del foco (Focus Management). En dashboards complejos, es crucial asegurar que todos los elementos interactivos sean navegables mediante teclado y muestren un estado de foco visible.",
+          "evidence": "Elementos de navegación como 'Dashboard', 'Conversaciones' en el menú lateral.",
+          "suggestedFix": "Asegurar que se implementen estados `:focus` visibles (ej. un anillo azul) para todos los componentes interactivos, cumpliendo con WCAG 2.1."
+        }
+      ],
+      "summary": "El dashboard es visualmente limpio y presenta una estructura de datos muy robusta, lo cual es excelente para la toma de decisiones. Sin embargo, su principal debilidad es la sobrecarga cognitiva; el usuario se enfrenta a demasiados KPIs simultáneamente. Se recomienda encarecidamente implementar técnicas de divulgación progresiva (progressive disclosure) y mejorar la claridad contextual del embudo de conversión."
+    }
+  },
+  {
+    "task": "M3_dashboard",
+    "shot": "main",
+    "viewport": "mobile",
+    "file": "docs/eval-ui/2026-06-27/shots/M3_dashboard_main_mobile.png",
+    "url": "http://localhost:3001/dashboard",
+    "consoleErrors": [],
+    "reqFailures": [],
+    "gemma": {
+      "scores": {
+        "visual": 3,
+        "contenido": 2,
+        "accesibilidad": 2,
+        "responsivo": 3,
+        "ux": 3,
+        "funcional": 3
+      },
+      "pass": true,
+      "findings": [
+        {
+          "sev": "P2",
+          "where": "metric_labels",
+          "what": "Claridad de términos financieros complejos.",
+          "evidence": "DINERO SOBRE LA MESA",
+          "suggestedFix": "Implementar tooltips o descripciones breves debajo del título de la métrica para definir claramente qué representa el término (ej. 'Dinero sobre la mesa: Valor total de transacciones confirmadas pero aún no pagadas'). Esto mejora la comprensión para usuarios no expertos."
+        },
+        {
+          "sev": "P2",
+          "where": "metric_formatting",
+          "what": "Inconsistencia en el formato de moneda y unidades.",
+          "evidence": "$9.0M / $9.010.000 COP",
+          "suggestedFix": "Estandarizar la presentación del valor monetario. Si se usa 'M' (millones), debe ser consistente con cómo se muestra el número completo ('$9.010.000 COP') para evitar confusión sobre si es una abreviatura o un formato de miles."
+        },
+        {
+          "sev": "P2",
+          "where": "navigation",
+          "what": "Etiquetado de la navegación principal.",
+          "evidence": "Dashboard de inteligencia",
+          "suggestedFix": "Asegurar que el título 'Dashboard de inteligencia' esté asociado a un encabezado H1 semántico y que los iconos (como el menú hamburguesa) tengan etiquetas ARIA descriptivas para lectores de pantalla."
+        }
+      ],
+      "summary": "El dashboard es visualmente impecable, utiliza tarjetas efectivas y proporciona excelente feedback contextual con las flechas de variación. La experiencia de usuario es alta debido a la claridad en los datos clave. Se recomienda mejorar el contenido añadiendo definiciones claras (tooltips) para términos financieros complejos como 'Dinero sobre la mesa' y estandarizar el formato de moneda."
+    }
+  }
+]

@@ -174,7 +174,7 @@
 @utility app-bg { background-color: #F7F7FB; }            /* fondo general (gris muy claro azulado) */
 @utility app-text-hi { color: #18181B; }                  /* títulos / texto principal */
 @utility app-text-mid { color: #52525B; }                 /* texto secundario */
-@utility app-text-lo { color: #A1A1AA; }                  /* texto terciario / labels */
+@utility app-text-lo { color: #71717A; }                  /* texto terciario / labels (WCAG AA ~4.6:1 sobre #F7F7FB) */
 @utility app-border { border-color: #E8E8EF; }            /* bordes sutiles */
 @utility app-brand { color: #6D28D9; }                    /* acento de marca (texto/ícono) */
 @utility app-brand-bg {                                    /* botones/headers de marca */

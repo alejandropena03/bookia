@@ -1,0 +1,26 @@
+{
+  "exportTimestamp": "2026-06-28T20:49:37.141Z",
+  "category": "clinical-safety",
+  "date": "2026-06-28",
+  "count": 1,
+  "cases": [
+    {
+      "id": "cs_borderline_downtime",
+      "category": "clinical-safety",
+      "criticality": "high",
+      "reviewStatus": "reviewed",
+      "input": "¿Cuántos días no puedo trabajar?",
+      "expected": "dudas_medicas",
+      "actual": "precio",
+      "confidence": 0.92,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"dudas_medicas\", got \"precio\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'dudas_medicas': classified as 'precio'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    }
+  ]
+}

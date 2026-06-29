@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -33,6 +33,30 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false)
   const [saving, setSaving] = useState(false)
 
+  // Hidratación desde el backend: cuando profile llega, sobreescribimos los valores
+  // iniciales (placeholder) con los reales. Sincroniza name/city/horas/agente/tono.
+  useEffect(() => {
+    if (!profile) return
+    // Extraer nombre y tono del campo persona (formato: "Eres <name>, asesor de <biz>. Tono <tone> ...")
+    const persona = profile.persona ?? ""
+    const nameMatch = persona.match(/Eres\s+([^,]+),\s+asesor/i)
+    const toneMatch = persona.match(/Tono\s+(\w+)/i)
+    if (nameMatch) setAgentName(nameMatch[1].trim())
+    if (toneMatch) {
+      const t = toneMatch[1].trim().toLowerCase()
+      if (["formal", "amigable", "mixto"].includes(t)) setTone(t)
+    }
+    // Horarios desde profile.hours (formato: { mon: "09:00-19:00", ... }) → tomar el primero
+    const hours: Record<string, string> = profile.hours ?? {}
+    const firstSlot = Object.values(hours)[0]
+    if (firstSlot && firstSlot.includes("-")) {
+      const [open, close] = firstSlot.split("-")
+      if (open) setBusiness((b) => ({ ...b, openTime: open.trim() }))
+      if (close) setBusiness((b) => ({ ...b, closeTime: close.trim() }))
+    }
+    // Ciudades no están en el schema actual — dejamos el placeholder (edición manual)
+  }, [profile])
+
   async function handleSave() {
     setSaving(true)
     setSaved(false)
@@ -45,7 +69,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-2xl space-y-8">
+    <div className="max-w-2xl space-y-8 pb-24">
       <div>
         <h1 className="text-2xl font-bold app-text-hi">Configuración</h1>
         <p className="app-text-mid text-sm mt-1">Gestiona tu negocio y tu agente IA</p>
@@ -64,7 +88,11 @@ export default function SettingsPage() {
           </div>
           <div>
             <label className="text-sm font-medium app-text-hi block mb-1.5">Tipo de negocio</label>
-            <select defaultValue={business.type} className="w-full h-10 px-3 rounded-xl border app-border bg-white text-sm app-text-hi focus:outline-none focus:ring-2 focus:ring-[#6D28D9]/20 focus:border-[#6D28D9]">
+            <select
+              value={business.type}
+              onChange={(e) => setBusiness({ ...business, type: e.target.value })}
+              className="w-full h-10 px-3 rounded-xl border app-border bg-white text-sm app-text-hi focus:outline-none focus:ring-2 focus:ring-[#6D28D9]/20 focus:border-[#6D28D9]"
+            >
               <option value="clinica_estetica">Clínica estética</option>
               <option value="spa">Spa</option>
               <option value="salud">Salud</option>
@@ -192,6 +220,8 @@ export default function SettingsPage() {
             <button
               onClick={() => setNotifs({ ...notifs, [n.key]: !notifs[n.key as keyof typeof notifs] })}
               className={`relative w-11 h-6 rounded-full transition-colors shrink-0 mt-0.5 ${notifs[n.key as keyof typeof notifs] ? "bg-indigo-600" : "bg-gray-200"}`}
+              aria-pressed={notifs[n.key as keyof typeof notifs]}
+              aria-label={`${n.label}: ${notifs[n.key as keyof typeof notifs] ? "activada" : "desactivada"}`}
             >
               <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${notifs[n.key as keyof typeof notifs] ? "translate-x-6" : "translate-x-1"}`} />
             </button>
@@ -199,17 +229,26 @@ export default function SettingsPage() {
         ))}
       </section>
 
-      <Button
-        onClick={handleSave}
-        className="app-brand-bg px-8 font-medium"
-      >
-        {saving ? "Guardando..." : saved ? "¡Guardado!" : "Guardar cambios"}
-      </Button>
-
-      <p className="text-xs app-text-lo pb-8">
-        Los cambios se guardan en el backend vía PUT /api/profile.
-        Datos sincronizados desde GET /api/profile y GET /api/catalog.
-      </p>
+      {/* Sticky action bar: el botón Guardar siempre visible, sin scroll */}
+      <div className="fixed bottom-0 left-0 right-0 md:left-64 z-30 bg-white/95 backdrop-blur border-t app-border px-6 py-3 flex items-center justify-between gap-4">
+        <p className="text-xs app-text-mid hidden sm:block">
+          Los cambios se guardan en el backend vía PUT /api/profile.
+        </p>
+        <div className="flex items-center gap-3 ml-auto">
+          {saved && (
+            <span className="text-sm text-emerald-600 font-medium" role="status" aria-live="polite">
+              ¡Guardado!
+            </span>
+          )}
+          <Button
+            onClick={handleSave}
+            disabled={saving}
+            className="app-brand-bg px-8 font-medium"
+          >
+            {saving ? "Guardando..." : saved ? "¡Guardado!" : "Guardar cambios"}
+          </Button>
+        </div>
+      </div>
     </div>
   )
 }

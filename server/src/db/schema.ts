@@ -153,6 +153,19 @@ export const workerLogs = pgTable("worker_logs", {
   summary: jsonb("summary").$type<Record<string, unknown>>().default({}).notNull(),
 });
 
+export const patientMemory = pgTable("patient_memory", {
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),
+  contactId: uuid("contact_id").notNull().references(() => contacts.id, { onDelete: "cascade" }),
+  memoryJson: jsonb("memory_json").$type<Record<string, unknown>>().default({}).notNull(),
+  version: integer("version").default(1).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }),
+  lastConversationId: uuid("last_conversation_id").references(() => conversations.id, { onDelete: "set null" }),
+}, (table) => [
+  uniqueIndex("patient_memory_tenant_contact_idx").on(table.tenantId, table.contactId),
+]);
+
 export const bookings = pgTable("bookings", {
   id: uuid("id").defaultRandom().primaryKey(),
   tenantId: uuid("tenant_id").notNull().references(() => tenants.id, { onDelete: "cascade" }),

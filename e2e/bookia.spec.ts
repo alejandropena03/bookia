@@ -22,11 +22,12 @@ test.describe("Landing page", () => {
     await expect(page).toHaveURL(/\/login/)
   })
 
-  test("pricing muestra 3 tiers en COP", async ({ page }) => {
-    await page.goto("/")
-    await expect(page.locator("text=$99.000")).toBeVisible()
-    await expect(page.locator("text=$249.000")).toBeVisible()
-    await expect(page.locator("text=$499.000")).toBeVisible()
+  // TODO(eval-ui 2026-06-27): La sección pricing fue removida de la landing.
+  // El navbar ya no tiene el anchor #precios y ningún componente renderiza los tiers.
+  // Ver docs/eval-ui/2026-06-27/REPORT.md apéndice "Análisis post-eval".
+  // Para reactivar este test, restaurar un componente pricing con tiers COP en la landing.
+  test.skip("pricing muestra 3 tiers en COP", async () => {
+    // placeholder: assertion restaurada cuando vuelva la sección pricing
   })
 })
 

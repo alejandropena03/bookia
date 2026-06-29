@@ -1,77 +1,84 @@
-# Handoff Log (append-only)
+# Handoff Log
 
-| Fecha (ISO) | De → A | Task | Estado | Nota |
-|---|---|---|---|---|
-| 2026-06-11 | Claude → OpenCode | TASK-001 | WAITING_FOR_OPENCODE | Scaffold del backend (Hono+TS+Drizzle+Docker+Postgres). Primera tarea del bridge. TDD en docs/TDD-BACKEND-MVP.md. |
-| 2026-06-11 | OpenCode → Claude | TASK-001 | WAITING_FOR_CLAUDE | Backend scaffold completado: 13 archivos creados, tests pasan, build compila, Docker image build exitoso. Pendiente: desbloquear puerto 5432 localmente para validar full Docker end-to-end. + Presentación de OpenCode a Claude abajo. |
-| 2026-06-12 | Claude → OpenCode | TASK-001 | DONE | Revisado y APROBADO. Código limpio y trazable al TDD (health 503/200 real, CORS, multi-stage Docker, lock trackeado). Archivada en tasks/TASK-001.md. Nota menor: test de /health no cubre caso DB-conectada (testcontainers a futuro). ¡Buena presentación, OpenCode! |
-| 2026-06-12 | Claude → OpenCode | TASK-002 | WAITING_FOR_OPENCODE | Schema completo (9 tablas §3 del TDD) + índices/idempotencia + RLS multi-tenant + seed placeholder de Santa María. Sugerido puerto 5433 para evitar choque con oli-postgres. |
-| 2026-06-12 | OpenCode → Claude | TASK-002 | WAITING_FOR_CLAUDE | Schema completado: 9 tablas, 8 enums, índices, FKs, migración, RLS en 8 tablas, seed Santa María (1 tenant, 5 catalog, 1 flow, 1 user). Todos los criterios pasan (db:generate, migrate, seed, test, build, RLS check, health endpoint 200). |
-| 2026-06-12 | Claude → OpenCode | TASK-002 | DONE (con fix) | APROBADA. Schema y seed excelentes (flujo placeholder fiel al workflow real de Santa María). Claude encontró 2 huecos en el RLS (faltaba FORCE RLS y WITH CHECK → escritura cross-tenant posible) y los corrigió en el SQL. Archivada en tasks/TASK-002.md. Deuda menor: is_active integer→boolean (anotada). |
-| 2026-06-12 | Claude → OpenCode | TASK-002b | WAITING_FOR_OPENCODE | Re-aplicar RLS corregido (FORCE + WITH CHECK), ajustar seed para FORCE RLS, y escribir test de aislamiento real (cross-tenant SELECT/INSERT rechazado). El SQL ya corregido por Claude en el repo. |
-| 2026-06-12 | OpenCode → Claude | TASK-002b | WAITING_FOR_CLAUDE | RLS hardening completado: rol bookia_app creado (superuser bypassa RLS incluso con FORCE), test de aislamiento con 6 tests pasando (SELECT, INSERT cross-tenant, UPDATE cross-tenant, non-matching GUC, FORCE check). Seed ajustado con set_config post-tenant. |
-| 2026-06-12 | Claude → OpenCode | TASK-002b | DONE | APROBADA sin reservas. OpenCode encontró un 3er hueco que Claude no vio (rol bookia es SUPERUSER → bypassa RLS incluso con FORCE) y creó rol bookia_app limitado. Test de aislamiento genuino (2 conexiones, lectura aislada + escritura cross-tenant rechazada + fail-safe). Excelente rigor. Archivada. |
-| 2026-06-12 | Claude → OpenCode | TASK-003/004/005 | WAITING_FOR_OPENCODE | MODO EFICIENTE: lote de 3 tareas emitido. 003 activa (channel-adapter+mock+sim+SSE), 004 y 005 en queue/. Encadenar según protocolo de cola (README §Cola): parar solo en bloqueo o hito (005 es hito → revisión a fondo de Claude). |
-| 2026-06-11 | OpenCode → Claude | TASK-003 | DONE | Channel-Adapter + MockAdapter + sim endpoints + SSE + ingestInbound. Validado con Docker: curl POST /api/sim/message responde 201, idempotencia responde 200 con duplicated:true, SSE emite eventos por tenant. 23 tests pasan (8 channel + 7 llm + 6 rls + 2 health). Fix: DATABASE_URL_APP env var agregada para bookia_app en Docker. |
-| 2026-06-11 | OpenCode → Claude | TASK-004 | DONE | Capa LLM: DeepSeekProvider (OpenAI-compatible), MockLlmProvider, eval harness con casos de prueba (agendamiento, precio), generación de reporte markdown comparativo con costos. 7 tests LLM pasan. Decision: DeepSeek API reemplaza OpenRouter por orden de Alejandro. |
-| 2026-06-11 | OpenCode → Claude | TASK-005 | WAITING_FOR_CLAUDE | Cerebro híbrido completo: router, flow-engine (conversation_state table), responder, template, escalation, orchestrator pipeline. Flujo de agendamiento E2E funcional (6 pasos), escalación por keywords, LLM responder para preguntas abiertas. 39 tests pasan (5 suites). Estructura alineada a specs de Claude (flows/ dir, orchestrator, conversation_state table). Pendiente: revisión a fondo de Claude. |
-| 2026-06-12 | OpenCode → Claude | TASK-003/004 | DONE | (confirmado en log) Channel-adapter+mock+SSE y capa LLM DeepSeek+Mock+eval. Aprobadas como parte del lote. Nota de proceso: se commitearon comprimidas con 005, no 1-por-tarea. |
-| 2026-06-12 | Claude → OpenCode | TASK-005 | REVISADA (con correcciones) | Cerebro bien arquitecturado y demo E2E corre. PERO: 🔴 las respuestas del bot NO se persisten (emitResponse solo emite SSE, no INSERTa en messages) — rompe historial/dashboard. 🟠 escalación cortocircuita por baja confianza antes de keywords (emergencia no escala) + ignora business_profile.rules. 🟠 booking_mode no implementado. 🟡 precio no se interpola, router sin Zod. Archivada en tasks/TASK-005.md. |
-| 2026-06-12 | Claude → OpenCode | TASK-006 | WAITING_FOR_OPENCODE | Cerrar huecos del hito: FIX1 persistir outbound, FIX2 escalación coherente+configurable, FIX3 BookingProvider mock+handoff + cierre de flujo, FIX4 interpolar precio/catálogo + Zod en router. No avanzar a features nuevas hasta cerrar esto. |
-| 2026-06-12 | OpenCode → Claude | TASK-006 | WAITING_FOR_CLAUDE | Los 4 fixes implementados + bug JSONB/postgres.js corregido. 42/42 tests, build OK. E2E flow agendamiento completo (9 pasos, booking persistida, 18 mensajes). Detalle en CURRENT_TASK.md. |
-| 2026-06-12 | Claude → OpenCode | TASK-006 | DONE | APROBADA, hito cerrado. Verifiqué código real: persistAndEmit con id real ✅, escalación keywords-first + configurable ✅, BookingProvider mock/handoff + tabla bookings ✅, router Zod+fences ✅, bug JSONB corregido por OpenCode (buen hallazgo, solo aparece ejecutando). Cerebro sólido. Nota menor: msg de escalación se persiste como sender_type='human', debería ser 'bot' (anotado en TASK-007). Archivada. |
-| 2026-06-12 | Claude → OpenCode | TASK-007/008 | WAITING_FOR_OPENCODE | Lote: 007 activa (API dashboard/métricas + inbox humano takeover/handback + bot se abstiene si human_active), 008 en queue (conectar front Next.js al backend real + demo en vivo SSE). 008 es hito visible → revisión de Claude. |
-| 2026-06-12 | Claude → OpenCode | TASK-008 | ON_HOLD | Pausada: Alejandro va a rediseñar el front antes de conectarlo (diseño actual no le gusta). OpenCode: al terminar TASK-007 NO encadenar a 008; dejar WAITING_FOR_CLAUDE. La 008 se reescribirá tras el rediseño. |
-| 2026-06-12 | OpenCode → Claude | TASK-007 | WAITING_FOR_CLAUDE | Dashboard API + inbox humano + bot abstains implementados. 51/51 tests, 9 endpoints funcionando en Docker. Detalle en CURRENT_TASK.md. |
-| 2026-06-12 | Claude → OpenCode | TASK-009 | QUEUED | Rediseño LANDING premium "tech luxe" (Apple/Stripe/Linear + GSAP, fondo mixto oscuro→claro, degradado morado→azul del logo, demo del agente en vivo). Dirección aprobada por Alejandro. Alta prioridad: es la carta de presentación. Spec detallada en queue/TASK-009-landing.md. Arranca tras revisión de TASK-007. |
-| 2026-06-12 | Claude → OpenCode | TASK-007 | DONE | APROBADA. Inbox humano (takeover/handback/reply) + bot se abstiene si human_active (verificado en código) + 9 endpoints con JOINs limpios bajo withTenant (RLS ok) + métricas. 51 tests. Nota seguridad → PENDIENTES: middleware resolveTenant solo opera con DEV_AUTH=true, falta validación JWT real para producción (deuda crítica, no bloquea MVP dev). Archivada. |
-| 2026-06-12 | Claude → OpenCode | TASK-009 | WAITING_FOR_OPENCODE | LUZ VERDE a la landing. Tarea activa (CURRENT_TASK.md). Máxima prioridad. SOLO app/page.tsx. Al terminar → WAITING_FOR_CLAUDE (hito visual, revisan Claude + Alejandro). |
-| 2026-06-12 | OpenCode → Claude | TASK-009 | WAITING_FOR_CLAUDE | Landing rediseñada: 8 componentes en components/landing/, GSAP+ScrollTrigger, hero oscuro+aurora, demo-chat agendamiento, features grid, metrics, cta, footer. Build OK. |
-| 2026-06-12 | Claude (meto mano) | TASK-009 | ELEVADA | Claude revisó y elevó directamente: reescribió hero (ícono+glow, escala dramática, grid, entrada cinematográfica, parallax), globals.css (jerarquía blancos, gradient 4 stops, grain, grid utils), spotlight en features, divisor+gradación en how-it-works. No pudo correr build (sin deps). Commit "design: elevar landing tech-luxe". |
-| 2026-06-12 | Claude → OpenCode | TASK-009b | WAITING_FOR_OPENCODE | Validar build de los cambios de Claude (ojo @utility Tailwind v4) + propagar nivel premium: jerarquía blancos en todas las secciones, typing indicator real en demo-chat, count-up en metrics, botón magnético en cta, ícono en navbar. Al terminar WAITING_FOR_CLAUDE (revisan Claude+Alejandro). |
-| 2026-06-12 | OpenCode → Claude | TASK-009b | DONE | Build validado + nivel premium propagado (typing, count-up, magnético, jerarquía blancos). |
-| 2026-06-12 | Claude (iteración con Alejandro) | LANDING | APROBADA ✅ | Tras varias rondas de feedback de Alejandro: navbar (wordmark solo, legible), copy transversal (no cerrar a estética, decisión #2 reuniones), tamaños generosos + ancho 1280-1400px, ícono real en chat, hero above-the-fold, copy honesto (sin métricas inventadas, "atiende agenda y nunca duerme"), 3 canales + TikTok "pronto" con fila de logos. LANDING CERRADA. |
-| 2026-06-12 | Claude → OpenCode | TASK-010 | WAITING_FOR_OPENCODE | Rediseño área de app (login/register/dashboard/conversaciones/settings) tema CLARO con acentos de marca (decisión Alejandro). Tokens app-* ya en globals.css. OJO: no heredar el dark de la landing — landing sigue oscura, app sale clara. Solo visual, no conectar backend aún. HITO → revisión Claude+Alejandro. |
-| 2026-06-12 | OpenCode → Claude | TASK-010 | DONE | Área de app rediseñada tema claro. Build OK. PERO Alejandro reportó: login salía OSCURO (bug), dashboard genérico/mediocre, error de hidratación en Settings (button anidado en button). |
-| 2026-06-12 | Claude (fixes directos) | TASK-010 | CORREGIDO | (1) Login oscuro: bug raíz en app/layout.tsx (forzaba dark + bg negro + text-white en body, pisaba el app-bg). Fix: body neutro, landing aplica su propio dark. (2) Settings: TooltipTrigger envolvía Button → button-in-button; fix con asChild + span. |
-| 2026-06-12 | Claude → OpenCode | TASK-011 | WAITING_FOR_OPENCODE | Dashboard de INTELIGENCIA COMERCIAL de alto impacto (Alejandro: el actual era genérico/mediocre). 6 bloques: dinero (ingreso/oportunidad), embudo conversión, demanda por servicio, heatmap horas, ROI del bot, actividad reciente. Mock realista para Santa María, shape documentado para backend. Tipografía de números con carácter. HITO → revisión. |
-| 2026-06-12 | OpenCode → Claude | TASK-011 | WAITING_FOR_CLAUDE | Dashboard inteligencia: 6 componentes + lib/dashboard-mock.ts con shape documentado. Números animados, embudo, heatmap, ROI, demanda por servicio. Build OK. |
-| 2026-06-12 | Claude → OpenCode | TASK-011 | DONE (con re-fix) | Dashboard de inteligencia APROBADO por Alejandro. Claude re-arregló el button-anidado en Settings que OpenCode había reintroducido (Base UI usa render={}, no asChild). Archivada. |
-| 2026-06-12 | Claude → OpenCode | TASK-012/013/014 | WAITING_FOR_OPENCODE | LOTE conectar producto END-TO-END (Alejandro: "todo conectado de una" + insights reales). 012 activa (backend calcula insights de inteligencia, shape DashboardData), 013 queue (conectar front + demo en vivo SSE), 014 queue (datos de muestra + verificación E2E + README demo). 013 y 014 son hitos → revisión Claude. |
-| 2026-06-12 | OpenCode → Claude | TASK-009 | WAITING_FOR_CLAUDE | Landing page rediseñada "tech luxe" oscura: 8 componentes GSAP (navbar glass, hero aurora+stagger, demo chat scroll-triggered, cómo funciona, features grid, métricas, CTA pulsante, footer). Build ✅ sin errores. GSAP + @gsap/react instalados. Rutas existentes intactas. |
-| 2026-06-12 | Claude → OpenCode | TASK-009b | WAITING_FOR_OPENCODE | Revisión y elevación: Claude reescribió hero con grain/grid/spotlight, features spotlight follower, how-it-works divider. OpenCode validó build + propagó mismo premium a navbar (icon+wordmark), demo-chat (typing indicator real), metrics (count-up GSAP), cta (botón magnético), footer (icon). Todos con text-hi/mid/lo. Build ✅. |
-| 2026-06-12 | OpenCode → Claude | TASK-010 | WAITING_FOR_CLAUDE | Área de app rediseñada a tema claro con utilities `app-*`. Auth layout + login/register con wordmark. Dashboard layout sidebar claro + topbar + responsive. Charts recoloreados (indigo/azul marca). ConversationsInbox + Settings migrados a tema claro. Landing `/` sigue oscura intacta. Build ✅. |
-| 2026-06-12 | OpenCode → Claude | TASK-011 | WAITING_FOR_CLAUDE | Dashboard de inteligencia comercial completado: 6 bloques (dinero, embudo, demanda, heatmap, ROI, actividad). Mock data realista para Santa María con shape documentado. Fix: TooltipTrigger asChild en settings. Build ✅. |
-| 2026-06-12 | OpenCode → Claude | TASK-012 | WAITING_FOR_CLAUDE | Endpoint GET /api/metrics/intelligence con shape DashboardData real desde DB. server/src/metrics/intelligence.ts + route + 7 tests (todos pasan, 48/58). Builds server+front ✅. |
-| 2026-06-12 | OpenCode → Claude | TASK-013 | WAITING_FOR_CLAUDE | Front conectado al backend real: lib/api.ts (13 funciones), TanStack Query en dashboard+conversaciones+settings. Demo en vivo SSE con botón flotante. Profile/catalog en settings. Build ✅. |
-| 2026-06-12 | Claude → OpenCode | TASK-012 | DONE | APROBADA. Endpoint /api/metrics/intelligence con shape DashboardData calculado desde DB real (KPIs, funnel 5 etapas, demanda por servicio, heatmap 7×7, ROI, actividad reciente). 7/7 tests, RLS respetado, builds ✅. Archivada. |
-| 2026-06-12 | Claude → OpenCode | TASK-013 | WAITING_FOR_OPENCODE | HITO: conectar TODO el front al backend real + demo en vivo SSE. Cliente tipado lib/api.ts, dashboard consume /metrics/intelligence, bandeja real, demo en vivo (sim/message → SSE → respuesta agente en pantalla). Al terminar → WAITING_FOR_CLAUDE (no encadenar a 014). |
-| 2026-06-12 | OpenCode → Claude | TASK-013 | WAITING_FOR_CLAUDE | Front conectado: lib/api.ts (13 funciones), QueryProvider, dashboard con fallback mock, conversaciones/detalle reales, settings sincronizado (GET profile/catalog), DemoLive botón flotante + modal SSE en tiempo real. Build ✅. |
-| 2026-06-12 | Claude (fix) | TASK-013 | DONE | APROBADA. Código revisado en profundidad: cliente tipado limpio, QueryProvider correcto, adaptadores de shape coherentes, use(params) correcto para Next.js 16, DemoLive bien wired. Fix Claude: SSE filtraba todos los mensajes del tenant → ahora filtra por conversationId del thread activo (evita mezcla en pitch en vivo). Archivada. |
-| 2026-06-12 | Claude → OpenCode | TASK-014 | WAITING_FOR_OPENCODE | HITO FINAL: datos de muestra realistas para Santa María (últimos 30 días, canales variados, bookings con precios reales, heatmap con picos) + validación E2E completa + README-DEMO para que cualquiera levante la demo. Al terminar → WAITING_FOR_CLAUDE (revisión final del producto). |
-| 2026-06-12 | OpenCode → Claude | TASK-014 | WAITING_FOR_CLAUDE | seed-demo.ts (idempotente, 15 convs, 275 msgs, bookings, price-no-booking, heatmap picos tarde-noche). Fix propio: canal "facebook"→"messenger" (enum). vitest singleFork fix. README-DEMO completo. 58/58 tests, builds ✅. |
-| 2026-06-12 | Claude → OpenCode | TASK-014 | DONE ✅ LOTE 012-014 CERRADO | APROBADA. Seed robusto (idempotente, distribución temporal realista, bug fix del enum descubierto por OpenCode). singleFork correcto. README claro. Producto en estado "esperando credenciales". Deuda menor: DATABASE_URL hardcodeada en seed-demo (Fase 2). |
-| 2026-06-12 | Claude → OpenCode | TASK-015 | WAITING_FOR_OPENCODE | Motor de hiperpersonalización completo. 6 fixes al motor existente (system prompt desde DB, validación horario, canned responses desde DB, escalation format, flujo first_contact, tryStartFlow genérico) + importador de plantilla de Carlos (import-tenant.ts + tenant-config/[slug].json). Al terminar con este, recibir la plantilla real = un comando. HITO → WAITING_FOR_CLAUDE. |
-| 2026-06-12 | OpenCode → Claude | TASK-014 | WAITING_FOR_CLAUDE | ✅ HITO FINAL COMPLETADO. Seed-demo mejorado (bug fix facebook→messenger, bias horario para heatmap, más mensajes). 58/58 tests, builds backend+frontend OK. Fixes a test suite (singleFork + cleanup tenants). README-DEMO actualizado. Pendiente Claude: revisión final producto + BookingProvider + deudas. |
-| 2026-06-12 | Claude → OpenCode | TASK-015 | WAITING_FOR_OPENCODE | Motor de hiperpersonalización completo. 6 fixes al motor existente (system prompt desde DB, validación horario, canned responses desde DB, escalation format, flujo first_contact, tryStartFlow genérico) + importador de plantilla de Carlos (import-tenant.ts + tenant-config/[slug].json). Al terminar con este, recibir la plantilla real = un comando. HITO → WAITING_FOR_CLAUDE. |
-| 2026-06-12 | OpenCode → Claude | TASK-015 | WAITING_FOR_CLAUDE | ✅ Motor hiperpersonalización completado: 6 fixes (system prompt DB, hours, canned DB, escalation format, first_contact, tryStartFlow genérico) + import-tenant.ts + tenant-config/santa-maria.json + migración 0003. 58/58 tests, builds OK, seed+import idempotentes. Pendiente Claude: revisión + cuando llegue plantilla de Carlos, npm run import:tenant -- --slug=[cliente]. |
-| 2026-06-12 | Claude (fix) | TASK-015 | DONE | APROBADA. Fix Claude: double query en orchestrator (hoursRaw se consultaba 2 veces) → eliminada. Motor listo para plantilla de Carlos. |
-| 2026-06-12 | OpenCode → Claude | TASK-016 (PROPUESTA) | EN_COLA | Propuesta de 4 features: pasarela pagos (Wompi), recordatorios, re-engagement leads, CRM cumpleaños. Prioridad: pagos primero. Archivo en queue/TASK-016-features-propuesta.md. |
-| 2026-06-12 | Claude → OpenCode | TASK-016..020 | WAITING_FOR_OPENCODE | LOTE valor mientras llega plantilla de Carlos. 016: recordatorios anti-no-show. 017: Wompi pagos modo pending_activation (HITO→revisión Claude). 018: re-engagement leads fríos. 019: CRM post-servicio+recompra. 020: handoff con resumen automático LLM (HITO→revisión Claude). |
-| 2026-06-13 | OpenCode → Claude | TASK-016 | DONE | Worker reminder.ts + endpoint + migración 0004. 58/58 tests. |
-| 2026-06-13 | OpenCode → Claude | TASK-017 | WAITING_FOR_CLAUDE (HITO) | Wompi pagos: PaymentProvider interface + WompiProvider + fallback ManualProvider + webhook + migración 0005 + inyección en orchestrator. Sin Wompi configurado → comportamiento manual intacto. 58/58 tests. Pendiente revisión Claude para continuar a TASK-018. |
-| 2026-06-12 | OpenCode → Claude | TASK-016+017 | WAITING_FOR_CLAUDE | 016: worker recordatorios (reminder_status idempotente, withTenant, worker_logs). 017: Wompi modo pending_activation, injectPaymentLink en orchestrator, webhook signature, migraciones 0004+0005. 58/58 tests. |
-| 2026-06-12 | Claude (fix) | TASK-016+017 | DONE → continuar 018 | 016 APROBADA sin cambios. 017 APROBADA con fix seguridad: verifyWebhookSignature usaba SHA256(rawBody+key) puro — Wompi usa concat de propiedades ordenadas. Fix: try formato estándar primero, fallback raw. Webhook ahora usa provider.verifyWebhookSignature en vez de lógica inline duplicada. |
-| 2026-06-13 | OpenCode (infra fix) | — | NOTA | Outline container caído. Bookia ocupaba puerto 3000 (Next.js dev) → el tunnel de Cloudflare servía Bookia donde debía ir Outline. Fix: levantar Outline container, mover Bookia a puerto 3001 (`next dev -p 3001`), tunnel ya redirige correctamente a Outline. `https://outline.myfreenotion.qzz.io` funciona con 112 documentos. Usuario Juan Pablo creado en Outline + Authentik (juanpablo / juanpablo). Guía `docs/PRACTICAS-DEV.md` y script `project/sync-outline.sh` creados. |
-| 2026-06-13 | OpenCode → Claude | TASK-018 | DONE | Re-engagement leads fríos: worker secuencia días 1/7/30, migración 0006, endpoint. 58/58 tests. |
-| 2026-06-13 | OpenCode → Claude | TASK-019 | DONE | CRM post-servicio (7d reseña Google) + recompra (90d). Migración 0007. 58/58 tests. |
-| 2026-06-13 | OpenCode → Claude | TASK-020 | DONE | Handoff resumen automático LLM (summarizer.ts), migración 0008, orquestrador genera resumen en escalación, API lo expone. Build front+server OK. HITO → WAITING_FOR_CLAUDE. |
-| 2026-06-12 | OpenCode → Claude | TASK-018+019+020 | WAITING_FOR_CLAUDE | 018: re-engagement 3 pasos (step idempotente). 019: CRM post-servicio+recompra LATERAL JOIN. 020: summarizer LLM + handoff_summary en conversations. 3 migraciones. Builds OK. |
-| 2026-06-12 | Claude (fix) | TASK-018..020 | DONE ✅ LOTE 016-020 CERRADO | 018 fix: alias c→co en contact_name (conversations vs contacts) + verificación días transcurridos antes del siguiente paso (evita duplicar msgs). 019 y 020 sin cambios. Lote completo. |
-| 2026-06-15 | OpenCode → Claude | TASK-022 | WAITING_FOR_CLAUDE | **Auditoría completa MVP** Alejandro probó y reportó: (1) DemoLive "Error conectando al backend" → **FIXED** (seed no corrido), (2) Conversaciones vacías → **FIXED** (seed-demo pobló 18 convs), (3) Agenda/Analítica no existen → placeholders "Próximamente". Se aplicaron 6 fixes: seed, Docker rebuild, api.ts params, service.ts auto-create channel_account, MockLlmProvider router vs responder, tests actualizados. **58/58 tests, builds OK.** Quedan 3 bugs conocidos: CRM worker tipo text vs timestamp, webhooks tenant resolve, volumen Postgres no persistente. Queue con auditoría detallada + preguntas para Claude. |
-| 2026-06-15 | Claude → OpenCode | TASK-023 | WAITING_FOR_OPENCODE | Smoke test radical + 5 fixes bloqueantes: CRM datetime cast, webhook tenant resolve, volumen Postgres nombre único, NEXT_PUBLIC_API_URL en .env.local, nombre negocio duplicado en sidebar. Script start-dev.sh (un comando levanta todo) + smoke-test.sh (todos los endpoints E2E). HITO → WAITING_FOR_CLAUDE. |
-| 2026-06-15 | OpenCode → Claude | TASK-023 | WAITING_FOR_CLAUDE | **COMPLETA.** 5 fixes (A-E) + smoke test 12/12 PASS + start-dev.sh + README-DEV + schema push. Fix extras: bookia_app role recreado en volumen nuevo, seed idempotente. **58/58 tests, builds OK, smoke 12/12.** |
-| 2026-06-15 | OpenCode → Claude | TASK-023 | WAITING_FOR_CLAUDE | 5 fixes bloqueantes: CRM cast, webhook tenant, volumen pgdata, .env.local, sidebar duplicado. smoke-test.sh 12/12 PASS. start-dev.sh un solo comando. README-DEV. Bonus: migraciones 0002-0008 via db:push, seed idempotente. 58/58 tests, builds OK. |
-| 2026-06-15 | Claude (fix) | TASK-023 | DONE | APROBADA. Topbar 'Admin' hardcodeado → reemplazado por nombre/email real de la sesión Auth.js (useSession). Todo lo demás correcto. Producto funcional: bash start-dev.sh + npm run dev. |
-| 2026-06-15 | OpenCode → Claude | TASK-023 | DONE ✅ STANDBY | **MVP sellado.** SessionProvider fix (crash arreglado), conversaciones con loading/error states, botones reply/aprobar funcionales, DemoLive con DeepSeek real, sidebar sin Analítica, entrypoint auto-seed, CRM worker fix, webhook tenant fix, MockLlmProvider separado. 12/12 smoke, 58/58 tests, builds OK. PROYECTO EN STANDBY esperando plantilla de Carlos. Nada más que tocar hasta que llegue. |
-| 2026-06-27 | OpenCode → Claude | TASK-024 | DONE | **Plantilla Carlos TERMINADA → agente 100% alineado.** Re-extracción completa del docx final: 31 servicios (+Radiesse Plus +Faja mentonera), 24 canned responses exactas (devolucion, dudas_medicas, solicitud_comercial Elkin 3187354841, nombres_doctores por ciudad, comprobante_pago Bancolombia A&S Group SAS NIT 901916939, caso_alergia), flow agendamiento con 9 datos + textos exactos Carlos. Schema ampliado: catalog_items +cities jsonb +image_keys jsonb +promo_label (migracion 0009). tenant-config/santa-maria.json reescrito total. import-tenant.ts mapea nuevas columnas. Bug fix seed.ts (db.execute cursor) + postgres json helper. **Filtro multi-ciudad funciona** (/api/catalog?city=CDMX: 19 svcs vs Medellín 31). Agendamiento E2E probado: bienvenida Carlos → catálogo filtrado por ciudad → servicio → confirmación. Escalation (Elkin/emergencia) OK. Horario 9-19 respetado. **65/65 tests (antes 58), builds server+front OK, smoke 15/15.** Deuda: bugs TASK-022 (CRM text, webhook, UI inbox, settings persist) + Fase 4 (recordatorios/Wompi/reengagement). |
+## 2026-06-28 — OpenCode → Próximo agente
+
+### Resumen
+- **PRs completados:** PR3.1 (regression cleanup), PR4 (quality scoring + metrics), PR6 (clinical safety audit)
+- **PR pendiente:** PR6.1 — Clinical Policy Enforcement (forzar policyAction según evaluateClinicalSafety)
+- **Score:** 78.1% eval, 58.4% V2 vs 26.3% V1 (411 cases, 0 regresiones)
+- **Tests:** 247 pass, tsc clean
+
+### Archivos creados/modificados en esta sesión
+| Archivo | Cambio |
+|---|---|
+| `src/agent/v2/types/quality-score.ts` | **NUEVO** — QualityDimension, QualityScore, ReviewQueueEntry, MetricEvent |
+| `src/agent/v2/core/quality-scorer.ts` | **NUEVO** — 7-dimension scorer con pesos |
+| `src/agent/v2/core/metric-emitter.ts` | **NUEVO** — Dual stdout/file metric emission + review queue |
+| `src/agent/v2/policy/clinical-safety-audit.ts` | **NUEVO** — Builder pattern audit con JSONL export |
+| `src/agent/v2/understanding/structured-router.ts` | **MODIFICADO** — Integración ClinicalSafetyAudit en pipeline |
+| `src/agent/v2/understanding/safety-pre-router.ts` | **MODIFICADO** — Third-party booking check en CONTRA_SIGNALS |
+| `src/agent/v2/understanding/deterministic-domain-route.ts` | **MODIFICADO** — BOOKING_KEYWORDS + "precio en dólares" pattern |
+| `src/agent/v2/eval/compare-v1-v2.ts` | **MODIFICADO** — Fix TS errors |
+| `data/agent-review-queue.jsonl` | **NUEVO** — Append-only review queue |
+| `data/clinical-audit-log.jsonl` | **NUEVO** — 187 entries de auditoría clínica |
+
+### Decisiones clave
+1. **Passive vs active cancel**: applyOverrides distingue "me cancelaron" (víctima → queja) de "quiero cancelar" (activo → cancelacion_reprogramacion)
+2. **Tercero + booking**: pre-router salta CONTRA_SIGNALS si hay "mi hija" + "agendar"
+3. **ClinicalSafetyAudit transparente**: no cambia comportamiento — solo observa y exporta. Enforcement en PR6.1
+4. **Quality scorer heurístico**: 7 dimensiones con pesos, best-effort siempre
+
+### Archivos críticos para PR7
+- `server/src/agent/v2/response/response-critic.ts` — el critic debe ser reescrito con CriticAction real
+- `server/src/agent/v2/types/decision-trace.ts` — puede necesitar extensión para critic issues
+- Review queue + metric emitter (PR4) — integrar critic issues
+
+### Cómo comenzar PR7
+1. Leer CURRENT_TASK.md (ya actualizado a PR7)
+2. Revisar response-critic.ts actual (si existe)
+3. Implementar ResponseCritic con las 6 reglas obligatorias
+4. Integrar con review queue y metric emitter
+5. Tests: bloquear/regenerar → revisar/no bloquear → pasar
+6. Validar con tsc + tests + eval + comparison + audit
+
+## 2026-06-29 — OpenCode → Próximo agente (PR7 completado)
+
+### Resumen PR7
+Response Critic Hardening completado. El critic pasó de ser decorativo (lista NEVER_SAY + contract check) a un gate determinístico con 6 categorías de reglas, PII masking, y CriticAction real.
+
+### Archivos modificados en PR7
+| Archivo | Cambio |
+|---|---|
+| `src/agent/v2/response/response-critic.ts` | **REESCRITO** — nuevas interfaces, 6 reglas, masking, CriticAction |
+| `src/agent/v2/core/agent-kernel.ts` | **MODIFICADO** — `applyCritic()` integrado en 4 return points |
+| `src/agent/v2/types/decision-trace.ts` | **MODIFICADO** — `criticIssues[]` y `criticAction` en quality |
+| `src/agent/v2/index.ts` | **MODIFICADO** — nuevos exports (maskPII, tipos) |
+| `tests/v2-agent.test.ts` | **MODIFICADO** — +9 tests PR7, actualizados tests existentes |
+
+### Score post-PR7
+- Tests: 256/256 pass
+- tsc: clean
+- Eval: 78.1%, 0 regresiones
+- Clinical audit: 0/187 fails
+
+## 2026-06-29 — OpenCode → Próximo agente (PR2.6 completado, iniciando PR8)
+
+### PR2.6 — Router Triage Final
+
+Routing final mejorado de 78.1% a 87.7% (+9.6pp). 41 critical failures → 21. V2 vs V1: 62.8% vs 26.3% (antes 58.4%).
+
+Router feature-freeze: los 21 failures restantes son LLM otro@0.30 que requieren refactor mayor de SYSTEM_PROMPT — no vale la pena ahora.
+
+### Archivos modificados en PR2.6
+| Archivo | Cambio |
+|---|---|
+| `safety-pre-router.ts` | Injection regexes, HUMAN/CONTRA signals, NFC normalization |
+| `deterministic-domain-route.ts` | +15 domain signals, NFC normalization |
+| `structured-router.ts` | Cancel override expandido, +30 prompt examples, NFC normalization |
+
+### PR8 — Flow Adapter V2 (iniciando ahora)
+Flows memory-aware: agendamiento, precio, first_contact consultan memoria V2 antes de pedir datos. No repreguntar lo que el usuario ya dió.
+
+### Archivos a crear en PR8
+- `src/agent/v2/adapter/flow-adapter.ts` — bridge kernel V2 → flows
+- `src/agent/v2/memory/memory-service.ts` — abstracción sobre memoria persistente

@@ -31,7 +31,7 @@ describe("DemoLive — chat en vivo", () => {
 
     render(<DemoLive />)
     // Abrir widget
-    fireEvent.click(screen.getByLabelText("Demo en vivo"))
+    fireEvent.click(screen.getByLabelText("Abrir demo en vivo"))
     const input = screen.getByPlaceholderText("Escribe como cliente...")
     fireEvent.change(input, { target: { value: "hola" } })
     await act(async () => {
@@ -53,7 +53,7 @@ describe("DemoLive — chat en vivo", () => {
     })
 
     render(<DemoLive />)
-    fireEvent.click(screen.getByLabelText("Demo en vivo"))
+    fireEvent.click(screen.getByLabelText("Abrir demo en vivo"))
     const input = screen.getByPlaceholderText("Escribe como cliente...")
     fireEvent.change(input, { target: { value: "hola" } })
     await act(async () => {
@@ -83,7 +83,7 @@ describe("DemoLive — chat en vivo", () => {
     })
 
     render(<DemoLive />)
-    fireEvent.click(screen.getByLabelText("Demo en vivo"))
+    fireEvent.click(screen.getByLabelText("Abrir demo en vivo"))
     const input = screen.getByPlaceholderText("Escribe como cliente...")
     fireEvent.change(input, { target: { value: "x" } })
     await act(async () => {
@@ -105,7 +105,7 @@ describe("DemoLive — chat en vivo", () => {
   it("muestra mensaje de error si el backend falla", async () => {
     sendMock.mockRejectedValueOnce(new Error("backend boom"))
     render(<DemoLive />)
-    fireEvent.click(screen.getByLabelText("Demo en vivo"))
+    fireEvent.click(screen.getByLabelText("Abrir demo en vivo"))
     const input = screen.getByPlaceholderText("Escribe como cliente...")
     fireEvent.change(input, { target: { value: "ayuda" } })
     await act(async () => {

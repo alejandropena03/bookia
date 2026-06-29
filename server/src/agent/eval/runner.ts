@@ -1,123 +1,160 @@
 import { getLlm } from "../llm/index.js";
+import { classifyIntent } from "../router.js";
+import { ROUTER_EVAL_CASES, RouterEvalCase } from "./cases/router-intents.js";
 import { MODEL_PRICING, estimateCost } from "./pricing.js";
-import { agendamientoCase } from "./cases/agendamiento.js";
-import { precioCase } from "./cases/precio.js";
 import fs from "node:fs";
 import path from "node:path";
 
 interface EvalResult {
-  model: string;
   caseName: string;
+  input: string;
+  expectedIntent: string;
+  actualIntent: string;
+  confidence: number;
   passed: boolean;
-  score: number;
-  inputTokens: number;
-  outputTokens: number;
-  cost: number;
-  response: string;
   errors: string[];
+  cost: number;
+  category: string;
 }
 
-interface EvalCase {
-  name: string;
-  description: string;
-  messages: { role: string; content: string }[];
-  expectedIntent?: string;
-  minConfidence?: number;
-}
-
-const cases: EvalCase[] = [agendamientoCase, precioCase];
-
-function scoreResponse(response: string, evalCase: EvalCase): { score: number; errors: string[] } {
+async function runCase(evalCase: RouterEvalCase): Promise<EvalResult> {
   const errors: string[] = [];
-  let score = 0;
+  let actualIntent = "error";
+  let confidence = 0;
 
-  if (evalCase.expectedIntent) {
-    try {
-      const parsed = JSON.parse(response);
-      if (parsed.intent === evalCase.expectedIntent) {
-        score += 40;
-      } else {
-        errors.push(`Expected intent '${evalCase.expectedIntent}', got '${parsed.intent}'`);
-      }
-      if ((parsed.confidence ?? 0) >= (evalCase.minConfidence ?? 0.7)) {
-        score += 20;
-      } else {
-        errors.push(`Low confidence: ${parsed.confidence}`);
-      }
-    } catch {
-      // Not JSON — might be a free-text response from LLM responder
-      score += 10;
+  try {
+    const result = await classifyIntent(evalCase.input);
+    actualIntent = result.intent;
+    confidence = result.confidence;
+
+    if (result.intent !== evalCase.expectedIntent) {
+      errors.push(`Expected "${evalCase.expectedIntent}", got "${result.intent}"`);
     }
+    const minConf = evalCase.minConfidence ?? 0.7;
+    if (confidence < minConf) {
+      errors.push(`Low confidence: ${confidence} < ${minConf}`);
+    }
+  } catch (err) {
+    errors.push(`Exception: ${(err as Error).message}`);
   }
 
-  // Penalize empty responses
-  if (!response || response.length < 5) {
-    errors.push("Empty or too short response");
-  } else {
-    score += 20;
-  }
-
-  return { score, errors };
+  const cost = estimateCost("deepseek-v4-flash", 100, 50);
+  return {
+    caseName: evalCase.name,
+    input: evalCase.input,
+    expectedIntent: evalCase.expectedIntent,
+    actualIntent,
+    confidence,
+    passed: errors.length === 0,
+    errors,
+    cost,
+    category: evalCase.category,
+  };
 }
 
-async function runEval(models: string[]): Promise<void> {
+async function runEval(): Promise<void> {
   const results: EvalResult[] = [];
-  const llm = getLlm();
+  const total = ROUTER_EVAL_CASES.length;
 
-  console.log("🧪 Running eval harness\n");
+  console.log(`🧪 Running eval harness — ${total} cases\n`);
+  console.log("Case".padEnd(35) + "Expected".padEnd(22) + "Actual".padEnd(22) + "Conf".padEnd(8) + "Result");
+  console.log("─".repeat(100));
 
-  for (const model of models) {
-    for (const evalCase of cases) {
-      const system = "Eres un clasificador de intenciones. Responde SOLO con JSON: {\"intent\": \"...\", \"confidence\": 0.xx, \"extractedSlots\": {}}";
+  for (const evalCase of ROUTER_EVAL_CASES) {
+    const result = await runCase(evalCase);
+    results.push(result);
+    const status = result.passed ? "✅" : "❌";
+    console.log(
+      result.caseName.padEnd(35) +
+      result.expectedIntent.padEnd(22) +
+      result.actualIntent.padEnd(22) +
+      result.confidence.toFixed(2).padEnd(8) +
+      status
+    );
+  }
 
-      try {
-        const result = await llm.complete({
-          system,
-          messages: evalCase.messages.map((m) => ({ role: m.role as "user" | "system", content: m.content })),
-          model,
-          temperature: 0.1,
-        });
+  // ── Aggregate metrics ──
+  const passed = results.filter((r) => r.passed).length;
+  const failed = total - passed;
+  const accuracy = ((passed / total) * 100).toFixed(1);
 
-        const { score, errors } = scoreResponse(result.text, evalCase);
-        const cost = estimateCost(model, result.usage.inputTokens, result.usage.outputTokens);
+  // Per-intent accuracy
+  const intentGroups: Record<string, EvalResult[]> = {};
+  for (const r of results) {
+    const key = r.expectedIntent;
+    if (!intentGroups[key]) intentGroups[key] = [];
+    intentGroups[key].push(r);
+  }
 
-        results.push({
-          model,
-          caseName: evalCase.name,
-          passed: errors.length === 0,
-          score,
-          inputTokens: result.usage.inputTokens,
-          outputTokens: result.usage.outputTokens,
-          cost,
-          response: result.text.slice(0, 200),
-          errors,
-        });
-      } catch (err) {
-        results.push({
-          model,
-          caseName: evalCase.name,
-          passed: false,
-          score: 0,
-          inputTokens: 0,
-          outputTokens: 0,
-          cost: 0,
-          response: "",
-          errors: [(err as Error).message],
-        });
-      }
+  const perIntent: { intent: string; total: number; passed: number; accuracy: string }[] = [];
+  for (const [intent, cases] of Object.entries(intentGroups)) {
+    const p = cases.filter((r) => r.passed).length;
+    perIntent.push({
+      intent,
+      total: cases.length,
+      passed: p,
+      accuracy: ((p / cases.length) * 100).toFixed(0) + "%",
+    });
+  }
+
+  // Per-category accuracy
+  const categoryGroups: Record<string, EvalResult[]> = {};
+  for (const r of results) {
+    if (!categoryGroups[r.category]) categoryGroups[r.category] = [];
+    categoryGroups[r.category].push(r);
+  }
+
+  const perCategory: { category: string; total: number; passed: number; accuracy: string }[] = [];
+  for (const [cat, cases] of Object.entries(categoryGroups)) {
+    const p = cases.filter((r) => r.passed).length;
+    perCategory.push({
+      category: cat,
+      total: cases.length,
+      passed: p,
+      accuracy: ((p / cases.length) * 100).toFixed(0) + "%",
+    });
+  }
+
+  // ── Report ──
+  const reportDir = path.join(process.cwd(), "src/agent/eval/reports");
+  fs.mkdirSync(reportDir, { recursive: true });
+
+  let md = `# Router Eval Report — ${new Date().toISOString()}\n\n`;
+  md += `## Summary\n\n`;
+  md += `| Metric | Value |\n|---|---|\n`;
+  md += `| Total cases | ${total} |\n`;
+  md += `| Passed | ${passed} |\n`;
+  md += `| Failed | ${failed} |\n`;
+  md += `| **Overall accuracy** | **${accuracy}%** |\n`;
+  md += `| Est. cost | $${results.reduce((s, r) => s + r.cost, 0).toFixed(4)} |\n\n`;
+
+  md += `## Per-intent accuracy\n\n`;
+  md += `| Intent | Cases | Passed | Accuracy |\n|---|---|---|---|\n`;
+  for (const p of perIntent.sort((a, b) => a.intent.localeCompare(b.intent))) {
+    md += `| ${p.intent} | ${p.total} | ${p.passed} | ${p.accuracy} |\n`;
+  }
+
+  md += `\n## Per-category accuracy\n\n`;
+  md += `| Category | Cases | Passed | Accuracy |\n|---|---|---|---|\n`;
+  for (const c of perCategory) {
+    md += `| ${c.category} | ${c.total} | ${c.passed} | ${c.accuracy} |\n`;
+  }
+
+  md += `\n## Failed cases\n\n`;
+  const failures = results.filter((r) => !r.passed);
+  if (failures.length === 0) {
+    md += `_All cases passed! 🎉_\n`;
+  } else {
+    md += `| Case | Input | Expected | Actual | Errors |\n|---|---|---|---|---|\n`;
+    for (const f of failures) {
+      md += `| ${f.caseName} | "${f.input.slice(0, 50)}" | ${f.expectedIntent} | ${f.actualIntent} | ${f.errors.join("; ")} |\n`;
     }
   }
 
-  // Generate report
-  const reportPath = path.join(process.cwd(), "src/agent/eval/reports");
-  fs.mkdirSync(reportPath, { recursive: true });
-
-  let md = `# Eval Report — ${new Date().toISOString()}\n\n`;
-  md += `| Model | Case | Passed | Score | Input Tokens | Output Tokens | Cost (USD) | Errors |\n`;
-  md += `|---|---|---|---|---|---|---|---|\n`;
-
+  md += `\n## All results\n\n`;
+  md += `| Case | Input | Expected | Actual | Conf | Result |\n|---|---|---|---|---|---|\n`;
   for (const r of results) {
-    md += `| ${r.model} | ${r.caseName} | ${r.passed ? "✅" : "❌"} | ${r.score} | ${r.inputTokens} | ${r.outputTokens} | $${r.cost.toFixed(6)} | ${r.errors.join("; ") || "-"} |\n`;
+    md += `| ${r.caseName} | "${r.input.slice(0, 40)}" | ${r.expectedIntent} | ${r.actualIntent} | ${r.confidence.toFixed(2)} | ${r.passed ? "✅" : "❌"} |\n`;
   }
 
   md += `\n## Model pricing used\n\n`;
@@ -126,11 +163,21 @@ async function runEval(models: string[]): Promise<void> {
     md += `| ${model} | $${p.input} | $${p.output} |\n`;
   }
 
-  const reportFile = path.join(reportPath, `report-${Date.now()}.md`);
+  const reportFile = path.join(reportDir, `router-eval-${Date.now()}.md`);
   fs.writeFileSync(reportFile, md);
-  console.log(md);
+
+  console.log("\n" + "═".repeat(60));
+  console.log(`📊 RESULTS: ${passed}/${total} passed (${accuracy}%)`);
+  console.log("═".repeat(60));
+  console.log("\nPer-intent accuracy:");
+  for (const p of perIntent.sort((a, b) => a.intent.localeCompare(b.intent))) {
+    const bar = "█".repeat(Math.round(parseInt(p.accuracy) / 10));
+    console.log(`  ${p.intent.padEnd(25)} ${p.accuracy.padStart(4)} ${bar}`);
+  }
   console.log(`\n📄 Report saved to ${reportFile}`);
+
+  // Exit code: 0 if all pass, 1 if any fail
+  if (failed > 0) process.exitCode = 1;
 }
 
-const models = process.env.EVAL_MODELS?.split(",") ?? ["mock"];
-runEval(models).catch(console.error);
+runEval().catch(console.error);

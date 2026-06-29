@@ -1,0 +1,604 @@
+{
+  "exportTimestamp": "2026-06-28T19:34:54.869Z",
+  "category": "typos-ambiguous",
+  "date": "2026-06-28",
+  "count": 30,
+  "cases": [
+    {
+      "id": "typo_hyaluronic",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Qué es el acido hialuronico?",
+      "expected": "dudas_medicas",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"dudas_medicas\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'dudas_medicas': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "typo_peeling",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "Peling quimico",
+      "expected": "precio",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"precio\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'precio': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "typo_hilos",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "Hilos tensorez",
+      "expected": "precio",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"precio\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'precio': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "typo_carboxy",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "Carbociterapia",
+      "expected": "precio",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"precio\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'precio': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "typo_agenda_ort",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "Kiero aqendar",
+      "expected": "agendamiento",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"agendamiento\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'agendamiento': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "typo_horario",
+      "category": "typos-ambiguous",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "Oraios de atencion",
+      "expected": "horarios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"horarios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'horarios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "typo_telefono",
+      "category": "typos-ambiguous",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "Telofono?",
+      "expected": "faq_contacto",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_contacto\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_contacto': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "typo_servicios",
+      "category": "typos-ambiguous",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "Servicos",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "typo_cancelar",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "Canzelar cita",
+      "expected": "cancelacion_reprogramacion",
+      "actual": "agendamiento",
+      "confidence": 0.95,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"cancelacion_reprogramacion\", got \"agendamiento\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'cancelacion_reprogramacion': classified as 'agendamiento'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "typo_contacto",
+      "category": "typos-ambiguous",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "Contakto",
+      "expected": "faq_contacto",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_contacto\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_contacto': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "amb_servicio_multi",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Tienen rejuvenecimiento facial?",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "amb_servicio_manchas",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Tratan manchas en la cara?",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "amb_servicio_cicatrices",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Quitan cicatrices?",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "amb_servicio_liposuccion",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Hacen liposucción?",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "amb_servicio_laser",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Tienen láser?",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "amb_servicio_depilacion",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Depilación láser?",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "amb_servicio_rostro_delgado",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Algo para afinar el rostro?",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "amb_servicio_ojeras",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Tratan las ojeras?",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "amb_servicio_labios",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "Quiero relleno de labios",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "amb_servicio_nariz",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Arreglan la nariz sin cirugía?",
+      "expected": "faq_servicios",
+      "actual": "precio",
+      "confidence": 0.9,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"precio\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'precio'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "amb_servicio_parpados",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Hacen blefaroplastia?",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "amb_servicio_estrias",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Tratan estrías?",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "amb_servicio_verrugas",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Quitan verrugas?",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "amb_servicio_lunares",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Se pueden quitar lunares?",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "amb_servicio_sudoracion",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Tratan la sudoración excesiva?",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "amb_servicio_acne",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Tratan el acné?",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "amb_servicio_antiaging",
+      "category": "typos-ambiguous",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Qué tienen para anti-envejecimiento?",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "amb_short_hora",
+      "category": "typos-ambiguous",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "Hora?",
+      "expected": "horarios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"horarios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'horarios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "amb_short_tel",
+      "category": "typos-ambiguous",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "Telefono?",
+      "expected": "faq_contacto",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_contacto\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_contacto': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "amb_short_botox",
+      "category": "typos-ambiguous",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "Botox?",
+      "expected": "precio",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"precio\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'precio': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    }
+  ]
+}

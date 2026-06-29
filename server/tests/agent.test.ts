@@ -277,7 +277,7 @@ describe("template normalization", () => {
     expect(started.response).toContain("Confirmas");
     const result = evaluateFlow(def, started.context, sla, catalog);
     expect(result.response).toContain("Full Face — Ácido Hialurónico");
-    expect(result.response).toContain("2999000");
+    expect(result.response).toContain("$2.999.000");
     expect(result.response).not.toContain("Quiero el");
   });
 

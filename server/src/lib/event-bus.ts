@@ -8,6 +8,8 @@ export interface MessageEvent {
     direction: "inbound" | "outbound";
     senderType: "contact" | "bot" | "human";
     text: string | null;
+    contentType?: string;
+    mediaUrl?: string;
     createdAt: string;
   };
 }

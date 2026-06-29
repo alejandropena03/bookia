@@ -15,7 +15,16 @@
     "seed": "tsx src/db/seed.ts",
     "seed:demo": "tsx src/db/seed-demo.ts",
     "import:tenant": "tsx src/db/import-tenant.ts",
-    "smoke-test": "bash scripts/smoke-test.sh"
+    "smoke-test": "bash scripts/smoke-test.sh",
+    "test:v2:unit": "vitest run tests/v2-agent.test.ts tests/v2-memory-persistence.test.ts",
+    "test:v2:integration": "vitest run tests/v2-memory-integration.test.ts tests/rls.test.ts",
+    "eval:router-v1": "tsx src/agent/eval/runner.ts",
+    "eval:router-v2": "tsx src/agent/v2/eval/v2-eval-runner.ts",
+    "eval:v2:fast": "tsx src/agent/v2/eval/eval-runner.ts --fast --output markdown",
+    "eval:v2:full": "tsx src/agent/v2/eval/eval-runner.ts --include-unreviewed --output json",
+    "eval:v2:critical": "tsx src/agent/v2/eval/eval-runner.ts --critical-only --reviewed-only --output markdown",
+    "eval:v2:golden": "tsx src/agent/v2/eval/eval-runner.ts --golden-only --output markdown",
+    "eval:v2:cat": "tsx src/agent/v2/eval/eval-runner.ts --category"
   },
   "dependencies": {
     "@hono/node-server": "^2.0.4",

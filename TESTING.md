@@ -24,10 +24,12 @@ npm run dev
 - [ ] La sección "El problema" muestra 3 cards con ❌
 - [ ] La sección "Cómo funciona" muestra 4 pasos numerados
 - [ ] La sección de features muestra 6 cards con íconos
-- [ ] El pricing muestra los 3 tiers con precios en COP
-  - Starter: $99.000
-  - Growth: $249.000 (badge "Más popular")
-  - Pro: $499.000
+- [ ] ~~El pricing muestra los 3 tiers con precios en COP~~
+  - **REMOVIDO (eval-ui 2026-06-27):** la sección pricing fue retirada de la landing.
+    El navbar ya no enlaza a `#precios` y ningún componente renderiza los tiers
+    Starter/Growth/Pro. Las aserciones e2e quedaron en `test.skip`.
+    TODO de producto: restaurar una sección pricing con los tiers COP ($99k/$249k/$499k)
+    cuando se defina el modelo de pricing definitivo.
 - [ ] El CTA final tiene botón "Empezar ahora"
 - [ ] El footer muestra "© 2026 Bookia"
 - [ ] La página es usable en mobile (375px)

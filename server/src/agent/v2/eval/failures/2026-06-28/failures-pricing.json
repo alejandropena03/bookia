@@ -1,0 +1,472 @@
+{
+  "exportTimestamp": "2026-06-28T19:34:54.869Z",
+  "category": "pricing",
+  "date": "2026-06-28",
+  "count": 24,
+  "cases": [
+    {
+      "id": "pr_package_face",
+      "category": "pricing",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Tienen paquete facial completo?",
+      "expected": "precio",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"precio\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'precio': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_package_corporal",
+      "category": "pricing",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Tienen planes corporales?",
+      "expected": "precio",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"precio\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'precio': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_package_session",
+      "category": "pricing",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Venden paquetes de sesiones?",
+      "expected": "precio",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"precio\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'precio': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_package_annual",
+      "category": "pricing",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Tienen plan anual?",
+      "expected": "precio",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"precio\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'precio': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_promo_current",
+      "category": "pricing",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Hay alguna promoción vigente?",
+      "expected": "precio",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"precio\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'precio': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_promo_first",
+      "category": "pricing",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Tienen descuento para primera vez?",
+      "expected": "precio",
+      "actual": "otro",
+      "confidence": 0.9,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"precio\", got \"otro\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'precio': classified as 'otro'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_promo_referral",
+      "category": "pricing",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Dan descuento por recomendación?",
+      "expected": "precio",
+      "actual": "otro",
+      "confidence": 0.88,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"precio\", got \"otro\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'precio': classified as 'otro'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_promo_loyalty",
+      "category": "pricing",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Hay descuento para pacientes frecuentes?",
+      "expected": "precio",
+      "actual": "otro",
+      "confidence": 0.9,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"precio\", got \"otro\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'precio': classified as 'otro'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_promo_month",
+      "category": "pricing",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Qué promociones tienen este mes?",
+      "expected": "precio",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"precio\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'precio': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_promo_seasonal",
+      "category": "pricing",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Tienen ofertas de fin de año?",
+      "expected": "precio",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"precio\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'precio': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_pay_cash",
+      "category": "pricing",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Aceptan efectivo?",
+      "expected": "pago",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"pago\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'pago': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_pay_credit",
+      "category": "pricing",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Tienen crédito directo?",
+      "expected": "pago",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"pago\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'pago': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_pay_daviplata",
+      "category": "pricing",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Reciben Daviplata?",
+      "expected": "pago",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"pago\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'pago': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_pay_crypto",
+      "category": "pricing",
+      "criticality": "low",
+      "reviewStatus": "unreviewed",
+      "input": "¿Aceptan criptomonedas?",
+      "expected": "pago",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"pago\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'pago': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_pay_invoice",
+      "category": "pricing",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿Dan factura para empresas?",
+      "expected": "pago",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"pago\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'pago': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_deposit_amount",
+      "category": "pricing",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Cuánto hay que dejar de anticipo?",
+      "expected": "pago",
+      "actual": "precio",
+      "confidence": 0.92,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"pago\", got \"precio\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'pago': classified as 'precio'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_deposit_refund",
+      "category": "pricing",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿El anticipo es reembolsable?",
+      "expected": "pago",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"pago\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'pago': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_deposit_hold",
+      "category": "pricing",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Puedo reservar con un anticipo?",
+      "expected": "pago",
+      "actual": "agendamiento",
+      "confidence": 0.95,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"pago\", got \"agendamiento\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'pago': classified as 'agendamiento'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_compare_cheaper",
+      "category": "pricing",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "En otra clínica es más barato",
+      "expected": "precio",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"precio\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'precio': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_negotiate_bulk",
+      "category": "pricing",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "Si agendo varios tratamientos, ¿hay descuento?",
+      "expected": "precio",
+      "actual": "otro",
+      "confidence": 0.9,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"precio\", got \"otro\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'precio': classified as 'otro'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_negotiate_bundle",
+      "category": "pricing",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "Si hago dos tratamientos juntos, ¿sale más barato?",
+      "expected": "precio",
+      "actual": "faq_servicios",
+      "confidence": 0.8,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"precio\", got \"faq_servicios\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'precio': classified as 'faq_servicios'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_insurance_eps",
+      "category": "pricing",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Cubren esto las EPS?",
+      "expected": "pago",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"pago\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'pago': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_insurance_medicare",
+      "category": "pricing",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Aceptan seguro médico internacional?",
+      "expected": "pago",
+      "actual": "dudas_medicas",
+      "confidence": 0.88,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"pago\", got \"dudas_medicas\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'pago': classified as 'dudas_medicas'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "pr_insurance_prepago",
+      "category": "pricing",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Tienen convenio con medicina prepagada?",
+      "expected": "pago",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"pago\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'pago': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    }
+  ]
+}

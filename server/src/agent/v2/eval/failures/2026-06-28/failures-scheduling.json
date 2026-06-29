@@ -1,0 +1,466 @@
+{
+  "exportTimestamp": "2026-06-28T19:34:54.869Z",
+  "category": "scheduling",
+  "date": "2026-06-28",
+  "count": 24,
+  "cases": [
+    {
+      "id": "sch_basic_morning",
+      "category": "scheduling",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "Agenda en la mañana por favor",
+      "expected": "agendamiento",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"agendamiento\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'agendamiento': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_basic_afternoon",
+      "category": "scheduling",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "Prefiero en la tarde",
+      "expected": "agendamiento",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"agendamiento\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'agendamiento': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_service_label",
+      "category": "scheduling",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "Agenda para ácido hialurónico en labios",
+      "expected": "agendamiento",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"agendamiento\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'agendamiento': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_service_rostro",
+      "category": "scheduling",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "Quiero hacerme el tratamiento facial",
+      "expected": "agendamiento",
+      "actual": "faq_servicios",
+      "confidence": 0.8,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"agendamiento\", got \"faq_servicios\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'agendamiento': classified as 'faq_servicios'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_service_consulta",
+      "category": "scheduling",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "Quiero una consulta sobre mesoterapia",
+      "expected": "agendamiento",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"agendamiento\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'agendamiento': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_doctor_elkin",
+      "category": "scheduling",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "Quiero cita con el doctor Elkin",
+      "expected": "agendamiento",
+      "actual": "dudas_medicas",
+      "confidence": 0.88,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"agendamiento\", got \"dudas_medicas\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'agendamiento': classified as 'dudas_medicas'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_doctor_prefer",
+      "category": "scheduling",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "Prefiero que me atienda una doctora",
+      "expected": "agendamiento",
+      "actual": "dudas_medicas",
+      "confidence": 0.88,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"agendamiento\", got \"dudas_medicas\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'agendamiento': classified as 'dudas_medicas'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_doctor_no_pref",
+      "category": "scheduling",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "No tengo preferencia de doctor",
+      "expected": "agendamiento",
+      "actual": "dudas_medicas",
+      "confidence": 0.88,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"agendamiento\", got \"dudas_medicas\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'agendamiento': classified as 'dudas_medicas'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_reschedule_date",
+      "category": "scheduling",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Puedo mover la cita del jueves al viernes?",
+      "expected": "cancelacion_reprogramacion",
+      "actual": "agendamiento",
+      "confidence": 0.95,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"cancelacion_reprogramacion\", got \"agendamiento\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'cancelacion_reprogramacion': classified as 'agendamiento'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_reschedule_emergency",
+      "category": "scheduling",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "Tuve una emergencia, necesito cambiar la cita",
+      "expected": "cancelacion_reprogramacion",
+      "actual": "queja",
+      "confidence": 0.9,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"cancelacion_reprogramacion\", got \"queja\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'cancelacion_reprogramacion': classified as 'queja'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_cancel_simple",
+      "category": "scheduling",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "Cancela mi cita por favor",
+      "expected": "cancelacion_reprogramacion",
+      "actual": "agendamiento",
+      "confidence": 0.95,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"cancelacion_reprogramacion\", got \"agendamiento\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'cancelacion_reprogramacion': classified as 'agendamiento'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_cancel_reason",
+      "category": "scheduling",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "No puedo ir, cancela la cita de mañana",
+      "expected": "cancelacion_reprogramacion",
+      "actual": "agendamiento",
+      "confidence": 0.95,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"cancelacion_reprogramacion\", got \"agendamiento\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'cancelacion_reprogramacion': classified as 'agendamiento'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_cancel_refund",
+      "category": "scheduling",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "Si cancelo, ¿me devuelven el anticipo?",
+      "expected": "cancelacion_reprogramacion",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"cancelacion_reprogramacion\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'cancelacion_reprogramacion': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_avail_check",
+      "category": "scheduling",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Tienen cupo para esta semana?",
+      "expected": "agendamiento",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"agendamiento\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'agendamiento': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_avail_month",
+      "category": "scheduling",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Cómo están de disponibilidad en agosto?",
+      "expected": "agendamiento",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"agendamiento\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'agendamiento': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_avail_first",
+      "category": "scheduling",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Cuál es la fecha más próxima disponible?",
+      "expected": "agendamiento",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"agendamiento\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'agendamiento': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_info_documents",
+      "category": "scheduling",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Qué documentos debo llevar?",
+      "expected": "agendamiento",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"agendamiento\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'agendamiento': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_info_anticipo",
+      "category": "scheduling",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "¿Cuánto es el anticipo para agendar?",
+      "expected": "pago",
+      "actual": "agendamiento",
+      "confidence": 0.95,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"pago\", got \"agendamiento\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'pago': classified as 'agendamiento'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_info_arrive_early",
+      "category": "scheduling",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿Debo llegar antes de la hora?",
+      "expected": "agendamiento",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"agendamiento\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'agendamiento': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_info_policy",
+      "category": "scheduling",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿Cuál es la política de cancelación?",
+      "expected": "agendamiento",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"agendamiento\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'agendamiento': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_info_duration",
+      "category": "scheduling",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿Cuánto dura la cita?",
+      "expected": "agendamiento",
+      "actual": "dudas_medicas",
+      "confidence": 0.88,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"agendamiento\", got \"dudas_medicas\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'agendamiento': classified as 'dudas_medicas'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_info_acompanante",
+      "category": "scheduling",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿Puedo ir acompañado?",
+      "expected": "agendamiento",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"agendamiento\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'agendamiento': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_info_menor",
+      "category": "scheduling",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "Mi hija es menor de edad, ¿puede agendar?",
+      "expected": "agendamiento",
+      "actual": "contraindicaciones",
+      "confidence": 0.95,
+      "trace": "PRE-ROUTER: contraindication signal — menor de edad",
+      "failureReasons": [
+        "Expected \"agendamiento\", got \"contraindicaciones\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'agendamiento': classified as 'contraindicaciones'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "sch_group_same_time",
+      "category": "scheduling",
+      "criticality": "high",
+      "reviewStatus": "unreviewed",
+      "input": "Queremos la misma hora mi hermana y yo",
+      "expected": "agendamiento",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"agendamiento\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'agendamiento': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    }
+  ]
+}

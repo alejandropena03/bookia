@@ -12,7 +12,6 @@ gsap.registerPlugin(ScrollTrigger)
 const NAV_LINKS = [
   { label: "Cómo funciona", href: "#como-funciona" },
   { label: "Características", href: "#caracteristicas" },
-  { label: "Precios", href: "#precios" },
 ]
 
 export default function Navbar() {
@@ -60,7 +59,7 @@ export default function Navbar() {
             <a
               key={link.href}
               href={link.href}
-              className="text-base text-mid hover:text-hi transition-colors duration-300"
+              className="text-base text-mid hover:text-hi transition-colors duration-300 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#08070C]"
             >
               {link.label}
             </a>

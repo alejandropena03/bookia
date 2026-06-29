@@ -1,0 +1,62 @@
+{
+  "exportTimestamp": "2026-06-29T01:47:57.290Z",
+  "category": "quejas-handoff",
+  "date": "2026-06-29",
+  "count": 3,
+  "cases": [
+    {
+      "id": "qh_queja_resultados",
+      "category": "quejas-handoff",
+      "criticality": "critical",
+      "reviewStatus": "reviewed",
+      "input": "No vi ningún resultado después del tratamiento",
+      "expected": "queja",
+      "actual": "post_tratamiento",
+      "confidence": 0.9,
+      "trace": "PRE-ROUTER: post-treatment signal — después de procedimiento",
+      "failureReasons": [
+        "Expected \"queja\", got \"post_tratamiento\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'queja': classified as 'post_tratamiento'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-29"
+    },
+    {
+      "id": "qh_queja_atencion",
+      "category": "quejas-handoff",
+      "criticality": "critical",
+      "reviewStatus": "reviewed",
+      "input": "La atención al cliente es pésima",
+      "expected": "queja",
+      "actual": "otro",
+      "confidence": 0.95,
+      "trace": "PRE-ROUTER: prompt injection — insult",
+      "failureReasons": [
+        "Expected \"queja\", got \"otro\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'queja': classified as 'otro'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-29"
+    },
+    {
+      "id": "qh_legal_proteccion_datos",
+      "category": "quejas-handoff",
+      "criticality": "critical",
+      "reviewStatus": "reviewed",
+      "input": "Quiero ejercer mi derecho de eliminación de datos",
+      "expected": "otro",
+      "actual": "queja",
+      "confidence": 0.9,
+      "trace": "DOMAIN-ROUTER: ejercicio derechos legales",
+      "failureReasons": [
+        "Expected \"otro\", got \"queja\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'otro': classified as 'queja'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-29"
+    }
+  ]
+}

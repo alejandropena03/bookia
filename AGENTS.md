@@ -6,7 +6,10 @@
 
 ## Estado
 - MVP funcional esperando credenciales
-- Tests: 36/58 pass without DB, 58/58 with Docker (vitest)
+- Tests: 256/256 pass (vitest, agent pipeline + response critic + routing)
+- Pipeline: safety pre-router → deterministic domain router → LLM → post-risk scan → clinical policy → response critic → metrics
+- Eval: V2 87.7% (164/187), V1 vs V2 62.8% vs 26.3%, 0 regressions
+- Clinical audit: 0/411 failures
 - Modelo: deepseek-v4-flash
 - Santa María hyper-personalized: 29 servicios reales, flujos personalizados, 11 canned responses, 28 imágenes mapeadas
 

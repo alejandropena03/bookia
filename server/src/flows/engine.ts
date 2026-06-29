@@ -27,6 +27,7 @@ export interface FlowResult {
 
 export interface CatalogItem {
   name: string;
+  description?: string;
   price: string;
   currency: string;
   cities?: string[];
@@ -60,6 +61,14 @@ function wordsOnly(t: string): string {
   return t.split(/\s+/).filter(w => !STOP_WORDS.includes(w)).join(" ");
 }
 
+export function formatPrice(price: string, currency?: string): string {
+  const num = parseInt(price, 10);
+  if (isNaN(num)) return price;
+  const symbols: Record<string, string> = { COP: "$", MXN: "$", USD: "$", EUR: "€" };
+  const sym = symbols[currency ?? ""] || "$";
+  return `${sym}${new Intl.NumberFormat("es-CO").format(num)} ${currency ?? "COP"}`;
+}
+
 function buildTemplateContext(slots: Record<string, string>, catalogItems?: CatalogItem[]): Record<string, string> {
   const catalog = catalogItems ?? [];
   const rawName = slots.service || slots.service_name || "";
@@ -68,6 +77,13 @@ function buildTemplateContext(slots: Record<string, string>, catalogItems?: Cata
   const selected = catalog.find((c) => {
     const cn = wordsOnly(normalizeText(c.name));
     return cleanName.includes(cn) || cn.includes(cleanName);
+  });
+
+  // Filter catalog by city slot for catalog_list
+  const cityFilter = (slots.city || slots.ciudad || "").toLowerCase().trim();
+  const cityFiltered = catalog.filter((c) => {
+    if (!cityFilter || !c.cities || c.cities.length === 0) return true;
+    return c.cities.some((ct) => ct.toLowerCase().trim() === cityFilter);
   });
 
   // Clean double-article patterns from slot values for nicer rendering
@@ -87,13 +103,20 @@ function buildTemplateContext(slots: Record<string, string>, catalogItems?: Cata
     nombre: slots.nombre || "",
     city: cleanSlot(slots.city || slots.ciudad || ""),
     service_name: selected?.name ?? cleanSlot(slots.service_name ?? slots.service ?? ""),
-    service_price: selected ? `${selected.price} ${selected.currency}` : slots.service_price ?? "",
+    service_price: selected ? formatPrice(selected.price, selected.currency) : slots.service_price ?? "",
+    service_description: selected?.description ?? "",
     datetime: cleanSlot(slots.datetime || ""),
     client_name: slots.client_name || slots.clientData || "",
-    catalog_list: catalog.length > 0
-      ? catalog.map((c) => `- ${c.name}: ${c.price} ${c.currency}`).join("\n")
+    catalog_list: cityFiltered.length > 0
+      ? cityFiltered.map((c) => `- ${c.name}: ${formatPrice(c.price, c.currency)}`).join("\n")
       : slots.catalog_list || "(Sin servicios disponibles)",
   };
+}
+
+function isStateTerminal(definition: FlowDefinition, stateName: string): boolean {
+  const s = definition.states[stateName];
+  if (!s) return true;
+  return !s.transitions && (s.next == null || !definition.states[s.next]);
 }
 
 export function getNextState(definition: FlowDefinition, currentState: string, input: string): { next: string | null; completed: boolean } {
@@ -104,14 +127,15 @@ export function getNextState(definition: FlowDefinition, currentState: string, i
     const lower = input.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
     for (const [key, target] of Object.entries(state.transitions)) {
       if (lower.includes(key)) {
-        return { next: target, completed: target === "farewell" || !definition.states[target] };
+        return { next: target, completed: isStateTerminal(definition, target) };
       }
     }
     return { next: currentState, completed: false };
   }
 
   const next = state.next ?? null;
-  return { next, completed: next === null || next === "farewell" || !definition.states[next] };
+  if (!next) return { next: null, completed: true };
+  return { next, completed: isStateTerminal(definition, next) };
 }
 
 export function evaluateFlow(
@@ -139,12 +163,13 @@ export function evaluateFlow(
   const { next, completed } = getNextState(definition, context.currentState, input);
 
   if (!next || completed) {
-    const farewell = definition.states[next ?? "farewell"];
-    const targetState = farewell ?? state;
+    // When next is null, the CURRENT state IS terminal — show its prompt.
+    // When next is a named state, show that state's prompt.
+    const targetState = next ? (definition.states[next] ?? state) : state;
     const templateContext = buildTemplateContext(newSlots, catalogItems);
     return {
       response: renderTemplate(targetState.prompt, templateContext),
-      context: { ...context, currentState: next ?? "farewell", slots: newSlots },
+      context: { ...context, currentState: next ?? context.currentState, slots: newSlots },
       completed: true,
     };
   }
@@ -178,9 +203,12 @@ export function startFlow(definition: FlowDefinition, contactName?: string, cata
 
   const templateContext = buildTemplateContext(context.slots, catalogItems);
   const response = renderTemplate(initial.prompt, templateContext);
-  return {
-    response,
-    context,
-    completed: false,
-  };
+
+  // Flujo de un solo estado (terminal): el saludo one-shot.
+  // Marcamos completed=true para que tryStartFlow NO persist state y el
+  // siguiente mensaje continúe por el pipeline normal (router → flow real).
+  const isTerminal =
+    initial.next == null ||
+    !definition.states[initial.next];
+  return { response, context, completed: isTerminal };
 }

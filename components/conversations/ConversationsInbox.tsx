@@ -146,7 +146,7 @@ export default function ConversationsInbox({ conversations, activeConversation }
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-0.5">
                     <span className="text-sm font-medium app-text-hi truncate">{conv.contact_name}</span>
-                    <span className="text-xs app-text-lo shrink-0 ml-2">{formatRelativeTime(conv.updated_at)}</span>
+                    <span className="text-xs app-text-lo shrink-0 ml-2" aria-label={`Última actividad ${formatRelativeTime(conv.updated_at)}`}>{formatRelativeTime(conv.updated_at)}</span>
                   </div>
                   <div className="flex items-center gap-1.5 mb-1">
                     <Badge className={`text-[10px] py-0 px-1 border-0 ${CANAL_STYLES[conv.canal] ?? "bg-gray-50 text-gray-600"}`}>{conv.canal}</Badge>
@@ -158,7 +158,7 @@ export default function ConversationsInbox({ conversations, activeConversation }
             )
           })}
           {filtered.length === 0 && (
-            <div className="p-8 text-center text-sm app-text-lo">Sin conversaciones</div>
+            <div className="p-8 text-center text-sm app-text-lo" role="status">Sin conversaciones</div>
           )}
         </div>
       </div>
@@ -166,7 +166,7 @@ export default function ConversationsInbox({ conversations, activeConversation }
       {activeConversation ? (
         <div className="flex-1 flex flex-col min-w-0 app-bg">
           <div className="h-16 app-surface border-b app-border flex items-center px-4 gap-3">
-            <Link href="/conversations" className="md:hidden app-text-mid">
+            <Link href="/conversations" className="md:hidden app-text-mid rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6D28D9]/40" aria-label="Volver a la lista de conversaciones">
               <ChevronRight className="w-5 h-5 rotate-180" />
             </Link>
             <Avatar className="w-8 h-8">
@@ -198,7 +198,7 @@ export default function ConversationsInbox({ conversations, activeConversation }
                         <div className="app-surface border app-border rounded-2xl rounded-bl-sm px-4 py-2.5 shadow-sm">
                           <p className="text-sm app-text-hi">{msg.content}</p>
                         </div>
-                        <p className="text-[10px] app-text-lo mt-1 ml-1">{formatRelativeTime(msg.timestamp)}</p>
+                        <p className="text-[10px] app-text-lo mt-1 ml-1" aria-label={`Enviado ${formatRelativeTime(msg.timestamp)}`}>{formatRelativeTime(msg.timestamp)}</p>
                       </div>
                     </div>
                   )}
@@ -216,25 +216,27 @@ export default function ConversationsInbox({ conversations, activeConversation }
                       <p className="text-[10px] app-text-lo mt-1 text-right">{formatRelativeTime(msg.timestamp)}</p>
                       {isAI && (
                         <div className="flex gap-2 mt-2 justify-end">
-                          <Button
-                            size="sm"
-                            className="h-7 text-xs bg-indigo-600 hover:bg-indigo-700 text-white"
-                            onClick={() => handleApprove(msg.content)}
-                            disabled={sending}
-                          >
-                            {sending ? "..." : "Aprobar"}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-7 text-xs"
-                            onClick={() => setReplyText(msg.content)}
-                          >
-                            Editar
-                          </Button>
-                          <Button size="sm" variant="outline" className="h-7 text-xs text-red-500 border-red-200 hover:bg-red-50">
-                            Escalar
-                          </Button>
+<Button
+                size="sm"
+                className="h-7 text-xs bg-indigo-600 hover:bg-indigo-700 text-white"
+                onClick={() => handleApprove(msg.content)}
+                disabled={sending}
+                aria-label="Aprobar respuesta sugerida por IA"
+              >
+                {sending ? "..." : "Aprobar"}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 text-xs"
+                onClick={() => setReplyText(msg.content)}
+                aria-label="Editar respuesta sugerida por IA"
+              >
+                Editar
+              </Button>
+              <Button size="sm" variant="outline" className="h-7 text-xs text-red-500 border-red-200 hover:bg-red-50" aria-label="Escalar conversación a humano">
+                Escalar
+              </Button>
                         </div>
                       )}
                     </div>
@@ -255,6 +257,7 @@ export default function ConversationsInbox({ conversations, activeConversation }
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
                 disabled={sending}
+                aria-label="Escribe un mensaje como operador humano"
               />
               <Button
                 type="submit"

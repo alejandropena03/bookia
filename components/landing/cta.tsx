@@ -86,7 +86,7 @@ export default function Cta() {
         </p>
 
         <div className="cta-line flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/login">
+          <Link href="/login" className="rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0A0F]">
             <Button
               ref={buttonRef}
               size="lg"
@@ -96,7 +96,7 @@ export default function Cta() {
               Quiero una demo <ArrowRight className="ml-2 w-4 h-4" />
             </Button>
           </Link>
-          <a href="mailto:hola@bookia.co">
+          <a href="mailto:hola@bookia.co" className="rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0A0F]">
             <Button
               size="lg"
               variant="outline"

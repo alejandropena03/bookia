@@ -29,7 +29,7 @@ function buildProfileData() {
     },
     systemPromptOverrides: null,
     cannedResponses: SANTA_MARIA_CANNED,
-    offHoursMessage: "Gracias por escribirnos. Nuestro horario de atención es de lunes a sábado de 9:00 a.m. a 7:00 p.m. Te responderemos en cuanto estemos disponibles. ¡Gracias por tu paciencia! 🤍",
+    offHoursMessage: null, // §9: "responde normal, sin mencionar el horario"
   };
 }
 

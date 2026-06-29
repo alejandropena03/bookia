@@ -13,7 +13,7 @@
     "sábado": { "open": "09:00", "close": "19:00" },
     "domingo": { "open": null, "close": null }
   },
-  "off_hours_message": "Gracias por escribirnos. Nuestro horario de atención es lunes a sábado de 9:00 a.m. a 7:00 p.m. Te responderemos apenas estemos disponibles.",
+  "off_hours_message": null,
   "system_prompt_overrides": null,
   "booking_mode": "mock",
   "catalog": [

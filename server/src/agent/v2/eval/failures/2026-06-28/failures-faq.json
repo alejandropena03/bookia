@@ -1,0 +1,570 @@
+{
+  "exportTimestamp": "2026-06-28T19:34:54.869Z",
+  "category": "faq",
+  "date": "2026-06-28",
+  "count": 29,
+  "cases": [
+    {
+      "id": "faq_svc_most_requested",
+      "category": "faq",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿Cuál es el tratamiento más solicitado?",
+      "expected": "faq_servicios",
+      "actual": "agendamiento",
+      "confidence": 0.95,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"agendamiento\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'agendamiento'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_svc_specialized",
+      "category": "faq",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿En qué se especializa la clínica?",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_svc_home",
+      "category": "faq",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿Hacen visitas a domicilio?",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_loc_city",
+      "category": "faq",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿En qué ciudad están?",
+      "expected": "ubicacion",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"ubicacion\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'ubicacion': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_loc_neighborhood",
+      "category": "faq",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿En qué barrio quedan?",
+      "expected": "ubicacion",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"ubicacion\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'ubicacion': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_loc_parking",
+      "category": "faq",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿Tienen estacionamiento?",
+      "expected": "ubicacion",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"ubicacion\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'ubicacion': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_hours_emergency",
+      "category": "faq",
+      "criticality": "low",
+      "reviewStatus": "unreviewed",
+      "input": "¿Tienen horario de emergencia?",
+      "expected": "horarios",
+      "actual": "queja",
+      "confidence": 0.9,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"horarios\", got \"queja\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'horarios': classified as 'queja'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_hours_extended",
+      "category": "faq",
+      "criticality": "low",
+      "reviewStatus": "unreviewed",
+      "input": "¿Atención nocturna?",
+      "expected": "horarios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"horarios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'horarios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_contact_phone",
+      "category": "faq",
+      "criticality": "low",
+      "reviewStatus": "unreviewed",
+      "input": "¿Cuál es el número de teléfono?",
+      "expected": "faq_contacto",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_contacto\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_contacto': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_contact_whatsapp",
+      "category": "faq",
+      "criticality": "low",
+      "reviewStatus": "unreviewed",
+      "input": "¿Cuál es su WhatsApp?",
+      "expected": "faq_contacto",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_contacto\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_contacto': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_contact_email",
+      "category": "faq",
+      "criticality": "low",
+      "reviewStatus": "unreviewed",
+      "input": "¿Cuál es el correo electrónico?",
+      "expected": "faq_contacto",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_contacto\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_contacto': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_contact_social",
+      "category": "faq",
+      "criticality": "low",
+      "reviewStatus": "unreviewed",
+      "input": "¿Tienen Instagram?",
+      "expected": "faq_contacto",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_contacto\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_contacto': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_contact_web",
+      "category": "faq",
+      "criticality": "low",
+      "reviewStatus": "unreviewed",
+      "input": "¿Cuál es su página web?",
+      "expected": "faq_contacto",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_contacto\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_contacto': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_contact_online",
+      "category": "faq",
+      "criticality": "low",
+      "reviewStatus": "unreviewed",
+      "input": "¿Puedo agendar desde la página web?",
+      "expected": "faq_contacto",
+      "actual": "agendamiento",
+      "confidence": 0.95,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_contacto\", got \"agendamiento\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_contacto': classified as 'agendamiento'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_gen_years",
+      "category": "faq",
+      "criticality": "low",
+      "reviewStatus": "unreviewed",
+      "input": "¿Cuántos años llevan en el mercado?",
+      "expected": "faq_servicios",
+      "actual": "precio",
+      "confidence": 0.92,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"precio\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'precio'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_gen_certifications",
+      "category": "faq",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿Tienen certificaciones?",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_gen_team",
+      "category": "faq",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿Quiénes son los doctores?",
+      "expected": "faq_servicios",
+      "actual": "dudas_medicas",
+      "confidence": 0.88,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"dudas_medicas\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'dudas_medicas'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_gen_experience",
+      "category": "faq",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿Cuánta experiencia tienen los especialistas?",
+      "expected": "faq_servicios",
+      "actual": "dudas_medicas",
+      "confidence": 0.88,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"dudas_medicas\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'dudas_medicas'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_gen_satisfaction",
+      "category": "faq",
+      "criticality": "low",
+      "reviewStatus": "unreviewed",
+      "input": "¿Cuál es el nivel de satisfacción de los pacientes?",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_gen_hygiene",
+      "category": "faq",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿Qué medidas de bioseguridad tienen?",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_gen_guarantee",
+      "category": "faq",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿Los tratamientos tienen garantía?",
+      "expected": "faq_servicios",
+      "actual": "otro",
+      "confidence": 0.9,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"otro\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'otro'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_tech_pain",
+      "category": "faq",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿Duele?",
+      "expected": "resultados_esperados",
+      "actual": "dudas_medicas",
+      "confidence": 0.88,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"resultados_esperados\", got \"dudas_medicas\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'resultados_esperados': classified as 'dudas_medicas'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_tech_needles",
+      "category": "faq",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿Usan agujas?",
+      "expected": "dudas_medicas",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"dudas_medicas\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'dudas_medicas': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_tech_visible",
+      "category": "faq",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿Se nota que me hice algo?",
+      "expected": "resultados_esperados",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"resultados_esperados\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'resultados_esperados': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_tech_natural",
+      "category": "faq",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿Se ve natural?",
+      "expected": "resultados_esperados",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"resultados_esperados\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'resultados_esperados': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_tech_results_when",
+      "category": "faq",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿Cuándo se ven los resultados finales?",
+      "expected": "resultados_esperados",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"resultados_esperados\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'resultados_esperados': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_tech_permanent",
+      "category": "faq",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿Los resultados son permanentes?",
+      "expected": "resultados_esperados",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"resultados_esperados\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'resultados_esperados': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_tech_num_sessions",
+      "category": "faq",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿Cuántas sesiones necesito?",
+      "expected": "dudas_medicas",
+      "actual": "otro",
+      "confidence": 0.3,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"dudas_medicas\", got \"otro\"",
+        "Low confidence: 0.300 < 0.7"
+      ],
+      "suggestedFix": [
+        "Review routing for 'dudas_medicas': classified as 'otro'. Consider override rule or training example.",
+        "Check confidence threshold. Increase trigger specificity or add alias."
+      ],
+      "timestamp": "2026-06-28"
+    },
+    {
+      "id": "faq_tech_interval",
+      "category": "faq",
+      "criticality": "medium",
+      "reviewStatus": "unreviewed",
+      "input": "¿Cada cuánto debo hacerme el tratamiento?",
+      "expected": "dudas_medicas",
+      "actual": "precio",
+      "confidence": 0.92,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"dudas_medicas\", got \"precio\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'dudas_medicas': classified as 'precio'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-28"
+    }
+  ]
+}

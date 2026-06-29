@@ -1,6 +1,8 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { env } from "./env.js";
 import { checkDbConnection, db } from "./db/client.js";
 import { sim } from "./api/sim.js";
@@ -71,6 +73,28 @@ app.post("/api/auth/register", async (c) => {
     return c.json({ success: true, slug, tenantId: tenant.id }, 201);
   } catch (err: any) {
     return c.json({ error: err?.message ?? "Registration failed" }, 500);
+  }
+});
+
+// ── GET /images/:key — serve Santa María service images ──
+app.get("/images/:key", async (c) => {
+  const key = c.req.param("key");
+  // Security: only allow known image keys from manifest
+  const allowed = new Set([
+    "image1.jpeg","image2.jpeg","image3.jpeg","image4.jpeg","image5.jpeg",
+    "image6.jpeg","image7.jpeg","image8.jpeg","image9.jpeg","image10.jpeg",
+    "image11.jpeg","image12.jpeg","image13.jpeg","image14.jpeg","image15.jpeg",
+    "image16.jpeg","image17.jpeg","image18.jpeg","image19.jpeg","image20.jpeg",
+    "image21.jpeg","image22.jpeg","image23.jpeg","image24.jpeg","image25.jpeg",
+    "image26.jpeg","image27.jpeg","image28.jpeg",
+  ]);
+  if (!allowed.has(key)) return c.json({ error: "Not found" }, 404);
+  const filePath = join(import.meta.dirname, "flows", "santa-maria", "images", key);
+  try {
+    const buf = await readFile(filePath);
+    return c.newResponse(buf, 200, { "Content-Type": "image/jpeg", "Cache-Control": "public, max-age=86400" });
+  } catch {
+    return c.json({ error: "Not found" }, 404);
   }
 });
 

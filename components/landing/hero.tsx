@@ -111,7 +111,7 @@ export default function Hero() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-9">
-          <Link href="/login" className="hero-cta-item opacity-0">
+          <Link href="/login" className="hero-cta-item opacity-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#08070C]">
             <Button
               size="lg"
               className="group bg-gradient-to-r from-[#7C3AED] to-[#2563EB] hover:from-[#8B5CF6] hover:to-[#3B82F6] text-white px-10 h-14 text-lg rounded-2xl shadow-2xl shadow-[#6D28D9]/30 animate-pulse-glow transition-all"
@@ -120,7 +120,7 @@ export default function Hero() {
               <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
             </Button>
           </Link>
-          <a href="#como-funciona" className="hero-cta-item opacity-0">
+          <a href="#como-funciona" className="hero-cta-item opacity-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#08070C]">
             <Button
               size="lg"
               variant="outline"

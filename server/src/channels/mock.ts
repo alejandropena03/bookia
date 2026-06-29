@@ -1,6 +1,17 @@
 import crypto from "node:crypto";
 import { ChannelAdapter, NormalizedInboundMessage, NormalizedOutboundMessage } from "./types.js";
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+function calculateTypingDelay(text: string): number {
+  if (!text) return 300;
+  const length = text.length;
+  if (length < 80) return 500 + Math.floor(Math.random() * 400);
+  if (length < 200) return 1000 + Math.floor(Math.random() * 600);
+  if (length < 400) return 1800 + Math.floor(Math.random() * 800);
+  return 2500 + Math.floor(Math.random() * 1000);
+}
+
 export class MockAdapter implements ChannelAdapter {
   readonly channel = "mock";
 
@@ -27,6 +38,8 @@ export class MockAdapter implements ChannelAdapter {
   }
 
   async sendMessage(out: NormalizedOutboundMessage): Promise<{ providerMessageId: string }> {
+    const delay = calculateTypingDelay(out.content.text ?? "");
+    await sleep(delay);
     const providerMessageId = `mock_out_${crypto.createHash("md5").update(`${out.conversationId}_${out.content.text}_${Date.now()}`).digest("hex")}`;
     return { providerMessageId };
   }
