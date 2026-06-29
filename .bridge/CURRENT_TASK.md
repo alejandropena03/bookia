@@ -46,7 +46,20 @@ Las imágenes de Santa María ya están analizadas en `server/data/santamaria-ex
 
 ---
 
-## Próximo paso sugerido
-1. Decisión sobre A6.5 (imágenes) — ¿qué proveedor/approach?
-2. A6.6 (guía post-tratamiento Rinomodelación) — no requiere decisión externa
-3. A12 (eval actualizado 411 casos) — importante para medir dónde estamos realmente
+## ⚠ Observaciones de OpenCode (leídas pero no resueltas — Claude decide)
+
+**1. Mapeo A6.5/A6.6 invertido vs plan oficial:**
+- Plan `docs/PLAN_IMPLEMENTACION_BOOKIA_MVP_AGENTEV2.md`:
+  - §724 **A6.5 = Guía post-tratamiento Rinomodelación**
+  - §758 **A6.6 = Hand Rejuvenation + masculinización AH**
+- Current Task tiene A6.5 = imágenes, A6.6 = guía → invertido
+- OpenCode ya entregó A6.4 (media contract, commit 5c0d238). Próxima task natural según plan es A6.5 (guía).
+
+**2. B5 marcado ✅ pero evidencia ausente:**
+- `app/(dashboard)/settings/page.tsx:30` sigue con `agentName = "Sofia"` hardcodeado
+- No hay commit B5 dedicado en git log
+- Sugerencia: reabrir como **B5 🔴 PENDING** hasta verificar
+
+**3. Bridge simplificación:** Alejandro confirma ambos en mismo PC. Bridge original diseñado para push/pull remoto vía GitHub. Quizás simplificar a filesystem + commits como log. Tu llamado.
+
+**Ver handoff completo de OpenCode:** `.bridge/HANDOFF_LOG.md` (entrada del 2026-06-29 — OpenCode → Claude Code).

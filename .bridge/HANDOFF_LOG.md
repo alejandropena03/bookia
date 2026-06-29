@@ -144,3 +144,49 @@ North star: **MVP Fase 1 completo + agente V2 100%, listo para enchufar credenci
 2. Ejecutar **C2** (runner de migraciones automático antes de seed): crear `src/db/run-sql-migrations.ts` + tabla control `bookia_migrations(filename, checksum, applied_at)` + ajustar `entrypoint.sh` para correr migraciones antes de seeds. Validar con `docker compose down -v && docker compose up --build`.
 3. Ejecutar **C3** (secrets hygiene): completar `.env.example` con todas las vars (`LLM_PROVIDER`, `DEEPSEEK_API_KEY`, `AGENT_KERNEL_V2`, `DEV_AUTH`, DB vars), Zod validation que falle claro si `LLM_PROVIDER=deepseek` sin key, `LLM_PROVIDER=mock` como fallback. No commitear `.env`.
 4. Si C2+C3 cierran → **Gate M0 completo** → arrancar **Sprint 1**: A2 (V2 message persistence), A3 (env tipado V2 default ON), A4 (loadContext real), A10 (eliminar require), B1 (auth real), C6 (tenant-config dir).
+
+---
+
+## 2026-06-29 — OpenCode → Claude Code (entregas A6.2 / A6.3 / A6.4 + observaciones)
+
+### Contexto
+Alejandro me pidió continuar los items A6.2 → A6.4 del Sprint 4. Commit anterior: `e7126fe` (plan GPT-5 adoptado). Verifiqué baseline 310/310 tests + tsc clean partida.
+
+### Entregas (3 commits)
+| Commit | Task | Archivos |
+|---|---|---|
+| `37d9e43` | **A6.2** Multi-market catalog COP/USD/EUR/MXN | `catalog.ts` (11 servicios + `MarketPrice`), `pricing.ts` (nuevo: `resolveServicePrice`, `resolveMarket`, `formatPrice`) |
+| `2a6d54d` | **A6.3** Promos Esperma de Salmón/PDRN | `engine.ts` (`buildTemplateContext` inyecta `service_promo_info`), `flows.ts` (`show_price` template con `{service_promo_info}`) |
+| `5c0d238` | **A6.4** Media contract `media[]` en V2 response | `agent-intent.ts` (`MediaItem`), `agent-kernel.ts` (`media` en `FlowAdapterResult`, `AgentKernelOutput.response`), `flow-adapter.ts` (`resolveMedia()` lookup catalog `imageKeys`), `orchestrator.ts` (`AgentResponse.media`), `v2-adapter.ts` (wire media a `processMessageV2`), fix tsc TS2352/TS2345 en `engine.ts` promo prices |
+
+### Verificación
+```
+cd bookia-code/server
+npx tsc --noEmit            → ✅ clean (exit 0)
+npx vitest run               → ✅ 310/310 tests pass (16 suites, 7.33s)
+```
+
+### Observaciones para Claude Code (cosas que detecté leyendo CURRENT_TASK.md)
+
+**1. Mapeo A6.5/A6.6 está invertido en tu CURRENT_TASK.md:**
+- Plan oficial `docs/PLAN_IMPLEMENTACION_BOOKIA_MVP_AGENTEV2.md`:
+  - **A6.5 (§724) = Guía post-tratamiento Rinomodelación** (canned + trigger post-confirmación)
+  - **A6.6 (§758) = Hand Rejuvenation + masculinización AH como conocimiento defensivo**
+- Tu CURRENT_TASK.md tiene:
+  - A6.5 → "integrar imágenes Santa María al agente desde ai-studio-result.json"
+  - A6.6 → "guía post-tratamiento Rinomodelación"
+- Sugerencia: corregir mapeo. El spec A6.5 ya cubre que "A6.4 recomendable pero no bloqueante", entonces encadenar A6.5 (guía) después de A6.4 está perfecto.
+
+**2. B5 marcado como ✅ DONE pero no veo commit ni código completo:**
+- Tu CURRENT_TASK.md: "B5 ✅ DONE — Settings persiste todos los campos"
+- Realidad en disco: `app/(dashboard)/settings/page.tsx:30` tiene `agentName = "Sofia"` hardcodeado
+- No encontré commit dedicado a B5 en `git log` (últimos commits: C3, Fase 3, fix buttons, TASK-006)
+- ¿Puede ser que tuacement de B5 fue un partial fix de Settings (sedimentado en otro commit) y te faltaron campos? Sugerencia: revisar y, si falta, reabrir como **B5 🔴 PENDING**.
+
+**3. AGENTS.md dice 283 tests — real son 310.** Tú ya lo anotaste en tu handoff del 2026-06-29 para C5. Confirmo.
+
+**4. Bridge simplificación (?):** Alejandro confirma que ahora ambos corrren en el mismo PC. El bridge original asume git push/pull remoto vía GitHub. En mismo PC podríamos coordinar por filesystem directo + commits como log. Tu llamada: mantener git remote como canal de coordinación (sirve como historial limpio) o simplificar. No cambio nada hasta que decidas.
+
+### Próxima acción sugerida a OpenCode (sujeto a que Claude confirme)
+- **A6.5**: Guía post-tratamiento Rinomodelación — canned `guia_rinomodelacion` + trigger post-confirmación de agendamiento para ese servicio. Specs claros: `canned-responses.ts`, `flows.ts` (AGENDAMIENTO_FLOW), `flow-adapter.ts` post-confirmación. 0.75 día est. Depende de A6.1 (✅) + A6.4 (✅, recomendable).
+- Espero tu ajuste de CURRENT_TASK.md con mapeo correctoA6.5/A6.6 + veredicto sobre B5 antes de avanzazar.
