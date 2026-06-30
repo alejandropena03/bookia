@@ -16,11 +16,10 @@
 - Santa María hyper-personalized: 29 servicios + 24 canned responses + 3 flows + 20 escalation keywords
 
 ## Santa María — Archivos clave
-- `server/src/flows/santa-maria/catalog.ts` — 29 servicios con precios COP, filtro por ciudad. **Solo COP implementado.** USD/EUR/MXN existen en las imágenes promos pero no en catálogo.
+- `server/src/flows/santa-maria/catalog.ts` — 29 servicios con precios multi-moneda (COP/USD/EUR/MXN) + imageKeys wa_. El LLM recibe el catálogo completo vía `buildCatalogKnowledge()` en v2-adapter.ts (fuente: TypeScript, no DB).
 - `server/src/flows/santa-maria/flows.ts` — agendamiento (9 estados) + first_contact + precio (3 estados)
 - `server/src/flows/santa-maria/canned-responses.ts` — **24** templates (no 11) + reglas de escalation (20 keywords, notificar a Elkin)
-- `server/src/flows/santa-maria/images/manifest.json` — 28 imágenes mapeadas a servicios (del DOCX)
-- `server/src/flows/santa-maria/images/` — 28 service cards extraídos del docx de Carlos
+- `server/src/flows/santa-maria/images/` — 28 service cards del DOCX (image1-28.jpeg, baja resolución) + 34 fotos WhatsApp HD (wa_01-34.jpg). imageKeys en catálogo apuntan solo a wa_.
 - `server/src/db/seed.ts` — usa datos reales importados de santa-maria/
 - `server/data/santamaria-extraction/ai-studio-result.json` — **34 imágenes WhatsApp extraídas** con pricing USD/EUR/MXN/COP completo
 - `server/docs/knowledge-alignment-audit-santa-maria.md` — Auditoría DOCX vs implementación (426 líneas, 13/13 categorías)
