@@ -12,7 +12,7 @@ import { sim } from "./api/sim.js";
 import { webhooks } from "./api/webhooks.js";
 import { dashboard } from "./api/dashboard.js";
 import { workers } from "./api/workers.js";
-import { resolveTenant } from "./api/middleware.js";
+import { resolveTenant, requestLogger, logger } from "./api/middleware.js";
 import { sql } from "drizzle-orm";
 import { tenants, users } from "./db/schema.js";
 import postgres from "postgres";
@@ -21,6 +21,7 @@ const app = new Hono();
 const startTime = Date.now();
 
 app.use("*", cors());
+app.use("*", requestLogger);
 
 app.get("/health", async (c) => {
   const dbConnected = await checkDbConnection();
@@ -29,6 +30,7 @@ app.get("/health", async (c) => {
   let tenantCount = 0;
   let catalogCount = 0;
   let convCount = 0;
+  let lastMigration: string | null = null;
   if (dbConnected) {
     try {
       const [tc] = await db.execute(sql`SELECT COUNT(*)::int AS c FROM tenants`);
@@ -37,6 +39,8 @@ app.get("/health", async (c) => {
       catalogCount = (cc as any)?.c ?? 0;
       const [cvc] = await db.execute(sql`SELECT COUNT(*)::int AS c FROM conversations`);
       convCount = (cvc as any)?.c ?? 0;
+      const [mig] = await db.execute(sql`SELECT id FROM drizzle.__drizzle_migrations ORDER BY created_at DESC LIMIT 1`).catch(() => [null]);
+      lastMigration = (mig as any)?.id ?? null;
     } catch {}
   }
 
@@ -48,8 +52,11 @@ app.get("/health", async (c) => {
       tenants: tenantCount,
       catalogItems: catalogCount,
       conversations: convCount,
+      lastMigration,
       llmProvider: env.LLM_PROVIDER,
+      llmConfigured: env.LLM_PROVIDER === "mock" || env.DEEPSEEK_API_KEY.length > 0,
       agentKernel: isAgentKernelV2() ? "v2" : "v1",
+      workersEnabled: env.WORKERS_ENABLED,
       timestamp: new Date().toISOString(),
     },
     statusCode
@@ -156,6 +163,33 @@ if (process.env.NODE_ENV !== "test") {
       console.log(`Bookia API running on http://localhost:${info.port}`);
     }
   );
+
+  // ── Local worker scheduler (C4) ──────────────────────────────────────────
+  if (env.WORKERS_ENABLED) {
+    const WORKER_INTERVAL_MS = 30 * 60 * 1000; // 30 min
+
+    const runWorkers = async () => {
+      const { runReminders } = await import("./workers/reminder.js");
+      const { runReengagement } = await import("./workers/reengagement.js");
+      const { runCrm } = await import("./workers/crm.js");
+      const { queryClient } = await import("./db/client.js");
+
+      await Promise.allSettled([
+        runReminders(queryClient).catch((e: Error) => logger.error("scheduler: reminders failed", e)),
+        runReengagement(queryClient).catch((e: Error) => logger.error("scheduler: reengagement failed", e)),
+        runCrm(queryClient).catch((e: Error) => logger.error("scheduler: crm failed", e)),
+      ]);
+      logger.info("scheduler: workers ran");
+    };
+
+    // First run 10s after boot, then every 30 min
+    setTimeout(() => {
+      runWorkers();
+      setInterval(runWorkers, WORKER_INTERVAL_MS);
+    }, 10_000);
+
+    logger.info("scheduler: workers enabled", { intervalMs: WORKER_INTERVAL_MS });
+  }
 }
 
 export { app };

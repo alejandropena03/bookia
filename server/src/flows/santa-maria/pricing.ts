@@ -15,6 +15,13 @@ const CITY_TO_MARKET: Record<string, Market> = {
   "méxico": "MXN",
   mexico: "MXN",
   miami: "USD",
+  "madrid": "EUR",
+  barcelona: "EUR",
+  europa: "EUR",
+  berlin: "EUR",
+  paris: "EUR",
+  london: "EUR",
+  "londres": "EUR",
 };
 
 export function resolveMarket(city: string): Market {
@@ -29,6 +36,9 @@ export interface ResolvedPrice {
   promoLabel?: string;
   formattedPrice: string;
   formattedPromo?: string;
+  // A6.6 — true cuando el mercado solicitado no tiene precio confirmado
+  requiresHumanConfirmation?: boolean;
+  unconfirmedMarkets?: Market[];
 }
 
 export function resolveServicePrice(
@@ -50,6 +60,19 @@ export function resolveServicePrice(
       promoLabel: mp.promoLabel,
       formattedPrice,
       formattedPromo,
+    };
+  }
+
+  // A6.6 — if market is missing AND service requires human confirmation for it,
+  // return unconfirmed flag instead of alucinating COP fallback.
+  const rc = (service as any).requiresHumanConfirmation as Market[] | undefined;
+  if (rc?.includes(market)) {
+    return {
+      price: "",
+      currency: market,
+      formattedPrice: "",
+      requiresHumanConfirmation: true,
+      unconfirmedMarkets: rc.filter((m) => !service.prices?.[m]),
     };
   }
 

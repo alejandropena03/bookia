@@ -164,6 +164,21 @@ const DOMAIN_SIGNALS: DomainSignal[] = [
 		reason: "procedimiento de otra clínica",
 	},
 
+	// ── precio — named service patterns (A6.6) ──
+	{
+		regex:
+			/\b(?:hand\s+rejuvenation|rejuvenecimiento\s+de\s+manos|rejuvenecimiento\s+manos)\b/i,
+		intent: "precio",
+		confidence: 0.85,
+		reason: "precio Hand Rejuvenation (defensive knowledge)",
+	},
+	{
+		regex:
+			/\b(?:masculinizaci[óo]n\s+(?:facial\s+)?(?:con\s+)?(?:á\.?\s*hialur[óo]nico|ah|ácido\s+hialurónico)|facial\s+masculinization\s+(?:ha|hyaluronic))\b/i,
+		intent: "precio",
+		confidence: 0.85,
+		reason: "precio masculinización facial AH",
+	},
 	// ── precio — precio en moneda / divisa ──
 	{
 		regex: /\bprecio\s+en\s+(d[oó]lares?|pesos?|euros?|reales?)\b/i,

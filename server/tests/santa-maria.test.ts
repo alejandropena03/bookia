@@ -6,6 +6,8 @@ import { evaluateEscalation } from "../src/agent/escalation.js";
 import { AGENDAMIENTO_FLOW, FIRST_CONTACT_FLOW } from "../src/flows/santa-maria/flows.js";
 import { SANTA_MARIA_CANNED, SANTA_MARIA_ESCALATION_RULES } from "../src/flows/santa-maria/canned-responses.js";
 import { SANTA_MARIA_CATALOG } from "../src/flows/santa-maria/catalog.js";
+import { resolveServicePrice } from "../src/flows/santa-maria/pricing.js";
+import { PRECIO_FLOW } from "../src/flows/santa-maria/flows.js";
 import type { CatalogItem } from "../src/flows/engine.js";
 
 const catalog: CatalogItem[] = SANTA_MARIA_CATALOG.map((c) => ({
@@ -370,5 +372,93 @@ describe("Santa María escalation rules", () => {
 
   it("does NOT escalate on scheduling question", () => {
     expect(evaluateEscalation("quiero agendar una cita", 0.95, config).shouldEscalate).toBe(false);
+  });
+});
+
+// ──────────────────────────────────────────────
+// A6.6 — Hand Rejuvenation & Masculinización AH
+// ──────────────────────────────────────────────
+
+describe("A6.6 — Hand Rejuvenation y Masculinización AH", () => {
+  const hrRadio = SANTA_MARIA_CATALOG.find((c) => c.name === "Hand Rejuvenation (Radiesse)")!;
+  const hrSculptra = SANTA_MARIA_CATALOG.find((c) => c.name === "Hand Rejuvenation (Sculptra)")!;
+  const mascAH = SANTA_MARIA_CATALOG.find((c) => c.name === "Masculinización facial con AH")!;
+
+  it("catalog has 2 Hand Rejuvenation entries", () => {
+    expect(hrRadio).toBeDefined();
+    expect(hrSculptra).toBeDefined();
+    expect(hrRadio.prices).toBeDefined();
+    expect(hrRadio.prices!["USD"]).toBeDefined();
+    expect(hrRadio.prices!["EUR"]).toBeDefined();
+    expect((hrRadio as any).requiresHumanConfirmation).toEqual(["COP", "MXN"]);
+  });
+
+  it("Hand Rejuvenation Radiesse Miami → $699 USD", () => {
+    const rp = resolveServicePrice(hrRadio, "Miami");
+    expect(rp.formattedPrice).toBe("$699 USD");
+    expect(rp.currency).toBe("USD");
+    expect(rp.requiresHumanConfirmation).toBeFalsy();
+  });
+
+  it("Hand Rejuvenation Radiesse Madrid → 699€ EUR", () => {
+    const rp = resolveServicePrice(hrRadio, "Madrid");
+    expect(rp.formattedPrice).toBe("€699 EUR");
+    expect(rp.currency).toBe("EUR");
+  });
+
+  it("Hand Rejuvenation Radiesse Bogotá → requiresHumanConfirmation", () => {
+    const rp = resolveServicePrice(hrRadio, "Bogotá");
+    expect(rp.requiresHumanConfirmation).toBe(true);
+    expect(rp.unconfirmedMarkets).toContain("COP");
+    expect(rp.unconfirmedMarkets).toContain("MXN");
+  });
+
+  it("catalog has Masculinización facial con AH", () => {
+    expect(mascAH).toBeDefined();
+    expect(mascAH.prices!["COP"]).toBeDefined();
+    expect(mascAH.prices!["USD"]).toBeDefined();
+    expect(mascAH.prices!["EUR"]).toBeDefined();
+    expect(mascAH.prices!["MXN"]).toBeDefined();
+  });
+
+  it("Masculinización facial AH Bogotá → $2.999.000 COP", () => {
+    const rp = resolveServicePrice(mascAH, "Bogotá");
+    expect(rp.formattedPrice).toBe("$2.999.000 COP");
+    expect(rp.currency).toBe("COP");
+    expect(rp.requiresHumanConfirmation).toBeFalsy();
+  });
+
+  it("show_price flow: Hand Rejuvenation Miami → $699 USD", () => {
+    const catalogA6 = [
+      ...SANTA_MARIA_CATALOG.map((c) => ({ ...c })),
+    ] as CatalogItem[];
+    const flowCtx = { flowKey: "precio", currentState: "ask_service", slots: { city: "Miami", service: "Hand Rejuvenation (Radiesse)" } };
+    // Sending an empty string as user response for the terminal ask_service→show_price transition
+    const r = evaluateFlow(PRECIO_FLOW, flowCtx, "", catalogA6);
+    expect(r.response).toContain("699");
+    expect(r.response).toContain("USD");
+    expect(r.completed).toBe(true);
+  });
+
+  it("show_price flow: Hand Rejuvenation Bogotá → human confirmation", () => {
+    const catalogA6 = [
+      ...SANTA_MARIA_CATALOG.map((c) => ({ ...c })),
+    ] as CatalogItem[];
+    const flowCtx = { flowKey: "precio", currentState: "ask_service", slots: { city: "Bogotá", service: "Hand Rejuvenation (Radiesse)" } };
+    const r = evaluateFlow(PRECIO_FLOW, flowCtx, "", catalogA6);
+    expect(r.response).toContain("pendiente de confirmación");
+    expect(r.response).toContain("Elkin");
+    // No debe alucinar precio COP
+    expect(r.response).not.toContain("$");
+  });
+
+  it("show_price flow: Masculinización facial AH Bogotá → $2.999.000 COP", () => {
+    const catalogA6 = [
+      ...SANTA_MARIA_CATALOG.map((c) => ({ ...c })),
+    ] as CatalogItem[];
+    const flowCtx = { flowKey: "precio", currentState: "ask_service", slots: { city: "Bogotá", service: "Masculinización facial con AH" } };
+    const r = evaluateFlow(PRECIO_FLOW, flowCtx, "", catalogA6);
+    expect(r.response).toContain("2.999.000");
+    expect(r.response).toContain("COP");
   });
 });

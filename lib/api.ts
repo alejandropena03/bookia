@@ -143,17 +143,35 @@ export function sendSimMessage(text: string): Promise<{ messageId: string; conve
 }
 
 export function subscribeToSSE(onMessage: (data: unknown) => void, onError?: (err: Event) => void): () => void {
-  const es = new EventSource(`${API_BASE}/api/sim/stream?tenantSlug=${getTenantSlug()}`)
-  es.onmessage = (event) => {
-    try {
-      const parsed = JSON.parse(event.data)
-      onMessage(parsed)
-    } catch {
-      onMessage(event.data)
+  const slug = getTenantSlug()
+  let es: EventSource | null = null
+  let cancelled = false
+
+  const connect = (token?: string) => {
+    if (cancelled) return
+    const url = `${API_BASE}/api/sim/stream?tenantSlug=${slug}${token ? `&token=${encodeURIComponent(token)}` : ""}`
+    es = new EventSource(url)
+    es.onmessage = (event) => {
+      try {
+        onMessage(JSON.parse(event.data))
+      } catch {
+        onMessage(event.data)
+      }
     }
+    es.onerror = (err) => onError?.(err)
   }
-  es.onerror = (err) => {
-    onError?.(err)
+
+  // Fetch a short-lived token, then open the stream.
+  // Falls back to no-token (dev mode / secret not configured).
+  apiFetch<{ token: string }>("/api/sim/stream-token", {
+    method: "POST",
+    body: JSON.stringify({ tenantSlug: slug }),
+  })
+    .then(({ token }) => connect(token))
+    .catch(() => connect())
+
+  return () => {
+    cancelled = true
+    es?.close()
   }
-  return () => es.close()
 }

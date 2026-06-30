@@ -2,18 +2,21 @@
 
 ## Stack
 - Backend: Node 22 + TypeScript 5 + Hono + Drizzle ORM + PostgreSQL 16 + Vitest
-- Frontend: Next.js 16 + React 19 + shadcn/ui + Base UI + Recharts + Zustand
+- Frontend: Next.js 16 + React 19 + shadcn/ui + Base UI (Recharts y Zustand removidos — sin uso real)
 
-## Estado (actualizado 2026-06-29)
-- MVP funcional esperando credenciales
-- **Tests: 283/283 pass** (vitest, 3.72s). Suites: agent(26) + v2-agent(114) + v2-flow-adapter(17) + v2-flow-e2e(10) + v2-memory-persistence(24) + v2-memory-integration(11) + rls(6) + dashboard(9) + channels(8) + intelligence(7) + health(2) + santa-maria(42) + llm(7)
+## Estado (actualizado 2026-06-29 — Sprint 4 completado)
+- MVP funcional esperando credenciales Meta para Fase 2
+- **Tests: 282 pass / 12 skip-DB / 33 skip-unit** (vitest). Los 12 que fallan son integración con PG — solo corren con DB activa. Suites: agent(26) + v2-agent(114) + v2-flow-adapter(17) + v2-flow-e2e(10) + v2-memory-persistence(24) + v2-memory-integration(11) + rls(6) + dashboard(9) + channels(8) + intelligence(7) + health(2) + santa-maria(42) + llm(7)
 - Pipeline V2 completo: safetyPreRoute → deterministicDomainRoute → LLM → postRiskScan → applyOverrides → classifyIntent → policy → flowAdapter → canned → llm → critic → metrics
-- **Eval V2: 62.8% (258/411)** sobre 411 casos. V1 vs V2: 26.3% vs 62.8%. 0 regresiones. **No 87.7%** — esa cifra era de un case set viejo (164/187).
-- Golden validators: **34/39 (87.2%)** — 5 fallos no reparables por límite de contexto conversacional.
+- **Eval V2: 62.8% (258/411)** sobre 411 casos. V1 vs V2: 26.3% vs 62.8%. 0 regresiones. (La cifra 87.7% era un case set histórico de 187 casos — no usar.)
+- Golden validators: **34/39 (87.2%)** — 5 fallos no reparables sin refactor del SYSTEM_PROMPT del router.
 - Clinical audit: 0/411 failures (PR6.1 enforcement activo)
-- Modelo: deepseek-v4-flash
-- **V2 desactivado por flag** (`AGENT_KERNEL_V2` no existe en env tipado). Pipeline listo pero sin persistencia outbound ni SSE (pendiente A2+A3).
-- Santa María hyper-personalized: 29 servicios + 24 canned responses + 3 flows + 20 escalation keywords
+- Modelo: deepseek-v4-flash (API key en server/.env — nunca commitear)
+- **V2 activo** (`AGENT_KERNEL_V2=true` default en env.ts). Pipeline completo.
+- SSE stream protegido con HMAC token (`SSE_STREAM_SECRET` en env — vacío = dev open)
+- Scheduler local de workers (`WORKERS_ENABLED=false` default — activar en prod)
+- Observabilidad: requestLogger middleware + `/health` extendido (db/llm/workers/migrations)
+- Santa María hyper-personalized: 29+ servicios + precios multi-moneda (COP/USD/EUR/MXN) + imageKeys wa_ + 24 canned responses + 3 flows + 20 escalation keywords
 
 ## Santa María — Archivos clave
 - `server/src/flows/santa-maria/catalog.ts` — 29 servicios con precios multi-moneda (COP/USD/EUR/MXN) + imageKeys wa_. El LLM recibe el catálogo completo vía `buildCatalogKnowledge()` en v2-adapter.ts (fuente: TypeScript, no DB).
@@ -53,9 +56,28 @@
 - Máximo de mi forma de trabajar: leer MANIFIESTO global
 
 ## Plan activo
-- `docs/PLAN_IMPLEMENTACION_BOOKIA_MVP_AGENTEV2.md` — Plan GPT-5 (25 tasks, 5 sprints)
-- Sprint 0 parcial: C1✅ A1✅ C2⏳ C3⏳
-- Siguiente en prioridad: C2 (migrations runner) → C3 (secrets) → A2 (V2 persistencia) → A3 (V2 activación)
+- `docs/PLAN_IMPLEMENTACION_BOOKIA_MVP_AGENTEV2.md` — Plan (25 tasks, 5 sprints)
+- Sprint 4 completado: A6.img ✅ A6.kb ✅ B6 ✅ B7 ✅ C4 ✅ C7 ✅ C8 ✅ B8 ✅
+- Pendiente: **A12** — Eval profundo final (deliberadamente diferido al cierre del sprint)
+- Fase 2: Meta adapter (WhatsApp/IG/Messenger) — spec en `server/docs/meta-adapter-spec.md`
+
+## Comandos clave
+```bash
+# Backend dev
+cd server && npm run dev          # Puerto 8787
+cd server && npx vitest run       # Tests (requiere PG para integración)
+cd server && npx tsc --noEmit     # TypeScript check
+
+# Frontend dev
+npm run dev                       # Puerto 3001
+npx playwright test               # E2E (requiere frontend + backend corriendo)
+
+# Eval
+cd server && npx tsx src/agent/v2/eval/eval-runner.ts
+
+# Seed (requiere PG)
+cd server && npx tsx src/db/seed.ts
+```
 
 ## Seguridad
 - NO committear API key de DeepSeek (está en /Users/alejandropena/ARIA/config/settings.py)

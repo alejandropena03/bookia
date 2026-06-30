@@ -1,0 +1,151 @@
+Hola Carlos,
+
+Te escribo porque estamos en la etapa final de configurar el agente de WhatsApp para Santa María y necesito que me ayudes a completar algunos datos. Entre más completo esté, mejor va a responder el agente a los pacientes.
+
+Te pido que vayas respondiendo en el mismo orden, directamente debajo de cada pregunta. No necesitas formato especial, solo escribe lo que sepas y si algo no aplica o no lo tienes, deja escrito "no aplica" o "pendiente".
+
+
+--- PRECIOS POR MERCADO ---
+
+Tenemos los precios de los servicios principales en COP, pero en varios servicios nos faltan los valores para México (MXN), Miami (USD) y Europa (EUR). ¿Puedes completar los que falten?
+
+El formato ideal sería: Servicio - COP / MXN / USD / EUR
+
+Por ejemplo:
+Botox por zona - COP $630.000 / MXN ??? / USD ??? / EUR ???
+Rinomodelación - COP $820.000 / MXN $8.500 / USD ??? / EUR ???
+Full Face Botox - COP $1.580.000 / MXN ??? / USD $900 / EUR €899
+Barbie Botox - COP $2.999.000 / MXN ??? / USD ??? / EUR ???
+Radiesse por vial - COP $2.600.000 / MXN ??? / USD ??? / EUR ???
+Radiesse Plus por vial - COP $2.800.000 / MXN ??? / USD ??? / EUR ???
+Sculptra por vial - COP $2.500.000 / MXN ??? / USD ??? / EUR ???
+Korean Face - COP $1.899.000 / MXN ??? / USD $999 / EUR €999
+Esperma de Salmón (precio regular) - COP $800.000 / MXN $5.700 / USD ??? / EUR ???
+Esperma de Salmón (precio promo) - COP $499.000 / MXN $3.800 / USD ??? / EUR ???
+Valoración / Reserva - COP $50.000 / MXN ??? / USD $80 / EUR €80
+Marcación mandibular - COP $1.640.000 / MXN ??? / USD $899 / EUR €800
+Hialuronidasa - COP $530.000 / MXN ??? / USD $300 / EUR €300
+Proyección de mentón - COP $820.000 / MXN ??? / USD ??? / EUR ???
+Proyección de pómulos - COP $1.640.000 / MXN ??? / USD ??? / EUR ???
+Ojeras con ácido hialurónico - COP $820.000 / MXN ??? / USD ??? / EUR ???
+Nasolabiales con AH - COP $820.000 / MXN ??? / USD ??? / EUR ???
+Lipopapada enzimática - COP $368.000 / MXN ??? / USD ??? / EUR ???
+Bichectomía enzimática - COP $368.000 / MXN ??? / USD ??? / EUR ???
+Mesobotox para acné - COP $1.580.000 / MXN ??? / USD ??? / EUR ???
+NCTF Hidratación de labios - COP $630.000 / MXN ??? / USD ??? / EUR ???
+NCTF Ojeras - COP $630.000 / MXN ??? / USD ??? / EUR ???
+Boost Skin Glow - COP $3.420.000 / MXN ??? / USD ??? / EUR ???
+Micropigmentación de labios - COP $650.000 / MXN ??? / USD ??? / EUR ???
+Hand Rejuvenation Radiesse - USD $699 / EUR €699 / COP ??? / MXN ???
+Hand Rejuvenation Sculptra - USD $699 / EUR €699 / COP ??? / MXN ???
+
+
+--- DISPONIBILIDAD POR CIUDAD ---
+
+¿Cuáles de estos servicios se hacen en CDMX y cuáles en Miami? (en Colombia sabemos que están todos disponibles excepto micropigmentación que es solo Medellín)
+
+Botox por zona: ¿CDMX si/no? ¿Miami si/no?
+Barbie Botox: ¿CDMX si/no? ¿Miami si/no?
+Korean Face: ¿CDMX si/no? ¿Miami si/no?
+Esperma de Salmón: ¿CDMX si/no? ¿Miami si/no?
+Lipopapada / Bichectomía: ¿CDMX si/no? ¿Miami si/no?
+Mesobotox para acné: ¿CDMX si/no? ¿Miami si/no?
+Boost Skin Glow: ¿CDMX si/no? ¿Miami si/no?
+Micropigmentación de labios: ¿en qué ciudades está disponible?
+Hand Rejuvenation: ¿Colombia si/no? ¿CDMX si/no?
+
+¿Hay algún servicio que sea exclusivo de una sola ciudad o sede?
+
+
+--- CUIDADOS POST-TRATAMIENTO ---
+
+Tenemos la guía de Rinomodelación. ¿Tienes algo similar para estos procedimientos? (puede ser el texto que ya le envías a los pacientes por WhatsApp, exactamente como está)
+
+Botox facial:
+Russian Lips / Doll Lips / Red Lips:
+Full Face (Radiesse / Sculptra / AH):
+Marcación mandibular / Mentón / Pómulos:
+Esperma de Salmón / PDRN:
+Masculinización facial:
+Barbie Botox:
+
+Si no tienes guía escrita, cuéntame qué es lo más importante que le dices al paciente después de cada uno.
+
+
+--- CONTRAINDICACIONES ---
+
+¿Hay restricciones importantes que el agente debe conocer para no dar información incorrecta?
+
+Por ejemplo:
+¿Pueden hacerse tratamientos durante el embarazo o lactancia?
+¿Algún medicamento contraindica los procedimientos (anticoagulantes, etc.)?
+¿Existe alguna condición de salud que impida realizarse cualquiera de estos tratamientos?
+¿Hay edad mínima o máxima para algún procedimiento específico?
+¿Qué pasa si el paciente tiene implantes o rellenos previos de otra clínica?
+
+
+--- FOTOS Y MATERIAL VISUAL ---
+
+Recibimos las 34 fotos que nos enviaste. Tenemos fotos de antes/después para Red Lips (en 4 monedas). Para los demás servicios solo tenemos material promocional.
+
+¿Tienes fotos reales de antes/después (con permiso del paciente) de alguno de estos?
+Russian Lips: si/no
+Doll Lips: si/no
+Full Face: si/no
+Rinomodelación: si/no
+Masculinización facial: si/no
+Esperma de Salmón: si/no
+Barbie Botox: si/no
+
+Si tienes fotos de alguno, mándamelas por WhatsApp o al correo. Entre más tenga el agente, mejor puede mostrarle resultados reales a los pacientes.
+
+
+--- DURACIÓN Y SESIONES ---
+
+Para que el agente pueda responder preguntas como "¿cuánto dura el efecto?" o "¿cuántas sesiones necesito?":
+
+Russian Lips / Doll Lips: ¿cuánto dura el efecto?
+Red Lips: ¿cuánto dura el efecto?
+Rinomodelación: ¿cuánto dura el efecto?
+Marcación mandibular / Mentón / Pómulos: ¿cuánto dura?
+Korean Face: ¿cuántas sesiones? ¿cuánto dura?
+Esperma de Salmón: ¿cuántas sesiones? ¿cuánto dura?
+Lipopapada / Bichectomía enzimática: ¿cuántas sesiones? ¿se recuperación?
+Barbie Botox: ¿cuánto dura el efecto?
+Hand Rejuvenation: ¿cuántas sesiones? ¿cuánto dura?
+
+¿Hay algún tratamiento que sí o sí requiere varias sesiones para ver resultados?
+
+
+--- PROMOCIONES ACTIVAS ---
+
+¿Hay alguna promoción que no hayamos cubierto todavía? Por ejemplo:
+¿Hay descuentos por referidos?
+¿Hay paquetes combinados (ej: Full Face + Esperma de Salmón)?
+¿Hay promociones de temporada activas?
+¿Hay precios especiales para pacientes frecuentes?
+¿Hay algún programa de fidelización?
+
+
+--- FLUJO DE ATENCIÓN ---
+
+Unas preguntas sobre cómo funciona la clínica en la práctica:
+
+¿Cuánto tiempo promedio espera un paciente para conseguir cita?
+¿Se puede hacer la valoración y el procedimiento el mismo día?
+¿El abono de $50.000 aplica en todas las ciudades y monedas, o es diferente por mercado?
+¿Cómo maneja el agente a un paciente que ya fue atendido antes y quiere control?
+¿Los controles están incluidos en el precio del procedimiento?
+¿Qué hace el equipo cuando un paciente reporta una reacción adversa fuera del horario de atención?
+
+
+--- LO QUE NO ESTÁ EN EL CATÁLOGO ---
+
+Por último: ¿hay algún servicio, tratamiento o producto que ofrezcan y que no esté en la lista de arriba?
+
+También: ¿hay algo que el agente esté respondiendo mal o que te gustaría que dijera diferente? Si has probado el agente y algo no te convence, cuéntame.
+
+
+Gracias Carlos. Con esta información el agente va a poder responder a los pacientes con mucha más precisión, especialmente en preguntas de precios por mercado, cuidados post-procedimiento y dudas clínicas frecuentes.
+
+Cualquier duda me escribes.

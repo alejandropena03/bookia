@@ -1,4 +1,5 @@
 import { renderTemplate } from "./template.js";
+import { resolveServicePrice } from "./santa-maria/pricing.js";
 
 export interface FlowDefinition {
   initial: string;
@@ -133,8 +134,29 @@ function buildTemplateContext(slots: Record<string, string>, catalogItems?: Cata
       barranquilla: "COP",
       cdmx: "MXN", "ciudad de méxico": "MXN", "méxico": "MXN", mexico: "MXN",
       miami: "USD",
+      "madrid": "EUR", barcelona: "EUR",
+      europa: "EUR", berlin: "EUR",
+      paris: "EUR", london: "EUR", "londres": "EUR",
     };
     return map[key] || "COP";
+  }
+
+  // A6.6 — multi-market pricing via resolveServicePrice
+  let resolvedPriceStr = slots.service_price ?? "";
+  let needsHumanConfirm = false;
+  if (selected) {
+    try {
+      const rp = resolveServicePrice(selected as any, city);
+      if (rp.requiresHumanConfirmation) {
+        needsHumanConfirm = true;
+        const mk = rp.unconfirmedMarkets?.join(" / ") ?? market;
+        resolvedPriceStr = `(Precio en ${mk} pendiente de confirmación — puedo comunicarte con Elkin al 318 735 4841 para el valor vigente 🤍)`;
+      } else if (rp.formattedPrice) {
+        resolvedPriceStr = rp.formattedPrice;
+      }
+    } catch {
+      resolvedPriceStr = formatPrice(selected.price, selected.currency);
+    }
   }
 
   return {
@@ -142,9 +164,9 @@ function buildTemplateContext(slots: Record<string, string>, catalogItems?: Cata
     nombre: slots.nombre || "",
     city: cleanSlot(city),
     service_name: selected?.name ?? cleanSlot(slots.service_name ?? slots.service ?? ""),
-    service_price: selected ? formatPrice(selected.price, selected.currency) : slots.service_price ?? "",
+    service_price: resolvedPriceStr,
     service_description: selected?.description ?? "",
-    service_promo_info: servicePromoInfo,
+    service_promo_info: needsHumanConfirm ? "" : servicePromoInfo,
     datetime: cleanSlot(slots.datetime || ""),
     client_name: slots.client_name || slots.clientData || "",
     catalog_list: cityFiltered.length > 0

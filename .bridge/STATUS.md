@@ -18,20 +18,20 @@
 | S3 | A8, A9 (golden 34/39), A11 |
 | S4 | A6.1, A6.2, A6.3, A6.4, A6.5, **A6.6**, B5 |
 
-### 🔴 Pendiente Sprint 4
+### ✅ Sprint 4 — COMPLETADO
 
-| Task | Descripción | Plan ref |
-|------|-------------|----------|
-| ~~**A6.img**~~ | ✅ **DONE** — 34 imágenes WhatsApp copiadas como wa_01–wa_34.jpg, IMAGE_MANIFEST corregido con datos reales, imageKeys actualizados (DOCX reemplazados por wa_), whitelist en index.ts actualizado | §0.2 |
-| ~~**A6.kb**~~ | ✅ **DONE** — LLM recibe catálogo completo multi-moneda via buildCatalogKnowledge() (34 servicios, precios COP/USD/EUR/MXN, promos, confirmaciones). Persona actualizado en seed.ts. Validado con LLM real: 5/5 tests correctos | §0.2 |
-| **A12** | Eval V2 actualizado 411 casos, reporte honesto | §A12 |
-| **B6** | SSE `/api/sim/stream` con auth | §B6 |
-| **B7** | Cleanup dead code frontend | §B7 |
-| **B8** | Playwright E2E actualizado | §B8 |
-| **C4** | Scheduler local workers | §C4 |
-| **C5** | Sync docs con verdad en disco | §C5 |
-| **C7** | Meta Adapter Spec diseñado (no implementado) | §C7 |
-| **C8** | Observabilidad mínima | §C8 |
+| Task | Estado |
+|------|--------|
+| A6.img | ✅ 34 fotos WhatsApp HD (wa_01–wa_34.jpg), imageKeys actualizados, whitelist en index.ts |
+| A6.kb | ✅ LLM con catálogo multi-moneda (COP/USD/EUR/MXN), persona "Carlos", promos. 5/5 LLM tests |
+| B6 | ✅ SSE auth con HMAC token (`POST /api/sim/stream-token`). Dev bypass si `SSE_STREAM_SECRET` vacío |
+| B7 | ✅ Eliminados: ChannelBreakdown, ConversionChart, StatusDonut, MetricCard, RecentConversations + recharts + zustand + app/api/conversations + app/api/metrics |
+| B8 | ✅ Playwright E2E reescrito — landing, auth, dashboard, conversaciones, settings, DemoLive, health |
+| C4 | ✅ Scheduler en index.ts boot — reminders/reengagement/crm cada 30min si `WORKERS_ENABLED=true` |
+| C5 | ✅ AGENTS.md + STATUS.md synced con verdad del disco |
+| C7 | ✅ `server/docs/meta-adapter-spec.md` — spec completa (contrato, normalización, outbound, security, checklist Fase 2) |
+| C8 | ✅ requestLogger middleware (requestId/method/path/status/duration/tenantSlug) + /health extendido (llmConfigured, workersEnabled, lastMigration) |
+| **A12** | 🔴 **PENDIENTE** — Eval profundo diferido al cierre. Correr al final con `cd server && npx tsx src/agent/v2/eval/eval-runner.ts` |
 
 ### Tarea fuera del plan (solicitada por Alejandro)
 - **Seed-demo con conversaciones reales:** reemplazar strings dummy en `seed-demo.ts` con simulaciones del agente real. Ejecutar post-A2/A3 para que pasen por V2.

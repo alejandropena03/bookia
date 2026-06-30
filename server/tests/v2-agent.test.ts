@@ -585,6 +585,41 @@ describe("V2 Understanding - deterministic-domain-route", () => {
 	it("returns null for empty input", () => {
 		expect(deterministicDomainRoute("")).toBeNull();
 	});
+
+	// ── A6.6 named service patterns ──
+	it("Hand rejuvenation Radiesse price in USD → precio", () => {
+		const r = deterministicDomainRoute(
+			"Hand rejuvenation Radiesse price in USD",
+		);
+		expect(r?.intent).toBe("precio");
+		expect(r?.confidence).toBeGreaterThanOrEqual(0.8);
+	});
+
+	it("Rejuvenecimiento de manos en euros → precio", () => {
+		const r = deterministicDomainRoute("Rejuvenecimiento de manos en euros");
+		expect(r?.intent).toBe("precio");
+	});
+
+	it("Rejuvenecimiento de manos en Bucaramanga → precio (not charla)", () => {
+		const r = deterministicDomainRoute(
+			"Rejuvenecimiento de manos en Bucaramanga",
+		);
+		expect(r?.intent).toBe("precio");
+	});
+
+	it("Masculinización facial con AH en Colombia → precio", () => {
+		const r = deterministicDomainRoute(
+			"Masculinización facial con AH en Colombia",
+		);
+		expect(r?.intent).toBe("precio");
+	});
+
+	it("Facial Masculinization HA price USD → precio", () => {
+		const r = deterministicDomainRoute(
+			"Facial Masculinization HA price in USD",
+		);
+		expect(r?.intent).toBe("precio");
+	});
 });
 
 describe("V2 Understanding - risk-scanner", () => {
