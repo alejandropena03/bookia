@@ -1,7 +1,7 @@
 # STATUS.md — Bookia MVP
 
-**Última actualización:** 2026-06-29 (Claude Code supervisor)
-**Tests:** 310/310 ✅ | **tsc:** clean ✅ | **Eval V2:** 62.8% (258/411)
+**Última actualización:** 2026-06-29 (OpenCode — A6.5 done)
+**Tests:** 313/313 ✅ | **tsc:** clean ✅ | **Eval V2:** 62.8% (258/411)
 **North star:** MVP Fase 1 completo + V2 100% | NO Meta real | NO Agenda Pro real | NO pagos live
 
 ---
@@ -16,13 +16,12 @@
 | S1 | A2, A3, A4, A10, B1 |
 | S2 | A5/PR6.1, A6, A7, B2, B3, B4, C9 |
 | S3 | A8, A9 (golden 34/39), A11 |
-| S4 | A6.1, A6.2, A6.3, A6.4, B5 |
+| S4 | A6.1, A6.2, A6.3, A6.4, A6.5, B5 |
 
 ### 🔴 Pendiente Sprint 4
 
 | Task | Descripción | Plan ref |
 |------|-------------|----------|
-| **A6.5** | Guía post-tratamiento Rinomodelación — disparar al confirmar cita | §A6.5 |
 | **A6.6** | Hand Rejuvenation + masculinización AH — conocimiento defensivo | §A6.6 |
 | **A6.img** | Integrar 34 imágenes desde `server/data/santamaria-extraction/ai-studio-result.json` | §0.2 |
 | **A12** | Eval V2 actualizado 411 casos, reporte honesto | §A12 |
