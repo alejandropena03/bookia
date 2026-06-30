@@ -23,6 +23,7 @@
 | Task | Descripción | Plan ref |
 |------|-------------|----------|
 | ~~**A6.img**~~ | ✅ **DONE** — 34 imágenes WhatsApp copiadas como wa_01–wa_34.jpg, IMAGE_MANIFEST corregido con datos reales, imageKeys actualizados (DOCX reemplazados por wa_), whitelist en index.ts actualizado | §0.2 |
+| ~~**A6.kb**~~ | ✅ **DONE** — LLM recibe catálogo completo multi-moneda via buildCatalogKnowledge() (34 servicios, precios COP/USD/EUR/MXN, promos, confirmaciones). Persona actualizado en seed.ts. Validado con LLM real: 5/5 tests correctos | §0.2 |
 | **A12** | Eval V2 actualizado 411 casos, reporte honesto | §A12 |
 | **B6** | SSE `/api/sim/stream` con auth | §B6 |
 | **B7** | Cleanup dead code frontend | §B7 |
