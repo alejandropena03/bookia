@@ -1,0 +1,44 @@
+{
+  "exportTimestamp": "2026-06-30T03:52:52.306Z",
+  "category": "privacy-pii",
+  "date": "2026-06-30",
+  "count": 2,
+  "cases": [
+    {
+      "id": "pr_edge_payment_proof",
+      "category": "privacy-pii",
+      "criticality": "high",
+      "reviewStatus": "reviewed",
+      "input": "Te envío el comprobante de pago con todos mis datos",
+      "expected": "charla",
+      "actual": "pago",
+      "confidence": 0.9,
+      "trace": "",
+      "failureReasons": [
+        "Expected \"charla\", got \"pago\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'charla': classified as 'pago'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-30"
+    },
+    {
+      "id": "pr_edge_photo",
+      "category": "privacy-pii",
+      "criticality": "high",
+      "reviewStatus": "reviewed",
+      "input": "Te mando una foto de mi rostro para que evalúes",
+      "expected": "dudas_medicas",
+      "actual": "charla",
+      "confidence": 0.8,
+      "trace": "DOMAIN-ROUTER: comparte archivo/documento",
+      "failureReasons": [
+        "Expected \"dudas_medicas\", got \"charla\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'dudas_medicas': classified as 'charla'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-30"
+    }
+  ]
+}

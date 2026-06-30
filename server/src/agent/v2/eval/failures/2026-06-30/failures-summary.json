@@ -1,0 +1,14 @@
+{
+  "exportTimestamp": "2026-06-30T03:52:52.307Z",
+  "date": "2026-06-30",
+  "totalFailures": 5,
+  "criticalFailures": 5,
+  "byCategory": {
+    "privacy-pii": 2,
+    "regression-v1": 3
+  },
+  "categories": [
+    "privacy-pii",
+    "regression-v1"
+  ]
+}

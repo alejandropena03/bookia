@@ -1,0 +1,26 @@
+{
+  "exportTimestamp": "2026-06-30T03:34:52.214Z",
+  "category": "quejas-handoff",
+  "date": "2026-06-30",
+  "count": 1,
+  "cases": [
+    {
+      "id": "qh_legal_proteccion_datos",
+      "category": "quejas-handoff",
+      "criticality": "critical",
+      "reviewStatus": "reviewed",
+      "input": "Quiero ejercer mi derecho de eliminación de datos",
+      "expected": "otro",
+      "actual": "queja",
+      "confidence": 0.9,
+      "trace": "DOMAIN-ROUTER: ejercicio derechos legales",
+      "failureReasons": [
+        "Expected \"otro\", got \"queja\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'otro': classified as 'queja'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-30"
+    }
+  ]
+}

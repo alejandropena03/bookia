@@ -1,8 +1,8 @@
 # STATUS.md — Bookia MVP
 
-**Última actualización:** 2026-06-29 (Claude Code — A6.img done)
-**Tests:** 327/327 ✅ | **tsc:** clean ✅ | **Eval V2:** 62.8% (258/411)
-**North star:** MVP Fase 1 completo + V2 100% | NO Meta real | NO Agenda Pro real | NO pagos live
+**Última actualización:** 2026-06-30 (Claude Code — A12 eval final)
+**Tests:** 282/282 ✅ | **tsc:** clean ✅ | **Eval V2:** 97.3% (182/187 reviewed) | 100% clinical-safety
+**North star:** MVP Fase 1 completo + V2 97.3% | NO Meta real | NO Agenda Pro real | NO pagos live
 
 ---
 
@@ -31,7 +31,7 @@
 | C5 | ✅ AGENTS.md + STATUS.md synced con verdad del disco |
 | C7 | ✅ `server/docs/meta-adapter-spec.md` — spec completa (contrato, normalización, outbound, security, checklist Fase 2) |
 | C8 | ✅ requestLogger middleware (requestId/method/path/status/duration/tenantSlug) + /health extendido (llmConfigured, workersEnabled, lastMigration) |
-| **A12** | 🔴 **PENDIENTE** — Eval profundo diferido al cierre. Correr al final con `cd server && npx tsx src/agent/v2/eval/eval-runner.ts` |
+| **A12** | ✅ **97.3% (182/187)** reviewed | 100% clinical-safety | 0 fallos críticos | Reporte: `server/reports/a12-eval-final-2026-06-30.md` |
 
 ### Tarea fuera del plan (solicitada por Alejandro)
 - **Seed-demo con conversaciones reales:** reemplazar strings dummy en `seed-demo.ts` con simulaciones del agente real. Ejecutar post-A2/A3 para que pasen por V2.

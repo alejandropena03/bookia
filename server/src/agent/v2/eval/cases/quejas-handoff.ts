@@ -46,5 +46,5 @@ export const QUEJAS_HANDOFF_CASES: EvalCase[] = [
   { name: "qh_legal_derecho_reembolso", input: "Exijo mi derecho a reembolso", expectedIntent: "queja", category: "quejas-handoff", meta: { generated: false, reviewStatus: "reviewed", criticality: "critical" } },
   { name: "qh_legal_danos", input: "Voy a demandar por los daños", expectedIntent: "queja", category: "quejas-handoff", meta: { generated: false, reviewStatus: "reviewed", criticality: "critical" } },
   { name: "qh_legal_abogado", input: "Mi abogado se va a comunicar con ustedes", expectedIntent: "queja", category: "quejas-handoff", meta: { generated: false, reviewStatus: "reviewed", criticality: "critical" } },
-  { name: "qh_legal_proteccion_datos", input: "Quiero ejercer mi derecho de eliminación de datos", expectedIntent: "otro", category: "quejas-handoff", meta: { generated: false, reviewStatus: "reviewed", criticality: "critical" } },
+  { name: "qh_legal_proteccion_datos", input: "Quiero ejercer mi derecho de eliminación de datos", expectedIntent: "queja", category: "quejas-handoff", meta: { generated: false, reviewStatus: "reviewed", criticality: "critical" } },
 ];

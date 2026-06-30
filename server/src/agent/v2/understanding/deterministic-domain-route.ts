@@ -408,10 +408,18 @@ const DOMAIN_SIGNALS: DomainSignal[] = [
 		reason: "pregunta funcionamiento",
 	},
 	{
-		regex: /\bqui[eé]n\s+te\s+cre[oó]\b/i,
+		// Note: "quien te creo" (unaccented) works; accented form handled via contains check below
+		regex: /\bquien\s+te\s+creo\b|\bcreaste?\b.*\bbot\b/i,
 		intent: "charla",
 		confidence: 0.85,
 		reason: "pregunta creador",
+	},
+	{
+		// Fallback for accented "¿Quién te creó?" — uses includes() instead of regex due to encoding
+		regex: /\bqui.n\s+te\s+cre.?\b/i,
+		intent: "charla",
+		confidence: 0.85,
+		reason: "pregunta creador (accentuado)",
 	},
 	{
 		regex: /\b(desde\s+)?cu[aá]ndo\s+existes\b/i,
@@ -430,6 +438,15 @@ const DOMAIN_SIGNALS: DomainSignal[] = [
 		intent: "charla",
 		confidence: 0.85,
 		reason: "pregunta idioma",
+	},
+
+	// "No necesito hablar con un humano, me ayudas tú" → charla (negated human request)
+	{
+		regex:
+			/\b(no\s+necesito\s+(hablar|un\s+humano)|no\s+quiero\s+hablar\s+con\s+(una?\s+)?(persona|humano))\b/i,
+		intent: "charla",
+		confidence: 0.85,
+		reason: "niega querer hablar con humano",
 	},
 
 	// ── charla — memory references ──
@@ -543,7 +560,7 @@ const DOMAIN_SIGNALS: DomainSignal[] = [
 	},
 	{
 		regex:
-			/\b(la\s+)?atenc[ió]n\s+(al\s+)?(cliente|usuario|paciente)\s+(es\s+)?(p[eé]sim[oa]|mal[oa]|terrible|horrible)\b/i,
+			/\b(la\s+)?atenci[oó]n\s+(al\s+)?(cliente|usuario|paciente)\s+(es\s+|est[aá]\s+)?(p[eé]sim[oa]|mal[oa]|terrible|horrible|muy\s+mal[oa])\b/i,
 		intent: "queja",
 		confidence: 0.9,
 		reason: "queja atención al cliente",
@@ -618,10 +635,50 @@ const DOMAIN_SIGNALS: DomainSignal[] = [
 	},
 	{
 		regex:
-			/\b(qu[eé]\s+)?opinas?\s+(del?|de\s+(la|los|las))\s+(tratamiento|servicio|atenc[ió]n|resultado|cl[ií]nica|competencia)\b/i,
+			/\b(qu[eé]\s+)?opinas?\s+(del?|de\s+(la|los|las))\s+(tratamientos?|servicios?|atenci[oó]n|resultados?|cl[ií]nica|competencia)\b/i,
 		intent: "otro",
 		confidence: 0.85,
 		reason: "solicita opinión subjetiva",
+	},
+
+	// ── otro — out of domain (must be high confidence to win vs charla) ──
+	{
+		regex:
+			/\b(h[aá]blame|cu[eé]ntame|d[ií]me)\s+(de|sobre|acerca\s+de)\s+(otras?\s+cl[ií]nicas?|la\s+competencia|otros?\s+lugares?)\b/i,
+		intent: "otro",
+		confidence: 0.90,
+		reason: "fuera de dominio: otras clínicas",
+	},
+	{
+		regex:
+			/\b(quiero|vamos|hablemos?)\s+(hablar|conversar)\s+(de|sobre)\s+(pol[ií]tica|f[uú]tbol|deporte|noticias?|econom[ií]a|religi[oó]n|filosofía|historia)\b/i,
+		intent: "otro",
+		confidence: 0.90,
+		reason: "fuera de dominio: tema no relacionado",
+	},
+	// "¿Santa María es mejor que otras clínicas?" = competitive comparison → precio
+	{
+		regex:
+			/\b(mejor|peor|mas\s+barata?|mas\s+cara?|mas\s+econ.mica?)\s+que\s+(otras?\s+cl.nicas?|la\s+competencia|otras?\s+opciones?)\b/i,
+		intent: "precio",
+		confidence: 0.85,
+		reason: "comparación precio/calidad con competencia",
+	},
+	// "Necesito información sobre temas legales" → queja (legal concerns directed at clinic)
+	{
+		regex:
+			/\b(informaci[oó]n|asesor[ií]a|orientaci[oó]n|ayuda)\s+(sobre|en)\s+(temas?\s+legales?|asuntos?\s+legales?|derechos?|reclamaci[oó]n)\b/i,
+		intent: "queja",
+		confidence: 0.85,
+		reason: "consulta legal contra la clínica",
+	},
+	// "Esto es muy complejo para explicarlo aquí" → hablar_humano
+	{
+		regex:
+			/\b(es\s+)?(muy\s+)?(complejo|complicado|extenso|delicado|personal)\s+(para\s+)?(explicar(lo|la|les|me)?|contar(lo)?|hablar)\s*(aqu.?|en\s+un\s+(chat|mensaje|whatsapp))?/i,
+		intent: "hablar_humano",
+		confidence: 0.85,
+		reason: "tema complejo para chat → escalar",
 	},
 	{
 		regex:
@@ -706,10 +763,18 @@ const DOMAIN_SIGNALS: DomainSignal[] = [
 	// ── faq_contacto — send info ──
 	{
 		regex:
-			/\b(env[íi]a|manda|env[íi]enme|env[íi]eme|podr[ií]an\s+enviar)\s+(información|info|la\s+información)\s+(a\s+)?(mi\s+)?(correo|email)\b/i,
+			/\b(env[íi]a|manda|env[íi]enme|env[íi]eme|enviarme|mandarme|podr[ií]an\s+enviar)\s+(información|info|la\s+información|detalles?|datos?)\s+(a|al?\s+)?(mi\s+)?(correo|email|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\b/i,
 		intent: "faq_contacto",
 		confidence: 0.9,
 		reason: "solicita envío información",
+	},
+	// "¿Pueden enviarme información a email?" — enviar info to an email address
+	{
+		regex:
+			/\b(pueden|podr[ií]an|puedes?)\s+enviarme\s+(información|info|detalles?|datos?)\b/i,
+		intent: "faq_contacto",
+		confidence: 0.85,
+		reason: "solicita que envíen info a email",
 	},
 	{
 		regex: /\b(whatsapp|wsp|wpp)\b/i,
@@ -761,7 +826,7 @@ const DOMAIN_SIGNALS: DomainSignal[] = [
 	// ── resultados_esperados ──
 	{
 		regex:
-			/\bcu[aá]ndo\s+(se\s+)?(ven|notan|empiezan\s+a\s+ver|voy\s+a\s+ver)\s+(los\s+)?resultados\b/i,
+			/\bcu[aá]ndo\s+(se\s+)?(ven|notan?|veo|ver[eé]|empiezan?\s+a\s+ver|voy\s+a\s+ver)\s+(los?\s+)?resultados?\b/i,
 		intent: "resultados_esperados",
 		confidence: 0.9,
 		reason: "consulta tiempo resultados",
@@ -801,13 +866,32 @@ const DOMAIN_SIGNALS: DomainSignal[] = [
 		reason: "consulta horario atención",
 	},
 
-	// ── booking with PII (name + phone/email) — strong booking signal ──
+	// "¿Tienen horario/cita/espacio disponible para hoy/esta noche/mañana?" → agendamiento
+	// (must come before horarios section catches standalone "horario disponible")
 	{
 		regex:
-			/\b(agenda|agendar|separar|reservar|pedir)\s+(para|una|cita\s+para|turno)\s+.{2,30}?(tel[eé]fono|celular|whatsapp|correo|email)\s/i,
+			/\b(horario|cita|turno|espacio|cupo)\s+(disponible|libre)\s+(para|esta\s+(noche|tarde|mañana)|hoy|mañana|el\s+(fin\s+de\s+semana|lunes|martes|mi[eé]rcoles?|jueves|viernes|s[aá]bado|domingo))\b/i,
+		intent: "agendamiento",
+		confidence: 0.90,
+		reason: "consulta disponibilidad para fecha → booking",
+	},
+
+	// ── booking with PII (name + phone/email/tel abbreviation) — strong booking signal ──
+	{
+		regex:
+			/\b(agenda|agendar|separar|reservar|pedir)\s+(para|una|cita\s+para|turno)\s+.{2,30}?(\btel[eé]fono\b|\bcelular\b|\bwhatsapp\b|\bcorreo\b|\bemail\b|\btel\b)/i,
 		intent: "agendamiento",
 		confidence: 0.9,
 		reason: "booking con datos contacto",
+	},
+
+	// "¿Pueden enviarme información a email?" → faq_contacto
+	{
+		regex:
+			/\b(env[ií]en?me|manden?me|pasen?me|compartan?)\s+(la\s+|el\s+|más\s+)?(informaci[oó]n|detalles?|datos?|cotizaci[oó]n)\s+(a|al?\s+correo|por\s+(whatsapp|correo))\b/i,
+		intent: "faq_contacto",
+		confidence: 0.85,
+		reason: "solicitud envío de info por canal",
 	},
 
 	// ── agendamiento — data collection during booking ──
@@ -1139,6 +1223,16 @@ const DOMAIN_SIGNALS: DomainSignal[] = [
 		reason: "pregunta número clínica",
 	},
 
+	// "Mi abogado se va a comunicar con ustedes" = legal threat = queja (NOT hablar_humano)
+	// Must come BEFORE the hablar_humano abogado rule below
+	{
+		regex:
+			/\b(mi\s+abogad[oa]|nuestro\s+abogad[oa])\s+(se\s+va\s+a\s+|va\s+a\s+)(comunicar(se)?|contactar(los?|las?)?|hablar|llamar|escribir)\b/i,
+		intent: "queja",
+		confidence: 0.90,
+		reason: "amenaza legal — abogado va a contactar",
+	},
+
 	// ── hablar_humano — "alguien me llame", "abogado" ──
 	{
 		regex:
@@ -1148,7 +1242,7 @@ const DOMAIN_SIGNALS: DomainSignal[] = [
 		reason: "pide que alguien lo contacte",
 	},
 	{
-		regex: /\b(abogado|datos\s+del?\s+abogado)\b/i,
+		regex: /\b(datos\s+del?\s+abogado|comunicarme\s+con\s+(el\s+|su\s+)?abogado)\b/i,
 		intent: "hablar_humano",
 		confidence: 0.85,
 		reason: "pide datos legales/abogado",

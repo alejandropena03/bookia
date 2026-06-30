@@ -1,0 +1,62 @@
+{
+  "exportTimestamp": "2026-06-30T03:52:52.306Z",
+  "category": "regression-v1",
+  "date": "2026-06-30",
+  "count": 3,
+  "cases": [
+    {
+      "id": "reg_v1_memory_services",
+      "category": "regression-v1",
+      "criticality": "high",
+      "reviewStatus": "reviewed",
+      "input": "Te mencioné que me interesa el botox, ¿qué más me recomiendas?",
+      "expected": "faq_servicios",
+      "actual": "precio",
+      "confidence": 0.8,
+      "trace": "DOMAIN-ROUTER: interés en servicio con intención precio",
+      "failureReasons": [
+        "Expected \"faq_servicios\", got \"precio\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'faq_servicios': classified as 'precio'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-30"
+    },
+    {
+      "id": "reg_v1_memory_city",
+      "category": "regression-v1",
+      "criticality": "high",
+      "reviewStatus": "reviewed",
+      "input": "Ya te dije que soy de Medellín, ¿cuánto cuesta allá?",
+      "expected": "precio",
+      "actual": "charla",
+      "confidence": 0.85,
+      "trace": "DOMAIN-ROUTER: comparte ciudad de origen",
+      "failureReasons": [
+        "Expected \"precio\", got \"charla\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'precio': classified as 'charla'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-30"
+    },
+    {
+      "id": "reg_v1_memory_repeat",
+      "category": "regression-v1",
+      "criticality": "high",
+      "reviewStatus": "reviewed",
+      "input": "Como te dije antes, tengo diabetes",
+      "expected": "contraindicaciones",
+      "actual": "charla",
+      "confidence": 0.8,
+      "trace": "DOMAIN-ROUTER: referencia conversación anterior",
+      "failureReasons": [
+        "Expected \"contraindicaciones\", got \"charla\""
+      ],
+      "suggestedFix": [
+        "Review routing for 'contraindicaciones': classified as 'charla'. Consider override rule or training example."
+      ],
+      "timestamp": "2026-06-30"
+    }
+  ]
+}

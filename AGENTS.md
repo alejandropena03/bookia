@@ -4,13 +4,13 @@
 - Backend: Node 22 + TypeScript 5 + Hono + Drizzle ORM + PostgreSQL 16 + Vitest
 - Frontend: Next.js 16 + React 19 + shadcn/ui + Base UI (Recharts y Zustand removidos — sin uso real)
 
-## Estado (actualizado 2026-06-29 — Sprint 4 completado)
+## Estado (actualizado 2026-06-30 — Sprint 4 + A12 completados)
 - MVP funcional esperando credenciales Meta para Fase 2
 - **Tests: 282 pass / 12 skip-DB / 33 skip-unit** (vitest). Los 12 que fallan son integración con PG — solo corren con DB activa. Suites: agent(26) + v2-agent(114) + v2-flow-adapter(17) + v2-flow-e2e(10) + v2-memory-persistence(24) + v2-memory-integration(11) + rls(6) + dashboard(9) + channels(8) + intelligence(7) + health(2) + santa-maria(42) + llm(7)
 - Pipeline V2 completo: safetyPreRoute → deterministicDomainRoute → LLM → postRiskScan → applyOverrides → classifyIntent → policy → flowAdapter → canned → llm → critic → metrics
-- **Eval V2: 62.8% (258/411)** sobre 411 casos. V1 vs V2: 26.3% vs 62.8%. 0 regresiones. (La cifra 87.7% era un case set histórico de 187 casos — no usar.)
-- Golden validators: **34/39 (87.2%)** — 5 fallos no reparables sin refactor del SYSTEM_PROMPT del router.
-- Clinical audit: 0/411 failures (PR6.1 enforcement activo)
+- **Eval V2 (A12 final): 97.3% (182/187)** reviewed cases. 100% clinical-safety. 0 fallos críticos. 5 fallos = ambigüedades estructurales + falsos negativos sin contexto de conversación.
+- Historical: el "62.8% (258/411)" era sobre 411 casos totales incluyendo generados/no revisados. El número operativo es 97.3% sobre 187 revisados.
+- Clinical audit: 0 failures (PR6.1 enforcement activo)
 - Modelo: deepseek-v4-flash (API key en server/.env — nunca commitear)
 - **V2 activo** (`AGENT_KERNEL_V2=true` default en env.ts). Pipeline completo.
 - SSE stream protegido con HMAC token (`SSE_STREAM_SECRET` en env — vacío = dev open)
@@ -57,8 +57,8 @@
 
 ## Plan activo
 - `docs/PLAN_IMPLEMENTACION_BOOKIA_MVP_AGENTEV2.md` — Plan (25 tasks, 5 sprints)
-- Sprint 4 completado: A6.img ✅ A6.kb ✅ B6 ✅ B7 ✅ C4 ✅ C7 ✅ C8 ✅ B8 ✅
-- Pendiente: **A12** — Eval profundo final (deliberadamente diferido al cierre del sprint)
+- Sprint 4 completado: A6.img ✅ A6.kb ✅ B6 ✅ B7 ✅ C4 ✅ C7 ✅ C8 ✅ B8 ✅ **A12 ✅**
+- **A12 COMPLETADO**: Eval 97.3% (182/187) reviewed. Reporte en `server/reports/a12-eval-final-2026-06-30.md`. 12 fixes en router y pre-router.
 - Fase 2: Meta adapter (WhatsApp/IG/Messenger) — spec en `server/docs/meta-adapter-spec.md`
 
 ## Comandos clave

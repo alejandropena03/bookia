@@ -141,6 +141,8 @@ const INJECTION_SIGNALS: [RegExp, string][] = [
   [/\b(quiero\s+)?ver\s+(las\s+)?(historias?\s+cl[ií]nicas?|fotos?|resultados?)\s+de\s+(otr[oa]s?\s+)?(pacientes?|clientes?)\b/i, "unauthorized access"],
   [/\b(d[ií]me|cu[eé]ntame)\s+(cu[aá]l\s+es\s+|la\s+|el\s+).*(prompt|api\s*key|contraseña|token\b|secreto)\b/i, "credential extraction"],
   [/\bolvida\s+(tod[oa]s?\s+)?(tus\s+)?(reglas?|instrucciones?|normas?|pol[ií]ticas?|protocolos?)\b/i, "forget rules"],
+  [/\b(ignora|olvida|descarta|deja\s+de\s+lado)\s+(lo\s+que\s+te\s+(dije|indiqué|pedí|conté)|mis?\s+(instrucciones?|indicaciones?|mensajes?\s+anteriores?))\b/i, "ignore prior context injection"],
+  [/\bahora\s+eres?\s+(un[ao]?\s+)?(asistente|bot|ia|robot|chatbot|agente)\s+(de|para|que)\b/i, "persona override injection"],
   [/\b(entra|ponte|pasa)\s+(en\s+)?modo\s+(DAN|asistente|sin\s+restricciones|libre|oscuro)\b/i, "role escape mode"],
   [/\b(imprime|muestra|publica|revela|revele)\s+(todas\s+(las\s+|tus\s+|mis\s+)?|tus\s+|las\s+|mis\s+)?(reglas?|normas?|instrucciones?|pol[ií]ticas?|protocolos?|seguridad)\b/i, "rule extraction"],
   [/\b(mostrar|listar|enlistar|lista|listame)\s+(todas\s+)?(las\s+)?(instrucciones?|reglas?|comandos?)\b/i, "instruction listing"],
@@ -154,7 +156,7 @@ const INJECTION_SIGNALS: [RegExp, string][] = [
   [/\b(repite|repetir|repíteme|repiteme)\s+(la\s+)?(contraseña|password|clave|token)\b/i, "password repeat"],
   [/\b(inventa|fabrica|crea|simula)\s+(un\s+)?(precio|cotización|presupuesto|oferta)\s+(especial|falso|personalizado)\b/i, "fake pricing"],
   [/\b(cita\s+falsa|falsa\s+cita|cita\s+de\s+mentira|reserva\s+falsa)\b/i, "fake booking"],
-  [/\b(eres\s+un\s+)?(inútil|inservible|servicio\s+pésimo|pésim[oa])\b/i, "insult"],
+  [/\b(eres\s+un?\s+)(inútil|inservible)\b|\b(servicio\s+pésimo)\b/i, "insult"],
   // NOTE: capability inquiries like "qué más puedes hacer", "cuáles son tus limitaciones"
   // are legitimate curiosity questions → charla, not injection. They have been moved to the
   // deterministic domain route. Only actual override/escape attempts remain here.
@@ -256,7 +258,12 @@ export function safetyPreRoute(text: string): {
     };
   }
 
-  const postReason = matchAny(trimmed, POST_SIGNALS);
+  // If the text expresses dissatisfaction or asks about result timelines, bypass post_tratamiento
+  // routing and let the deterministic domain router handle it more precisely.
+  const hasComplaintPrefix = /\b(no\s+vi\b|no\s+noté\b|no\s+me\s+gust[oó]\b|no\s+funcion[oó]\b|decepcionad[oa]\b|estoy\s+hart[oa]\b|pésim[oa]\b|terrible\b|no\s+veo\s+resultados?\b)/i.test(trimmed)
+    || /\bcu[aá]ndo\s+(veo|se\s+ven|notan?|empiezan?\s+a\s+ver|voy\s+a\s+ver)\s+(los?\s+)?resultados?\b/i.test(trimmed);
+
+  const postReason = !hasComplaintPrefix ? matchAny(trimmed, POST_SIGNALS) : null;
   if (postReason) {
     return {
       decision: {
@@ -345,7 +352,13 @@ export function safetyPreRoute(text: string): {
     };
   }
 
-  const humanReason = matchAny(trimmed, HUMAN_SIGNALS);
+  // "¿Eres una persona real?" = asking if the AI is human → charla, not hablar_humano
+  const isAIIdentityQuestion = /\b(eres?\s+|sos?\s+)(una?\s+)?(persona\s+real|humano?\b|bot\b|ia\b|robot\b|persona\s+de\s+verdad)/i.test(trimmed);
+
+  // "No necesito hablar con un humano, me ayudas tú" = negated human request → charla
+  const isNegatedHumanRequest = /\b(no\s+necesito\s+(hablar|un\s+humano)|no\s+quiero\s+hablar\s+con\s+(una?\s+)?(persona|humano))\b/i.test(trimmed);
+
+  const humanReason = (!isAIIdentityQuestion && !isNegatedHumanRequest) ? matchAny(trimmed, HUMAN_SIGNALS) : null;
   if (humanReason) {
     return {
       decision: {
