@@ -8,11 +8,32 @@ import { createMemoryRepository } from "../../v2/memory/memory-repository.js";
 import { MemoryService } from "../../v2/memory/memory-service.js";
 import { FlowAdapter } from "../../v2/adapter/flow-adapter.js";
 import type { CatalogItem } from "../../../flows/engine.js";
-import { SANTA_MARIA_CATALOG } from "../../../flows/santa-maria/catalog.js";
+import { SANTA_MARIA_CATALOG, type CatalogItem as SantaMariaItem } from "../../../flows/santa-maria/catalog.js";
+import type { MediaItem } from "../types/agent-intent.js";
 import { getCannedResponse as _getCannedResponse } from "../../responder.js";
 import { evaluatePolicy as _evaluatePolicy } from "../../v2/policy/policy-engine.js";
 import { scanRisks as _scanRisks } from "../../v2/understanding/risk-scanner.js";
 import { isOutOfHours } from "../../../lib/hours.js";
+
+const MEDIA_INTENTS: AgentIntent[] = ["precio", "faq_servicios", "resultados_esperados", "contraindicaciones", "post_tratamiento", "dudas_medicas"];
+
+function resolveMediaForIntent(serviceName: string | undefined, intent: AgentIntent): MediaItem[] | undefined {
+  if (!MEDIA_INTENTS.includes(intent)) return undefined;
+  if (!serviceName) return undefined;
+  const lower = serviceName.toLowerCase();
+  const match = SANTA_MARIA_CATALOG.find(
+    (c) => lower.includes(c.name.toLowerCase()) || c.name.toLowerCase().includes(lower),
+  ) as SantaMariaItem | undefined;
+  if (!match?.imageKeys?.length) return undefined;
+  return match.imageKeys.map((key) => ({
+    url: `/images/${key}`,
+    type: "image" as const,
+    imageKey: key,
+    alt: match.name,
+    service: match.name,
+    currency: match.currency,
+  }));
+}
 
 function buildCatalogKnowledge(): string {
   const lines = SANTA_MARIA_CATALOG.map((item) => {
@@ -76,6 +97,9 @@ function createV2Providers(
     },
     detectRisks: (text: string, intent: string): RiskFlags => {
       return _scanRisks(text, intent as AgentIntent);
+    },
+    resolveMedia: (serviceName: string | undefined, intent: AgentIntent): MediaItem[] | undefined => {
+      return resolveMediaForIntent(serviceName, intent as AgentIntent);
     },
     loadContext: async (_input: AgentKernelInput): Promise<Record<string, unknown>> => {
       const [profile] = await sql`

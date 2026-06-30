@@ -14,6 +14,7 @@ export interface KernelProviders {
   evaluatePolicy: (text: string, intent: AgentIntent, riskFlags: RiskFlags) => PolicyDecision;
   detectRisks: (text: string, intent: AgentIntent) => RiskFlags;
   loadContext: (input: AgentKernelInput) => Promise<Record<string, unknown>>;
+  resolveMedia?: (serviceName: string | undefined, intent: AgentIntent) => MediaItem[] | undefined;
 }
 
 export class AgentKernel {
@@ -165,8 +166,9 @@ export class AgentKernel {
       trace.generation.route = "canned";
       emit("agent.response.composed");
       emit("agent.response.sent");
+      const cannedMedia = this.providers.resolveMedia?.(routerDecision.entities?.service, routerDecision.intent);
       return {
-        response: { text: finalText, route: finalRoute as any },
+        response: { text: finalText, route: finalRoute as any, media: cannedMedia },
         decisionTrace: trace,
         memoryUpdates,
       };
@@ -185,8 +187,9 @@ export class AgentKernel {
     emit("agent.response.composed");
     emit("agent.response.sent");
 
+    const llmMedia = this.providers.resolveMedia?.(routerDecision.entities?.service, routerDecision.intent);
     return {
-      response: { text: finalText, route: finalRoute as any },
+      response: { text: finalText, route: finalRoute as any, media: llmMedia },
       decisionTrace: trace,
       memoryUpdates,
     };
