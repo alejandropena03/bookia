@@ -87,6 +87,12 @@ export const SANTA_MARIA_CANNED: Record<string, string> = {
   rinomodelacion:
     "💉✨ Rinomodelación sin cirugía ✨💉\n\nLa rinomodelación es un procedimiento no quirúrgico en el que utilizamos ácido hialurónico para mejorar la forma de la nariz. Nos permite perfilar el dorso, levantar la punta y corregir pequeñas asimetrías, logrando un resultado más armónico y natural sin necesidad de cirugía.\n\nEs un tratamiento rápido, con resultados inmediatos y mínima incapacidad.\n\n💰 Valor: $820.000 COP / $8.500 MXN\n\nAgenda tu valoración y cambia tu vida ✨",
 
+  // ── Guía post-tratamiento de Rinomodelación (§A6.5 plan) — NUEVO ──
+  // Disparada al confirmar cita de Rinomodelación Y al preguntar
+  // "cuidados después de rinomodelación". No diagnóstica; solo orienta.
+  guia_rinomodelacion:
+    "Buenas {nombre} ✨ Aquí tienes la guía de cuidados post-rinomodelación:\n\n— Primeras 24 horas: no toques ni presiones la nariz; evita maquillaje en la zona.\n— 48 horas: sin alcohol, sin ejercicio intenso, evita calor directo (sauna, sol).\n— 1 semana: no gafas apretadas, duerme boca arriba, evita masajes faciales y tratamientos dentales.\n— Resultados: inmediatos, con leve hinchazón 1-3 días.\n— Control: a las 2 semanas con el doctor.\n\nSi notas algo inusual (asimetría marcada, dolor persistente, cambios de color en la zona), escríbenos para evaluación. 🤍",
+
   // ── Full Face / Armonización facial (§4.1, texto exacto) ──
   armonizacion_facial:
     "El tratamiento de Full Face (Armonización Facial) es una experiencia de diseño facial personalizada, enfocada en realzar tu belleza con resultados elegantes, equilibrados y completamente naturales.\n\nTrabajamos cada detalle del rostro para mejorar proporciones, definir estructuras y aportar un aspecto más fresco y sofisticado, sin alterar tu esencia, sino elevando tu imagen.\n\nA continuación, te comparto la información completa y la inversión del tratamiento 👇",

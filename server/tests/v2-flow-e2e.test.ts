@@ -11,6 +11,7 @@ import type { CatalogItem } from "../src/flows/engine.js";
 
 const CATALOG: CatalogItem[] = [
   { name: "Botox", price: "800000", currency: "COP", cities: ["Bogotá", "Medellín"] },
+  { name: "Rinomodelación", price: "820000", currency: "COP", cities: ["Bogotá", "Medellín"] },
 ];
 
 function memoryValue(value: unknown, source = "user_message") {
@@ -181,12 +182,14 @@ const INTENT_MAP: Record<string, AgentIntent> = {
   "bogotá": "agendamiento",
   "medellín": "agendamiento",
   "botox": "agendamiento",
+  "rinomodelación": "agendamiento",
   "sí, quiero agendar": "agendamiento",
   "2026-07-05 10:00": "agendamiento",
   "mi nombre es juan perez, cc 123456, tel 3001234567, correo juan@email.com": "agendamiento",
   "pago con bancolombia": "agendamiento",
   "aqui esta el comprobante": "agendamiento",
   "hola": "saludo",
+  "cuidados despues de rinomodelacion": "post_tratamiento",
 };
 
 function resolveIntent(text: string): RouterDecision {
@@ -439,6 +442,59 @@ describe("PR8.1 — Flow Adapter E2E", () => {
       expect(result.decisionTrace.generation.route).toBe("flow");
       expect(result.decisionTrace.traceId).toBeDefined();
       expect(result.decisionTrace.policy.action).toBe("allow");
+    });
+  });
+
+  describe("A6.5 — Guía post-tratamiento Rinomodelación", () => {
+    it("agendamiento confirm de Rinomodelación → respuesta incluye guía de cuidados", async () => {
+      const kernel = new AgentKernel(createE2EProviders());
+
+      await kernel.process(snapshot("t1", "conv-rino", "c1", "Quiero agendar una cita"));
+      await kernel.process(snapshot("t1", "conv-rino", "c1", "Bogotá"));
+      await kernel.process(snapshot("t1", "conv-rino", "c1", "Rinomodelación"));
+      await kernel.process(snapshot("t1", "conv-rino", "c1", "Sí, quiero agendar"));
+      await kernel.process(snapshot("t1", "conv-rino", "c1", "2026-07-05 10:00"));
+      await kernel.process(snapshot("t1", "conv-rino", "c1", "Mi nombre es Juan Perez, CC 123456, tel 3001234567, correo juan@email.com"));
+      await kernel.process(snapshot("t1", "conv-rino", "c1", "Pago con Bancolombia"));
+
+      // Turn 8 — payment proof → confirmation + guía
+      const t8 = await kernel.process(snapshot("t1", "conv-rino", "c1", "Aquí está el comprobante"));
+      expect(t8.response.route).toBe("flow");
+      expect(t8.response.text).toContain("programada exitosamente");
+      // A6.5: la guía está appendeada
+      expect(t8.response.text).toContain("guía de cuidados post-rinomodelación");
+      expect(t8.response.text).toContain("Primeras 24 horas");
+      expect(t8.response.text).toContain("Control: a las 2 semanas");
+    });
+
+    it("agendamiento confirm de Botox → respuesta NO incluye guía de Rinomodelación", async () => {
+      const kernel = new AgentKernel(createE2EProviders());
+
+      await kernel.process(snapshot("t1", "conv-botox", "c1", "Quiero agendar una cita"));
+      await kernel.process(snapshot("t1", "conv-botox", "c1", "Bogotá"));
+      await kernel.process(snapshot("t1", "conv-botox", "c1", "Botox"));
+      await kernel.process(snapshot("t1", "conv-botox", "c1", "Sí, quiero agendar"));
+      await kernel.process(snapshot("t1", "conv-botox", "c1", "2026-07-05 10:00"));
+      await kernel.process(snapshot("t1", "conv-botox", "c1", "Mi nombre es Juan Perez, CC 123456, tel 3001234567, correo juan@email.com"));
+      await kernel.process(snapshot("t1", "conv-botox", "c1", "Pago con Bancolombia"));
+
+      const t8 = await kernel.process(snapshot("t1", "conv-botox", "c1", "Aquí está el comprobante"));
+      expect(t8.response.route).toBe("flow");
+      expect(t8.response.text).toContain("programada exitosamente");
+      // A6.5: botox no dispara guía de rinomodelación
+      expect(t8.response.text).not.toContain("guía de cuidados post-rinomodelación");
+    });
+
+    it("pregunta 'cuidados después de rinomodelación' → responde canned guide sin diagnosticar", async () => {
+      const kernel = new AgentKernel(createE2EProviders());
+
+      const result = await kernel.process(snapshot("t1", "conv-pregunta", "c1", "Cuidados después de rinomodelación"));
+
+      expect(result.response.route).toBe("flow");
+      expect(result.response.text).toContain("guía de cuidados post-rinomodelación");
+      expect(result.response.text).toContain("Primeras 24 horas");
+      // No es un flujo de agendamiento iniciado
+      expect(mockSql.stateStore.has("conv-pregunta")).toBe(false);
     });
   });
 });

@@ -1,5 +1,7 @@
 import type postgres from "postgres";
 import { evaluateFlow, startFlow, type FlowDefinition, type FlowContext, type FlowResult, type CatalogItem } from "../../../flows/engine.js";
+import { renderTemplate } from "../../../flows/template.js";
+import { SANTA_MARIA_CANNED } from "../../../flows/santa-maria/canned-responses.js";
 import { type MemoryService } from "../memory/memory-service.js";
 import type { MediaItem } from "../../v2/types/agent-intent.js";
 
@@ -8,6 +10,22 @@ const INTENT_TO_FLOW_KEY: Record<string, string> = {
   agendamiento: "agendamiento",
   precio: "precio",
 };
+
+// ── A6.5 — guías post-tratamiento (canned) disparadas por service slot ──
+// Service pattern → canned key en SANTA_MARIA_CANNED.
+const POST_TREATMENT_GUIDES: Array<{ servicePattern: RegExp; guideKey: string }> = [
+  { servicePattern: /rinomodela/i, guideKey: "guia_rinomodelacion" },
+];
+
+function resolvePostTreatmentGuide(slots: Record<string, string>, contactName?: string): string {
+  const serviceName = (slots.service_name || slots.service || "").toLowerCase();
+  if (!serviceName) return "";
+  const match = POST_TREATMENT_GUIDES.find((g) => g.servicePattern.test(serviceName));
+  if (!match) return "";
+  const template = SANTA_MARIA_CANNED[match.guideKey];
+  if (!template) return "";
+  return renderTemplate(template, { nombre: contactName ?? "" });
+}
 
 export interface FlowAdapterResult {
   response: string;
@@ -47,6 +65,15 @@ export class FlowAdapter {
     contactId: string,
     contactName?: string,
   ): Promise<FlowAdapterResult | null> {
+    // A6.5: si pregunta directamente por cuidados post-tratamiento de un
+    // servicio con guía, devolvemos la canned sin iniciar/resumir flow.
+    if (intent === "post_tratamiento") {
+      const direct = POST_TREATMENT_GUIDES.find((g) => g.servicePattern.test(text));
+      if (direct && SANTA_MARIA_CANNED[direct.guideKey]) {
+        return { response: renderTemplate(SANTA_MARIA_CANNED[direct.guideKey], { nombre: contactName ?? "" }), route: "flow" };
+      }
+    }
+
     const activeFlow = await this.loadActiveFlow(conversationId);
 
     if (activeFlow) {
@@ -151,7 +178,15 @@ export class FlowAdapter {
       `;
     }
 
-    return { response: finalResult.response, route: "flow", media: resolveMedia(this.catalogItems, flowContext.slots) };
+    // A6.5: si el flow completó con comprobante (cita confirmada) y el
+    // servicio tiene guía post-tratamiento, appendear la canned guide.
+    let finalResponse = finalResult.response;
+    if (finalResult.completed && flowContext.slots.payment_proof) {
+      const guide = resolvePostTreatmentGuide(flowContext.slots);
+      if (guide) finalResponse = `${finalResponse}\n\n${guide}`;
+    }
+
+    return { response: finalResponse, route: "flow", media: resolveMedia(this.catalogItems, flowContext.slots) };
   }
 
   private async handleStart(
