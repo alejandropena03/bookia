@@ -15,6 +15,9 @@ export interface CatalogItem {
   imageKeys: string[];
   promoLabel?: string;
   prices?: Record<string, MarketPrice>;
+  // A6.6 — mercados en los que NO tenemos precio confirmado; el agente
+  // NO inventa el valor y ofrece confirmar con Elkin / humano.
+  requiresHumanConfirmation?: Array<"COP" | "MXN" | "USD" | "EUR">;
 }
 
 const CO_CITIES = ["Medellín", "Bogotá", "Cali", "Bucaramanga", "Barranquilla"];
@@ -73,7 +76,7 @@ export const SANTA_MARIA_CATALOG: CatalogItem[] = [
     category: "labios",
     durationMinutes: 30,
     cities: ALL_CITIES,
-    imageKeys: ["image6.jpeg", "image7.jpeg"],
+    imageKeys: ["wa_09.jpg", "wa_11.jpg", "wa_33.jpg"],
     prices: {
       COP: { price: "820000" },
       MXN: { price: "8500" },
@@ -90,7 +93,7 @@ export const SANTA_MARIA_CATALOG: CatalogItem[] = [
     category: "labios",
     durationMinutes: 30,
     cities: ALL_CITIES,
-    imageKeys: ["image8.jpeg", "image9.jpeg", "image14.jpeg", "image15.jpeg"],
+    imageKeys: ["wa_08.jpg", "wa_14.jpg", "wa_34.jpg"],
     prices: {
       COP: { price: "1640000" },
       MXN: { price: "16000" },
@@ -107,7 +110,7 @@ export const SANTA_MARIA_CATALOG: CatalogItem[] = [
     category: "labios",
     durationMinutes: 30,
     cities: ALL_CITIES,
-    imageKeys: ["image5.jpeg", "image10.jpeg", "image11.jpeg", "image12.jpeg"],
+    imageKeys: ["wa_20.jpg", "wa_21.jpg", "wa_26.jpg", "wa_29.jpg"],
     prices: {
       COP: { price: "670000" },
       MXN: { price: "6500" },
@@ -124,7 +127,7 @@ export const SANTA_MARIA_CATALOG: CatalogItem[] = [
     category: "armonización",
     durationMinutes: 60,
     cities: ALL_CITIES,
-    imageKeys: ["image16.jpeg", "image28.jpeg"],
+    imageKeys: ["wa_02.jpg", "wa_06.jpg", "wa_15.jpg"],
     prices: {
       COP: { price: "2999000" },
       MXN: { price: "20000" },
@@ -141,7 +144,7 @@ export const SANTA_MARIA_CATALOG: CatalogItem[] = [
     category: "bioestimuladores",
     durationMinutes: 60,
     cities: ALL_CITIES,
-    imageKeys: ["image23.jpeg"],
+    imageKeys: ["wa_05.jpg", "wa_07.jpg", "wa_16.jpg", "wa_22.jpg"],
     prices: {
       COP: { price: "3999000" },
       MXN: { price: "27000" },
@@ -158,7 +161,7 @@ export const SANTA_MARIA_CATALOG: CatalogItem[] = [
     category: "bioestimuladores",
     durationMinutes: 60,
     cities: ALL_CITIES,
-    imageKeys: ["image24.jpeg"],
+    imageKeys: ["wa_01.jpg", "wa_10.jpg", "wa_17.jpg", "wa_30.jpg"],
     prices: {
       COP: { price: "3999000" },
       MXN: { price: "27000" },
@@ -224,7 +227,7 @@ export const SANTA_MARIA_CATALOG: CatalogItem[] = [
     category: "facial",
     durationMinutes: 30,
     cities: CO_CITIES,
-    imageKeys: [],
+    imageKeys: ["wa_12.jpg", "wa_13.jpg"],
     prices: {
       COP: { price: "800000", promoPrice: "499000", promoLabel: "Lanzamiento" },
       MXN: { price: "5700", promoPrice: "3800", promoLabel: "Lanzamiento" },
@@ -239,7 +242,7 @@ export const SANTA_MARIA_CATALOG: CatalogItem[] = [
     category: "facial",
     durationMinutes: 30,
     cities: ALL_CITIES,
-    imageKeys: ["image25.jpeg"],
+    imageKeys: ["wa_19.jpg"],
     prices: {
       COP: { price: "820000" },
       MXN: { price: "8500" },
@@ -429,8 +432,59 @@ export const SANTA_MARIA_CATALOG: CatalogItem[] = [
     category: "promociones",
     durationMinutes: 30,
     cities: CO_CITIES,
-    imageKeys: ["image22.jpeg"],
+    imageKeys: ["wa_03.jpg", "wa_04.jpg"],
     promoLabel: "Mes del Padre",
+  },
+  // ── A6.6 — Hand Rejuvenation (conocimiento defensivo, sin COP/MXN) ──
+  {
+    name: "Hand Rejuvenation (Radiesse)",
+    description:
+      "Hand Rejuvenation con Radiesse. Tratamiento bioestimulador para rejuvenecer la piel de las manos, mejorando la textura, hidratación y apariencia general. Estimula colágeno, reduce venas visibles y arrugas. Resultados naturales y progresivos.",
+    price: "699",
+    currency: "USD",
+    category: "bioestimuladores",
+    durationMinutes: 30,
+    cities: ALL_CITIES,
+    imageKeys: [],
+    prices: {
+      USD: { price: "699" },
+      EUR: { price: "699" },
+    },
+    requiresHumanConfirmation: ["COP", "MXN"],
+  },
+  {
+    name: "Hand Rejuvenation (Sculptra)",
+    description:
+      "Hand Rejuvenation con Sculptra. Bioestimulación progresiva para rejuvenecer las manos. Estimula la producción natural de colágeno, mejora la firmeza y reduce la apariencia de envejecimiento en las manos.",
+    price: "699",
+    currency: "USD",
+    category: "bioestimuladores",
+    durationMinutes: 30,
+    cities: ALL_CITIES,
+    imageKeys: [],
+    prices: {
+      USD: { price: "699" },
+      EUR: { price: "699" },
+    },
+    requiresHumanConfirmation: ["COP", "MXN"],
+  },
+  // ── A6.6 — Masculinización facial con AH ──
+  {
+    name: "Masculinización facial con AH",
+    description:
+      "Masculinización facial con ácido hialurónico. Tratamiento diseñado para realzar los rasgos masculinos del rostro: define la mandíbula, proyecta el mentón, afina el contorno facial y aporta volumen estratégico para lograr un perfil más angular y masculino, manteniendo un resultado natural.",
+    price: "2999000",
+    currency: "COP",
+    category: "armonización",
+    durationMinutes: 60,
+    cities: ALL_CITIES,
+    imageKeys: ["wa_04.jpg", "wa_18.jpg", "wa_25.jpg", "wa_32.jpg"],
+    prices: {
+      COP: { price: "2999000" },
+      MXN: { price: "20000" },
+      USD: { price: "1500" },
+      EUR: { price: "1500" },
+    },
   },
 ];
 
@@ -507,4 +561,39 @@ export const IMAGE_MANIFEST: Record<string, { service: string; description: stri
   "image26.jpeg": { service: "Barbie Botox", description: "Card de Barbie Botox (trapecios)", type: "service_card" },
   "image27.jpeg": { service: "Korean Face", description: "Card de Korean Face", type: "service_card" },
   "image28.jpeg": { service: "Full Face — Ácido Hialurónico", description: "Card de Full Face Ácido Hialurónico (alternativa)", type: "service_card" },
+  // WhatsApp promo images (wa_01–wa_34) — fuente: Fotossantamaria de Carlos, 2026-06-29
+  "wa_01.jpg": { service: "Full Face — Sculptra", description: "Promo Full Face Sculptra COP $3'999.000 — Botox+Rino+Russian Lips+Mentón", type: "promo" },
+  "wa_02.jpg": { service: "Full Face — Ácido Hialurónico", description: "Promo Full Face AH COP $2'999.000 — Botox+Pómulos+Rino+Russian+Mentón+Marcación", type: "promo" },
+  "wa_03.jpg": { service: "Masculinización facial con Radiesse", description: "Promo Masculinización+Rejuvenecimiento COP $3'999.000 — Radiesse+Rino+Mentón+Marcación", type: "promo" },
+  "wa_04.jpg": { service: "Masculinización facial con AH", description: "Promo Masculinización Facial COP $2'999.000 — Botox+Rino+Mentón+Marcación", type: "promo" },
+  "wa_05.jpg": { service: "Full Face — Radiesse", description: "Promo Full Face Radiesse MXN $27.000 — Botox+Rino+Russian Lips+Mentón", type: "promo" },
+  "wa_06.jpg": { service: "Full Face — Ácido Hialurónico", description: "Promo Full Face AH MXN $20.000 — Botox+Pómulos+Rino+Russian+Mentón+Marcación", type: "promo" },
+  "wa_07.jpg": { service: "Full Face — Radiesse", description: "Promo Full Face Radiesse COP $3'999.000 — Botox+Rino+Russian Lips+Mentón", type: "promo" },
+  "wa_08.jpg": { service: "Doll Lips", description: "Doll Lips COP $1.640.000 — Perfilamiento+volumen labial máxima simetría, 2ml AH", type: "service_card" },
+  "wa_09.jpg": { service: "Russian Lips", description: "Russian Lips COP $820.000 — Proyección arco de cupido, 1ml AH", type: "service_card" },
+  "wa_10.jpg": { service: "Full Face — Sculptra", description: "Promo Full Face Sculptra MXN $27.000 — Botox+Rino+Russian Lips+Mentón", type: "promo" },
+  "wa_11.jpg": { service: "Russian Lips", description: "Russian Lips MXN $8.500 — Proyección arco de cupido, 1ml AH", type: "service_card" },
+  "wa_12.jpg": { service: "Esperma de Salmón / PDRN", description: "Promo Esperma de Salmón/PDRN COP — Antes $800.000 / Hoy $499.000", type: "promo" },
+  "wa_13.jpg": { service: "Esperma de Salmón / PDRN", description: "Promo Esperma de Salmón/PDRN MXN — Antes $5.700 / Hoy $3.800", type: "promo" },
+  "wa_14.jpg": { service: "Doll Lips", description: "Doll Lips MXN $16.000 — Perfilamiento labial", type: "service_card" },
+  "wa_15.jpg": { service: "Full Face — Ácido Hialurónico", description: "Full Face Hyaluronic Acid (inglés) — Botox, Cheekbones, Rino, Russian Lips, Chin, Jawline", type: "promo" },
+  "wa_16.jpg": { service: "Masculinización facial con Radiesse", description: "Facial Masculinization Rejuvenation (inglés) — Full face Radiesse, Rino, Chin, Jawline", type: "promo" },
+  "wa_17.jpg": { service: "Full Face — Sculptra", description: "Full Face Sculptra (inglés) — Sculptra, Botox, Rino, Russian Lips, Chin", type: "promo" },
+  "wa_18.jpg": { service: "Masculinización facial con AH", description: "Facial Masculinization (inglés) — Botox, Rino, Chin, Jawline", type: "promo" },
+  "wa_19.jpg": { service: "Rinomodelación", description: "Guía post-tratamiento Rinomodelación — Evitar sol, presión, actividad física 24h, hielo; inflamación 1 semana", type: "post_treatment" },
+  "wa_20.jpg": { service: "Red Lips", description: "Antes/Después Red Lips MXN $6.500 precio de lanzamiento — resultado real", type: "before_after" },
+  "wa_21.jpg": { service: "Red Lips", description: "Antes/Después Red Lips USD $350 precio de lanzamiento — resultado real", type: "before_after" },
+  "wa_22.jpg": { service: "Full Face — Radiesse", description: "Full Face Radiesse (inglés) — Full face Radiesse, Botox, Rino, Russian Lips, Chin", type: "promo" },
+  "wa_23.jpg": { service: "price_list", description: "Lista de precios USD completa — Services & Prices USD (26 servicios)", type: "price_catalog" },
+  "wa_24.jpg": { service: "Masculinización facial con Radiesse", description: "Masculinización Facial con Radiesse USD $1800 — Radiesse facial, Rino AH, Mentón AH, Jawline AH", type: "promo" },
+  "wa_25.jpg": { service: "Masculinización facial con AH", description: "Masculinización Facial con AH USD $1500 — Botox, Rino AH, Mentón AH, Jawline AH, Marcación", type: "promo" },
+  "wa_26.jpg": { service: "Red Lips", description: "Antes/Después Red Lips COP $670.000 precio de lanzamiento — resultado real", type: "before_after" },
+  "wa_27.jpg": { service: "price_list", description: "Lista de precios COP completa — Servicios y Precios COP (24 servicios)", type: "price_catalog" },
+  "wa_28.jpg": { service: "price_list", description: "Lista de precios EUR completa — Services & Prices EUR (26 servicios)", type: "price_catalog" },
+  "wa_29.jpg": { service: "Red Lips", description: "Antes/Después Red Lips EUR 300€ precio de lanzamiento — resultado real", type: "before_after" },
+  "wa_30.jpg": { service: "Full Face — Sculptra", description: "Promo Full Face Sculptra COP $3'999.000 alternativa — Botox+Rino+Russian Lips+Mentón", type: "promo" },
+  "wa_31.jpg": { service: "Masculinización facial con Radiesse", description: "Masculinización Facial con Radiesse EUR 1.800€ — Radiesse facial, Rino AH, Mentón AH, Marcación", type: "promo" },
+  "wa_32.jpg": { service: "Masculinización facial con AH", description: "Masculinización Facial con AH EUR 1.500€ — Botox, Rino AH, Mentón AH, Marcación mandibular", type: "promo" },
+  "wa_33.jpg": { service: "Russian Lips", description: "Russian Lips EUR 400€ — Labios carnosos y armónicos, AH, resultados naturales", type: "service_card" },
+  "wa_34.jpg": { service: "Doll Lips", description: "Doll Lips EUR 800€ — Volumen natural, definición perfecta, forma de corazón, simetría armónica", type: "service_card" },
 };

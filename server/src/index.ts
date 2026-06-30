@@ -116,12 +116,21 @@ app.get("/images/:key", async (c) => {
   const key = c.req.param("key");
   // Security: only allow known image keys from manifest
   const allowed = new Set([
+    // DOCX service cards (legacy, baja resolución)
     "image1.jpeg","image2.jpeg","image3.jpeg","image4.jpeg","image5.jpeg",
     "image6.jpeg","image7.jpeg","image8.jpeg","image9.jpeg","image10.jpeg",
     "image11.jpeg","image12.jpeg","image13.jpeg","image14.jpeg","image15.jpeg",
     "image16.jpeg","image17.jpeg","image18.jpeg","image19.jpeg","image20.jpeg",
     "image21.jpeg","image22.jpeg","image23.jpeg","image24.jpeg","image25.jpeg",
     "image26.jpeg","image27.jpeg","image28.jpeg",
+    // WhatsApp promo images — alta resolución (wa_01–wa_34)
+    "wa_01.jpg","wa_02.jpg","wa_03.jpg","wa_04.jpg","wa_05.jpg",
+    "wa_06.jpg","wa_07.jpg","wa_08.jpg","wa_09.jpg","wa_10.jpg",
+    "wa_11.jpg","wa_12.jpg","wa_13.jpg","wa_14.jpg","wa_15.jpg",
+    "wa_16.jpg","wa_17.jpg","wa_18.jpg","wa_19.jpg","wa_20.jpg",
+    "wa_21.jpg","wa_22.jpg","wa_23.jpg","wa_24.jpg","wa_25.jpg",
+    "wa_26.jpg","wa_27.jpg","wa_28.jpg","wa_29.jpg","wa_30.jpg",
+    "wa_31.jpg","wa_32.jpg","wa_33.jpg","wa_34.jpg",
   ]);
   if (!allowed.has(key)) return c.json({ error: "Not found" }, 404);
   const filePath = join(import.meta.dirname, "flows", "santa-maria", "images", key);
