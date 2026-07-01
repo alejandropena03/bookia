@@ -48,3 +48,10 @@ server/node_modules
 # el reporte y results.json sí entran al repo para trazabilidad.
 docs/eval-ui/**/shots/
 test-results/
+
+# marcador local del hook test-gate (Push 2) — estado de máquina, no versionar
+.claude/.last-gate-run
+
+# log operacional append-only escrito por clinical-safety-audit.ts en cada
+# corrida de tests — crece indefinidamente, no debe versionarse (Push 3)
+server/data/clinical-audit-log.jsonl

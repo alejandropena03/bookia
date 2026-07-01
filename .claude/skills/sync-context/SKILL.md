@@ -25,7 +25,7 @@ cd /Users/alejandropena/Bookia/bookia-code/server && npx vitest run 2>&1 | tail 
 ```
 Sprint activo: <sprint + milestone>
 Pendientes: <N tasks — listar las 3 más prioritarias>
-Tests: <N>/310 ✅ / ❌
+Tests: <N>/327 ✅ / ❌ (baseline verificado 2026-07-01, ver test-gate)
 tsc: clean / N errores
 Última decisión PostgreSQL: <título + fecha>
 ```

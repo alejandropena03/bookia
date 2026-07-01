@@ -1,0 +1,522 @@
+{
+  "summary": {
+    "total": 34,
+    "processed": 34,
+    "errors": 15,
+    "by_type": {
+      "promo": 18,
+      "error": 15,
+      "before_after": 1
+    },
+    "all_services": [
+      "Facial completo con Sculptra",
+      "Botox tercio superior",
+      "Rinomodelación AH",
+      "Russian Lips",
+      "Menton AH",
+      "Pómulos AH",
+      "Marcación mandibular AH",
+      "Masculinización Facial",
+      "Rejuvenecimiento",
+      "Radiesse Facial completo",
+      "Mentón AH",
+      "Masculinización facial",
+      "Facial completo con Radiesse",
+      "Full Face",
+      "Ácido Hialurónico",
+      "Rinomodelación con ácido hialurónico (AH)",
+      "Menton con ácido hialurónico (AH)",
+      "Doll Lips",
+      "Perfilamiento labial",
+      "Aumento labial",
+      "Aplicación de ácido hialurónico",
+      "Ácido hialurónico",
+      "Medicina estética facial",
+      "PDRN",
+      "Esperma de salmón",
+      "Regeneración facial",
+      "Regeneración facial avanzada",
+      "Facial Masculinization Rejuvenation",
+      "Full face with Radiesse",
+      "Non-surgical rhinoplasty (HA)",
+      "Chin (HA)",
+      "Jawline definition (HA)",
+      "Full face with Sculptra",
+      "Upper-face Botox",
+      "Facial masculinization",
+      "Red Lips",
+      "Medicina estética",
+      "Tratamiento de labios"
+    ],
+    "all_prices": [
+      "$3'999.000 COP",
+      "$2'999.000 COP",
+      "$3'999.000 COP",
+      "$2'999.000 COP",
+      "$27.000 MXN",
+      "$20.000 MXN",
+      "$3'999.000 COP",
+      "$1.640.000",
+      "$820.000",
+      "$27.000 MXN",
+      "$8.500 MXN",
+      "$800.000 COP",
+      "$499.000 COP",
+      "Antes: 5,700 MXN",
+      "Hoy: $3,800 MXN",
+      "$16.000 MXN",
+      "$6.500 MXN"
+    ],
+    "timestamp": "2026-06-29T21:28:09.938Z"
+  },
+  "results": [
+    {
+      "filename": "PHOTO-2026-06-29-15-54-12 2.jpg",
+      "content_type": "promo",
+      "full_text": "FULL FACE SCULPTRA\n• Facial completo con Sculptra\n• Botox tercio superior\n• Rinomodelación AH\n• Russian Lips\n• Menton AH\n$3'999.000 COP",
+      "participants": [],
+      "services_mentioned": [
+        "Facial completo con Sculptra",
+        "Botox tercio superior",
+        "Rinomodelación AH",
+        "Russian Lips",
+        "Menton AH"
+      ],
+      "prices": [
+        "$3'999.000 COP"
+      ],
+      "commercial_info": "Paquete promocional 'Full Face Sculptra' por valor de $3'999.000 COP.",
+      "sequence_context": "Imagen publicitaria única.",
+      "notes": "Diseño gráfico limpio con modelo femenina enfocado en medicina estética."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-12.jpg",
+      "content_type": "promo",
+      "full_text": "FULL FACE\nÁCIDO HIALURÓNICO\n• Botox tercio superior\n• Pómulos AH\n• Rinomodelación AH\n• Russian Lips\n• Menton AH\n• Marcación mandibular AH\n$2'999.000 COP",
+      "participants": [],
+      "services_mentioned": [
+        "Botox tercio superior",
+        "Pómulos AH",
+        "Rinomodelación AH",
+        "Russian Lips",
+        "Menton AH",
+        "Marcación mandibular AH"
+      ],
+      "prices": [
+        "$2'999.000 COP"
+      ],
+      "commercial_info": "Paquete Full Face de Botox y Ácido Hialurónico por $2'999.000 COP.",
+      "sequence_context": "Imagen promocional única.",
+      "notes": "AH equivale a Ácido Hialurónico."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-13 2.jpg",
+      "content_type": "promo",
+      "full_text": "Masculinización Facial Rejuvenecimiento\n• Radiesse Facial completo\n• Rinomodelación AH\n• Mentón AH\n• Marcación mandibular AH\n$3'999.000 COP",
+      "participants": [],
+      "services_mentioned": [
+        "Masculinización Facial",
+        "Rejuvenecimiento",
+        "Radiesse Facial completo",
+        "Rinomodelación AH",
+        "Mentón AH",
+        "Marcación mandibular AH"
+      ],
+      "prices": [
+        "$3'999.000 COP"
+      ],
+      "commercial_info": "Paquete de masculinización y rejuvenecimiento facial por $3'999.000 COP, incluyendo Radiesse y tratamientos con ácido hialurónico (AH).",
+      "sequence_context": "Imagen promocional individual.",
+      "notes": "La abreviatura 'AH' se refiere a Ácido Hialurónico."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-13.jpg",
+      "content_type": "promo",
+      "full_text": "Masculinización facial\n• Botox tercio superior\n• Rinomodelación AH\n• Mentón AH\n• Marcación mandibular AH\n$2'999.000 COP",
+      "participants": [],
+      "services_mentioned": [
+        "Masculinización facial",
+        "Botox tercio superior",
+        "Rinomodelación AH",
+        "Mentón AH",
+        "Marcación mandibular AH"
+      ],
+      "prices": [
+        "$2'999.000 COP"
+      ],
+      "commercial_info": "Paquete de masculinización facial por un valor de $2'999.000 COP.",
+      "sequence_context": "Imagen publicitaria individual.",
+      "notes": "AH se refiere a Ácido Hialurónico. Imagen muestra el rostro de un modelo masculino."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-14 2.jpg",
+      "content_type": "promo",
+      "full_text": "FULL FACE RADIESSE\n• Facial completo con Radiesse\n• Botox tercio superior\n• Rinomodelación AH\n• Russian Lips\n• Menton AH\n$27.000 MXN\nSANTA MARIA ESTETICA",
+      "participants": [],
+      "services_mentioned": [
+        "Facial completo con Radiesse",
+        "Botox tercio superior",
+        "Rinomodelación AH",
+        "Russian Lips",
+        "Menton AH"
+      ],
+      "prices": [
+        "$27.000 MXN"
+      ],
+      "commercial_info": "Paquete 'Full Face Radiesse' por $27,000 MXN.",
+      "sequence_context": "Ninguno.",
+      "notes": "Folleto publicitario digital."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-14 3.jpg",
+      "content_type": "promo",
+      "full_text": "FULL FACE\nÁCIDO HIALURÓNICO\n• Botox tercio superior\n• Pómulos AH\n• Rinomodelación AH\n• Russian Lips\n• Menton AH\n• Marcación mandibular AH\n$20.000 MXN\nSANTA MARIA ESTETICA",
+      "participants": [],
+      "services_mentioned": [
+        "Full Face",
+        "Ácido Hialurónico",
+        "Botox tercio superior",
+        "Pómulos AH",
+        "Rinomodelación AH",
+        "Russian Lips",
+        "Menton AH",
+        "Marcación mandibular AH"
+      ],
+      "prices": [
+        "$20.000 MXN"
+      ],
+      "commercial_info": "Paquete integral 'Full Face' que incluye Botox y Ácido Hialurónico por un precio cerrado de $20,000 MXN.",
+      "sequence_context": "Imagen promocional individual, no se observa contexto de conversación.",
+      "notes": "Publicidad de la clínica Santa María Estética con rostro de modelo femenina. 'AH' hace referencia a Ácido Hialurónico."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-14.jpg",
+      "content_type": "promo",
+      "full_text": "FULL FACE RADIESSE\n• Facial completo con Radiesse\n• Botox tercio superior\n• Rinomodelación AH\n• Russian Lips\n• Menton AH\n$3'999.000 COP",
+      "participants": [],
+      "services_mentioned": [
+        "Facial completo con Radiesse",
+        "Botox tercio superior",
+        "Rinomodelación con ácido hialurónico (AH)",
+        "Russian Lips",
+        "Menton con ácido hialurónico (AH)"
+      ],
+      "prices": [
+        "$3'999.000 COP"
+      ],
+      "commercial_info": "Paquete 'Full Face Radiesse' por un precio de $3'999.000 COP.",
+      "sequence_context": "Imagen promocional única para difusión o catálogo.",
+      "notes": "Incluye modelo femenina mostrando resultados estéticos."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-15 2.jpg",
+      "content_type": "promo",
+      "full_text": "DOLL LIPS\nPerfilamiento y aumento labial buscando máxima simetría, volnen alto y marcación del arco de cupido en HD.\nIncluye: 2 ml de ácido hialurónico\nPRECIO $1.640.000",
+      "participants": [],
+      "services_mentioned": [
+        "Doll Lips",
+        "Perfilamiento labial",
+        "Aumento labial",
+        "Aplicación de ácido hialurónico"
+      ],
+      "prices": [
+        "$1.640.000"
+      ],
+      "commercial_info": "Doll Lips a $1.640.000. Incluye 2 ml de ácido hialurónico.",
+      "sequence_context": "Imagen promocional única.",
+      "notes": "Contiene la errata 'volnen' por 'volumen' en el texto original."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-15 3.jpg",
+      "content_type": "promo",
+      "full_text": "RUSSIAN LIPS\nDiseño labial de alta precisión que mejora la proyección del arco de cupido, respetando la armonía natural del rostro.\nIncluye: 1 ml de ácido hialurónico\nPRECIO $820.000",
+      "participants": [],
+      "services_mentioned": [
+        "Russian Lips",
+        "Ácido hialurónico",
+        "Medicina estética facial"
+      ],
+      "prices": [
+        "$820.000"
+      ],
+      "commercial_info": "Precio de $820.000 que incluye 1 ml de ácido hialurónico para diseño labial.",
+      "sequence_context": "Imagen promocional individual sin elementos de chat.",
+      "notes": "Infografía publicitaria con ilustración vectorial sobre labios femeninos."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-15.jpg",
+      "content_type": "promo",
+      "full_text": "FULL FACE SCULPTRA\n• Facial completo con Sculptra\n• Botox tercio superior\n• Rinomodelación AH\n• Russian Lips\n• Menton AH\n$27.000 MXN\nSANTA MARIA ESTETICA",
+      "participants": [],
+      "services_mentioned": [
+        "Facial completo con Sculptra",
+        "Botox tercio superior",
+        "Rinomodelación AH",
+        "Russian Lips",
+        "Menton AH"
+      ],
+      "prices": [
+        "$27.000 MXN"
+      ],
+      "commercial_info": "Paquete 'Full Face Sculptra' por $27.000 MXN que incluye cinco tratamientos de medicina estética.",
+      "sequence_context": "Imagen promocional individual.",
+      "notes": "Flyer digital con logotipo de la clínica y fotografía de modelo."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-16 2.jpg",
+      "content_type": "promo",
+      "full_text": "RUSSIAN LIPS\nDiseño labial de alta precisión que mejora la proyección del arco de cupido, respetando la armonía natural del rostro.\nIncluye: 1 ml de ácido hialurónico\nPRECIO $8.500 MXN",
+      "participants": [],
+      "services_mentioned": [
+        "Russian Lips",
+        "Ácido hialurónico"
+      ],
+      "prices": [
+        "$8.500 MXN"
+      ],
+      "commercial_info": "1 ml de ácido hialurónico por $8,500 MXN.",
+      "sequence_context": "Imagen promocional única.",
+      "notes": "No se observa el logotipo de la clínica."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-16 3.jpg",
+      "content_type": "promo",
+      "full_text": "ESPERMA DE SALMÓN\nEL SECRETO DETRÁS DE UNA PIEL PERFECTA\nPDRN\nRegeneración avanzada para una piel visiblemente más luminosa\nAntes: $800.000 COP\nHoy: $499.000 COP",
+      "participants": [],
+      "services_mentioned": [
+        "PDRN",
+        "Esperma de salmón",
+        "Regeneración facial"
+      ],
+      "prices": [
+        "$800.000 COP",
+        "$499.000 COP"
+      ],
+      "commercial_info": "Promoción de hoy: tratamiento PDRN por $499.000 COP (antes $800.000 COP).",
+      "sequence_context": "Imagen única promocional.",
+      "notes": "Muestra el logotipo de la clínica (letras S y M entrelazadas) en la esquina inferior derecha."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-16 4.jpg",
+      "content_type": "promo",
+      "full_text": "ESPERMA DE SALMÓN\nEL SECRETO DETRÁS DE UNA PIEL PERFECTA\nPDRN\nRegeneración avanzada para una piel visiblemente más luminosa\nAntes: 5,700 MXN\nHoy: $3,800 MXN",
+      "participants": [],
+      "services_mentioned": [
+        "Esperma de salmón",
+        "PDRN",
+        "Regeneración facial avanzada"
+      ],
+      "prices": [
+        "Antes: 5,700 MXN",
+        "Hoy: $3,800 MXN"
+      ],
+      "commercial_info": "Promoción especial para hoy: reducción de precio de 5,700 MXN a 3,800 MXN.",
+      "sequence_context": "Imagen publicitaria individual para difusión o catálogo.",
+      "notes": "Muestra el logotipo de la clínica (monograma SM) en la esquina inferior derecha."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-16.jpg",
+      "content_type": "promo",
+      "full_text": "DOLL LIPS\nPerfilamiento y aumento labial buscando máxima simetría, volnen alto y marcación del arco de cupido en HD.\nIncluye: 2 ml de ácido hialurónico\nPRECIO $16.000 MXN",
+      "participants": [],
+      "services_mentioned": [
+        "Doll Lips",
+        "Perfilamiento labial",
+        "Aumento labial",
+        "Ácido hialurónico"
+      ],
+      "prices": [
+        "$16.000 MXN"
+      ],
+      "commercial_info": "Doll Lips a $16.000 MXN. Incluye 2 ml de ácido hialurónico.",
+      "sequence_context": "Imagen promocional individual.",
+      "notes": "Presenta error tipográfico ('volnen' en lugar de 'volumen')."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-17 2.jpg",
+      "content_type": "error",
+      "full_text": "",
+      "error": "429 You do not have enough quota to make this request."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-17 3.jpg",
+      "content_type": "promo",
+      "full_text": "SANTA MARÍA ESTÉTICA PRESENTS\nFACIAL\nMASCULINIZATION\nREJUVENATION\n• Full face with Radiesse\n• Non-surgical rhinoplasty (HA)\n• Chin (HA)\n• Jawline definition (HA)",
+      "participants": [
+        "Santa María Estética"
+      ],
+      "services_mentioned": [
+        "Facial Masculinization Rejuvenation",
+        "Full face with Radiesse",
+        "Non-surgical rhinoplasty (HA)",
+        "Chin (HA)",
+        "Jawline definition (HA)"
+      ],
+      "prices": [],
+      "commercial_info": "Menú de tratamientos de estética facial masculina con Radiesse y Ácido Hialurónico (HA).",
+      "sequence_context": "Folleto digital individual.",
+      "notes": "Incluye modelo masculino y logotipo 'SM' en la esquina inferior derecha."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-17 4.jpg",
+      "content_type": "promo",
+      "full_text": "SANTA MARÍA ESTÉTICA PRESENTS\nFULL FACE SCULPTRA\nTreatment includes\n• Full face with Sculptra\n• Upper-face Botox\n• Non-surgical rhinoplasty (HA)\n• Russian Lips\n• Chin (HA)",
+      "participants": [
+        "Clínica Santa María"
+      ],
+      "services_mentioned": [
+        "Full face with Sculptra",
+        "Upper-face Botox",
+        "Non-surgical rhinoplasty (HA)",
+        "Russian Lips",
+        "Chin (HA)"
+      ],
+      "prices": [],
+      "commercial_info": "Treatment package 'Full Face Sculptra' comprising Sculptra, Upper-face Botox, non-surgical rhinoplasty, Russian lips, and chin filler. No pricing or discounts specified.",
+      "sequence_context": "None. Standalone promotional graphic.",
+      "notes": "Features a female model and the clinic's monogram logo 'SM' in the bottom right corner."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-17.jpg",
+      "content_type": "promo",
+      "full_text": "SANTA MARÍA ESTÉTICA PRESENTS\nFACIAL MASCULINIZATION\n• Upper-face Botox\n• Non-surgical rhinoplasty (HA)\n• Chin (HA)\n• Jawline definition (HA)",
+      "participants": [
+        "Clínica Santa María"
+      ],
+      "services_mentioned": [
+        "Facial masculinization",
+        "Upper-face Botox",
+        "Non-surgical rhinoplasty (HA)",
+        "Chin (HA)",
+        "Jawline definition (HA)"
+      ],
+      "prices": [],
+      "commercial_info": "Paquete de masculinización facial con toxina botulínica y ácido hialurónico (HA).",
+      "sequence_context": "Imagen promocional individual.",
+      "notes": "Modelo masculino de frente. 'HA' refiere a ácido hialurónico. Logotipo SM abajo a la derecha."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-18 2.jpg",
+      "content_type": "error",
+      "full_text": "",
+      "error": "429 You do not have enough quota to make this request."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-18 3.jpg",
+      "content_type": "before_after",
+      "full_text": "Red Lips [marca de beso rosa] BY SANTA MARIA MEDICINA ESTÉTICA $6.500 MXN PRECIO DE LANZAMIENTO",
+      "participants": [
+        "Clínica Santa María Medicina Estética",
+        "Paciente"
+      ],
+      "services_mentioned": [
+        "Red Lips",
+        "Medicina estética",
+        "Tratamiento de labios"
+      ],
+      "prices": [
+        "$6.500 MXN"
+      ],
+      "commercial_info": "Precio de lanzamiento de $6.500 MXN para el tratamiento Red Lips.",
+      "sequence_context": "Imagen única que muestra el antes y después del procedimiento.",
+      "notes": "La imagen muestra un comparativo visual de labios antes y después de un tratamiento estético."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-18 4.jpg",
+      "content_type": "error",
+      "full_text": "",
+      "error": "429 You do not have enough quota to make this request."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-18.jpg",
+      "content_type": "promo",
+      "full_text": "SANTA MARÍA ESTÉTICA PRESENTS\nFULL FACE RADIESSE\n• Full face with Radiesse\n• Upper-face Botox\n• Non-surgical rhinoplasty (HA)\n• Russian Lips\n• Chin (HA)",
+      "participants": [
+        "Santa María Estética"
+      ],
+      "services_mentioned": [
+        "Full face with Radiesse",
+        "Upper-face Botox",
+        "Non-surgical rhinoplasty (HA)",
+        "Russian Lips",
+        "Chin (HA)"
+      ],
+      "prices": [],
+      "commercial_info": "Package combining Radiesse, Botox, and HA fillers. No prices listed.",
+      "sequence_context": "Standalone promotional image.",
+      "notes": "Features 'SM' monogram logo. Content written in English."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-19 2.jpg",
+      "content_type": "error",
+      "full_text": "",
+      "error": "429 You do not have enough quota to make this request."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-19 3.jpg",
+      "content_type": "error",
+      "full_text": "",
+      "error": "429 You do not have enough quota to make this request."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-19 4.jpg",
+      "content_type": "error",
+      "full_text": "",
+      "error": "429 You do not have enough quota to make this request."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-19.jpg",
+      "content_type": "error",
+      "full_text": "",
+      "error": "429 You do not have enough quota to make this request."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-20 2.jpg",
+      "content_type": "error",
+      "full_text": "",
+      "error": "429 You do not have enough quota to make this request."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-20 3.jpg",
+      "content_type": "error",
+      "full_text": "",
+      "error": "429 You do not have enough quota to make this request."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-20 4.jpg",
+      "content_type": "error",
+      "full_text": "",
+      "error": "429 You do not have enough quota to make this request."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-20.jpg",
+      "content_type": "error",
+      "full_text": "",
+      "error": "429 You do not have enough quota to make this request."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-21 2.jpg",
+      "content_type": "error",
+      "full_text": "",
+      "error": "429 You do not have enough quota to make this request."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-21.jpg",
+      "content_type": "error",
+      "full_text": "",
+      "error": "429 You do not have enough quota to make this request."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-22 2.jpg",
+      "content_type": "error",
+      "full_text": "",
+      "error": "429 You do not have enough quota to make this request."
+    },
+    {
+      "filename": "PHOTO-2026-06-29-15-54-22.jpg",
+      "content_type": "error",
+      "full_text": "",
+      "error": "429 You do not have enough quota to make this request."
+    }
+  ]
+}
