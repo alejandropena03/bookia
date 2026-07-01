@@ -795,7 +795,7 @@ async function main(): Promise<void> {
   }
 
   // Write report
-  const reportDir = path.join(import.meta.dirname, "reports");
+  const reportDir = path.join(import.meta.dirname, "../../../../reports/eval-v2-history");
   fs.mkdirSync(reportDir, { recursive: true });
   const ts = Date.now();
 
