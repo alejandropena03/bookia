@@ -327,10 +327,16 @@ export class AgentKernel {
     // primer estado abre con "¡Claro!" — un opener que sonaba como si CONFIRMÁRAMOS la
     // comparación o el descuento. Los interceptamos ANTES del dispatch a flow con un
     // canned que NO empieza confirmando.
-    if (routerDecision.intent === "precio") {
-      // Comparación con la competencia ("¿son mejores que la clínica X?"). Política:
-      // nunca hablar de/comparar con la competencia. Reencuadramos hacia nuestro valor.
-      if (/\bmejor(es)?\s+que\b|\bcompit(en|encia)\b|otra\s+cl[íi]nica|otras?\s+cl[íi]nicas?/i.test(input.messageText)) {
+    // Guardrails de tono/política independientes del intent: el router LLM clasifica
+    // estos mensajes de forma inconsistente (a veces precio, a veces charla/otro), así
+    // que gatear por intent === "precio" dejaba el fix a merced del LLM. Los regex son
+    // específicos para no capturar comparaciones de TRATAMIENTOS legítimas.
+    {
+      // Comparación con la competencia: exige señal de "otra clínica / competencia /
+      // clínica X", no un "¿botox o ácido, qué es mejor?" (eso es dudas_medicas).
+      const isCompetitorCompare =
+        /\bcompetencia\b|otra\s+cl[íi]nica|otras?\s+cl[íi]nicas?|la\s+cl[íi]nica\s+\w+|mejor(es)?\s+que\s+(la\s+|el\s+|los\s+|las\s+)?(cl[íi]nica|competencia|doctor|otro\s+lugar)/i;
+      if (isCompetitorCompare.test(input.messageText)) {
         const competitorText =
           "No me gusta compararnos con otras clínicas 🙂 Lo que sí puedo contarte es cómo trabajamos en Santa María: valoración personalizada con el doctor, productos y protocolos que cuidamos al detalle, y un acompañamiento cercano en todo tu proceso. ¿Te gustaría que te cuente sobre algún tratamiento en particular o agendamos tu valoración? 🤍";
         const { text: finalText, route: finalRoute } = this.applyCritic(
@@ -345,9 +351,9 @@ export class AgentKernel {
           memoryUpdates,
         };
       }
-      // Descuento especial / negociación de precio. Política: descuentos/canjes se
-      // manejan con Elkin, no se confirman en el chat. Nada de "¡Claro!" de apertura.
-      if (/descuento\s+especial|me\s+hacen?\s+(un\s+)?descuento|rebaja|negociar\s+(el\s+)?precio|me\s+lo\s+dejan?\s+m[áa]s\s+barato/i.test(input.messageText)) {
+      // Descuento especial / negociación de precio → lo maneja Elkin, no se confirma en
+      // el chat. Regex específico, seguro de correr independiente del intent.
+      if (/descuento\s+especial|me\s+hacen?\s+(un\s+)?descuento|(un|alg[uú]n)\s+descuento|rebaja|negociar\s+(el\s+)?precio|me\s+lo\s+dejan?\s+m[áa]s\s+barato/i.test(input.messageText)) {
         const discountText =
           "Los descuentos y promociones especiales los maneja directamente Elkin 🙂 Con gusto te paso el contacto para que revisen tu caso:\n📞 Elkin Acevedo: 318 735 4841\n📧 esteticasantamariabga@gmail.com\n\nMientras tanto, ¿te gustaría que te cuente sobre el tratamiento que te interesa o agendamos tu valoración? 🤍";
         const { text: finalText, route: finalRoute } = this.applyCritic(
