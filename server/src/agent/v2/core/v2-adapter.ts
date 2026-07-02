@@ -2,7 +2,7 @@ import type postgres from "postgres";
 import type { AgentResponse } from "../../orchestrator.js";
 import type { AgentKernelInput } from "../../v2/types/agent-kernel.js";
 import { AgentKernel } from "./agent-kernel.js";
-import type { RouterDecision, AgentIntent } from "../../v2/types/agent-intent.js";
+import type { RouterDecision, AgentIntent, ExtractedEntities } from "../../v2/types/agent-intent.js";
 import type { RiskFlags, PolicyDecision } from "../../v2/types/decision-trace.js";
 import { createMemoryRepository } from "../../v2/memory/memory-repository.js";
 import { MemoryService } from "../../v2/memory/memory-service.js";
@@ -106,8 +106,8 @@ function createV2Providers(
       const { generateLlmResponse } = await import("../../responder.js");
       return generateLlmResponse(text, context as any);
     },
-    evaluateFlow: async (conversationId: string, intent: string, text: string): Promise<{ response: string; route: string } | null> => {
-      return flowAdapter.evaluateFlow(conversationId, intent, text, tenantId, contactId, contactName);
+    evaluateFlow: async (conversationId: string, intent: string, text: string, entities?: ExtractedEntities): Promise<{ response: string; route: string } | null> => {
+      return flowAdapter.evaluateFlow(conversationId, intent, text, tenantId, contactId, contactName, entities);
     },
     evaluatePolicy: (text: string, intent: string, riskFlags: RiskFlags): PolicyDecision => {
       return _evaluatePolicy(text, intent as AgentIntent, riskFlags);
