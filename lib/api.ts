@@ -166,11 +166,24 @@ export interface SimMessageResponse {
   agentResponse?: { text?: string; route?: string; media?: unknown[] }
 }
 
+// ID único por pestaña/sesión de demo. Antes era el string fijo "demo-user" —
+// como el pipeline V2 ahora carga el historial real de la conversación para
+// dárselo al LLM (memoria de conversación), un identificador compartido hacía
+// que TODAS las demos de TODAS las personas fueran el mismo hilo: el agente
+// "recordaba" cosas que otra persona, en otra sesión, le había preguntado antes.
+let demoSessionId: string | null = null
+function getDemoSessionId(): string {
+  if (!demoSessionId) {
+    demoSessionId = `demo-${crypto.randomUUID()}`
+  }
+  return demoSessionId
+}
+
 export function sendSimMessage(text: string): Promise<SimMessageResponse> {
   const slug = getTenantSlug()
   return apiFetch<SimMessageResponse>("/api/sim/message", {
     method: "POST",
-    body: JSON.stringify({ text, tenantSlug: slug, from: "demo-user", name: "Tú (demo)", channel: "mock" }),
+    body: JSON.stringify({ text, tenantSlug: slug, from: getDemoSessionId(), name: "Tú (demo)", channel: "mock" }),
   })
 }
 
