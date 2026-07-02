@@ -4,10 +4,18 @@
 - Backend: Node 22 + TypeScript 5 + Hono + Drizzle ORM + PostgreSQL 16 + Vitest
 - Frontend: Next.js 16 + React 19 + shadcn/ui + Base UI (Recharts y Zustand removidos — sin uso real)
 
-## Estado (actualizado 2026-06-30 — Sprint 4 + A12 completados)
+## Estado (actualizado 2026-07-02 — merge de `fable5-next-level`)
 - MVP funcional esperando credenciales Meta para Fase 2
-- **Tests: 282 pass / 12 skip-DB / 33 skip-unit** (vitest). Los 12 que fallan son integración con PG — solo corren con DB activa. Suites: agent(26) + v2-agent(114) + v2-flow-adapter(17) + v2-flow-e2e(10) + v2-memory-persistence(24) + v2-memory-integration(11) + rls(6) + dashboard(9) + channels(8) + intelligence(7) + health(2) + santa-maria(42) + llm(7)
+- **Tests: 327/327 pass** (vitest, con Docker/Postgres real). Suites: agent(26) + v2-agent(131) + v2-flow-adapter(17) + v2-flow-e2e(13) + v2-memory-persistence(24) + v2-memory-integration(11) + v2-persistence(2) + rls(6) + dashboard(9) + channels(8) + intelligence(7) + health(2) + santa-maria(51) + llm(7) + auth(6) + migrations(7)
+- **E2E: 15/15 pass** (`npx playwright test`, requiere frontend+backend+DB corriendo)
 - Pipeline V2 completo: safetyPreRoute → deterministicDomainRoute → LLM → postRiskScan → applyOverrides → classifyIntent → policy → flowAdapter → canned → llm → critic → metrics
+- **2026-07-02 — merge `fable5-next-level` a main**, validado con Docker/Postgres real antes de mergear (ver `docs/HANDOFF-NEXT-LEVEL.md` para el contexto original del handoff):
+  - 6 fixes de conversación del eval de calidad (reutiliza servicio/ciudad ya dado, despedidas, recomendación real por zona corporal, ruteo determinístico dura/doctor, tono en casos sensibles competencia/descuento, corrección de ciudad a mitad de flow). Probados en vivo contra DeepSeek real: 5/6 perfectos; "¿qué me sirve para las ojeras?" no dispara el caso especial (el router no lo clasifica como `faq_servicios` con esa frase exacta) pero cae a un LLM libre que igual responde bien — gap menor, no bloqueante.
+  - Fix real de cableado: el LLM del pipeline V2 no tenía memoria de conversación (`generateLlmResponse` recibía el envoltorio del kernel en vez del `BusinessContext`, y nunca se pasaba `history`) — corregido en `v2-adapter.ts`.
+  - Vista `/agenda` (bookings reales del agente) + editor de system-prompt override por tenant en Settings + franja de rendimiento del agente en dashboard + rediseño visual (dashboard/DemoLive/Inbox).
+  - Bug encontrado y arreglado en la validación: `maskPII` (response-critic.ts) censuraba el teléfono/correo del propio negocio (contacto de Elkin) en respuestas canned/flow — ahora el enmascarado de PII solo aplica a texto libre del LLM (`route === "llm"`).
+  - Bug encontrado y arreglado: `/agenda` no estaba en las rutas protegidas de `middleware.ts` (se podía entrar sin login).
+  - Bug encontrado y arreglado: el botón flotante de DemoLive (fixed, z-50) tapaba el botón "Guardar cambios" de Settings (fixed, z-30) — `pr-48` en la barra de acción.
 - **Eval V2 (A12 final): 97.3% (182/187)** reviewed cases. 100% clinical-safety. 0 fallos críticos. 5 fallos = ambigüedades estructurales + falsos negativos sin contexto de conversación.
 - Historical: el "62.8% (258/411)" era sobre 411 casos totales incluyendo generados/no revisados. El número operativo es 97.3% sobre 187 revisados.
 - Clinical audit: 0 failures (PR6.1 enforcement activo)

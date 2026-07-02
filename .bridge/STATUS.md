@@ -1,8 +1,23 @@
 # STATUS.md — Bookia MVP
 
-**Última actualización:** 2026-06-30 (Claude Code — A12 eval final)
-**Tests:** 282/282 ✅ | **tsc:** clean ✅ | **Eval V2:** 97.3% (182/187 reviewed) | 100% clinical-safety
+**Última actualización:** 2026-07-02 (Claude Code — merge `fable5-next-level` + validación live)
+**Tests:** 327/327 ✅ | **E2E:** 15/15 ✅ | **tsc:** clean ✅ | **Eval V2:** 97.3% (182/187 reviewed) | 100% clinical-safety
 **North star:** MVP Fase 1 completo + V2 97.3% | NO Meta real | NO Agenda Pro real | NO pagos live
+
+## Sprint 5 — merge fable5-next-level (2026-07-02)
+
+Rama trabajada por otra instancia de Claude Code sin Docker/Postgres (contexto completo en
+`docs/HANDOFF-NEXT-LEVEL.md`), validada en este repo con DB real antes de mergear a `main`.
+
+- ✅ 6 fixes de conversación del eval de calidad — 5/6 verificados en vivo contra DeepSeek real,
+  1 con gap menor (ver AGENTS.md)
+- ✅ Fix real: LLM del pipeline V2 sin memoria de conversación (cableado en v2-adapter.ts)
+- ✅ Vista `/agenda`, editor de system-prompt override en Settings, franja de rendimiento en dashboard
+- ✅ Rediseño visual dashboard/DemoLive/Inbox
+- ✅ 3 bugs encontrados en la validación y arreglados antes/durante el merge: PII enmascarando el
+  contacto real del negocio en canned/flow, `/agenda` sin proteger en middleware.ts, botón flotante
+  de DemoLive tapando "Guardar cambios" en Settings
+- ✅ e2e/bookia.spec.ts actualizado (credenciales demo + selectores desactualizados por el rediseño)
 
 ---
 
