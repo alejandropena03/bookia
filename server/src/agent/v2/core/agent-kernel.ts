@@ -59,9 +59,27 @@ const BODY_ZONE_RECOMMENDATIONS: Array<{ pattern: RegExp; response: string }> = 
     response:
       "Para labios tenemos tres estilos según lo que busques 💋\n• Russian Lips — efecto más elevado y definido, con proyección del arco de cupido.\n• Doll Lips — volumen marcado, estilo muñeca, mayor proyección.\n• Red Lips — resultado natural y equilibrado con ácido hialurónico.\n\nEn la valoración el doctor te ayuda a elegir el que mejor va contigo. ¿Desde qué ciudad nos escribes para darte el valor? 🤍",
   },
+  {
+    // Nariz / rinomodelación
+    pattern: /\bnariz\b|rinomodelaci[óo]n|perfilar\s+(la\s+)?nariz|afinar\s+(la\s+)?nariz/i,
+    response:
+      "Para la nariz tenemos la Rinomodelación sin cirugía 👃✨ Es un procedimiento no quirúrgico con ácido hialurónico que nos permite perfilar el dorso, levantar la punta y corregir pequeñas asimetrías, con resultados inmediatos y mínima incapacidad.\n\n¿Desde qué ciudad nos escribes? Así te doy el valor exacto y, si quieres, agendamos tu valoración con el doctor 🤍",
+  },
 ];
 
+// Distingue una PREGUNTA por zona corporal ("tengo papada, ¿qué me sirve?") de una
+// respuesta corta a un slot de flow activo ("Labios", como respuesta a "¿cuál
+// servicio te gustaría conocer?"). Sin este filtro, gatear solo por
+// routerDecision.intent === "faq_servicios" dejaba el fix a merced del router LLM
+// (mismo problema ya identificado en el caso de competencia/descuento) — el router
+// no clasificaba como faq_servicios frases naturales como "qué me sirve para X" o
+// "vi algo para mi X", así que el caso especial nunca se disparaba. Quitar el gate
+// de intent por completo, en cambio, hubiera capturado respuestas de flow legítimas
+// ("Labios" como respuesta a un slot) antes de que el flow las procesara.
+const LOOKS_LIKE_QUESTION = /\?|¿|qu[eé]|cu[aá]l|recomien|sirve|sugier|ofrecen|tengo\b|necesito|busco/i;
+
 function resolveBodyZoneRecommendation(text: string): string | null {
+  if (!LOOKS_LIKE_QUESTION.test(text)) return null;
   const normalized = text.normalize("NFC");
   for (const { pattern, response } of BODY_ZONE_RECOMMENDATIONS) {
     if (pattern.test(normalized)) return response;
@@ -235,6 +253,34 @@ export class AgentKernel {
       };
     }
 
+    // Saludo simple: "hola", "buenas", "hola como estas", "buenos días". El router LLM
+    // clasifica saludos de forma inconsistente entre "saludo" (→ first_contact, saludo
+    // cálido) y "charla" (→ canned genérico "¿qué servicio te interesa?", frío, no
+    // responde el saludo) — mismo patrón de inconsistencia ya visto en competencia/
+    // descuento. Regex estricto (solo el saludo, nada más) para no capturar "Hola,
+    // ¿cuánto cuesta el botox?" — eso sí lleva intención y sigue el pipeline normal.
+    {
+      const greetingMatch = input.messageText.trim().match(
+        /^[¡!]?\s*(?:hola+|buenas|buenos\s+d[ií]as|buenas\s+tardes|buenas\s+noches|qu[eé]\s+tal|hey|holi+)\s*[,.]?\s*(c[oó]mo\s+(?:est[aá]s|estas|vas|andas|va))?\s*[?¿!.]*\s*$/i,
+      );
+      if (greetingMatch) {
+        const greetingText = greetingMatch[1]
+          ? "¡Hola! Muy bien, gracias por preguntar 😊 ¿Y tú, cómo estás? Cuéntame, ¿en qué te puedo ayudar hoy? ¿Buscas algún tratamiento en especial o tienes alguna duda?"
+          : "¡Hola! 😊 Soy Carlos, de Santa María Clínica Estética. Cuéntame, ¿en qué te puedo ayudar hoy?";
+        const { text: finalText, route: finalRoute } = this.applyCritic(
+          greetingText, "canned", routerDecision.intent, policyDecision, trace,
+        );
+        trace.generation.route = "canned";
+        emit("agent.response.composed");
+        emit("agent.response.sent");
+        return {
+          response: { text: finalText, route: finalRoute as any },
+          decisionTrace: trace,
+          memoryUpdates,
+        };
+      }
+    }
+
     if (policyDecision.action === "block") {
       const refusalText = "Prefiero no responder a eso. ¿Hay algo más en lo que pueda ayudarte?";
       const { text: finalText, route: finalRoute } = this.applyCritic(
@@ -279,8 +325,11 @@ export class AgentKernel {
     // faq_servicios por zona corporal terminaba en la misma respuesta genérica).
     // Aquí devolvemos una recomendación REAL del catálogo por zona, sin LLM libre y sin
     // dar precio final ambiguo (los precios varían por ciudad → el flow de precio los
-    // resuelve). Solo aplica a intents informativos, nunca a booking/queja/riesgo.
-    if (routerDecision.intent === "faq_servicios") {
+    // resuelve). Independiente del intent (ver LOOKS_LIKE_QUESTION arriba) — igual que
+    // competencia/descuento, gatear por routerDecision.intent dejaba el fix a merced
+    // del router LLM, que no clasificaba como faq_servicios frases naturales como
+    // "tengo papada, ¿qué me sirve?".
+    {
       const zoneAnswer = resolveBodyZoneRecommendation(input.messageText);
       if (zoneAnswer) {
         const { text: finalText, route: finalRoute } = this.applyCritic(

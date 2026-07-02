@@ -314,7 +314,7 @@ describe("V2 Core - AgentKernel", () => {
 			conversationId: "c1",
 			contactId: "contact1",
 			channel: "mock",
-			messageText: "Hola",
+			messageText: "Quiero información sobre sus servicios",
 			now: new Date(),
 		});
 
@@ -430,7 +430,7 @@ describe("V2 Core - AgentKernel", () => {
 			conversationId: "c1",
 			contactId: "contact1",
 			channel: "mock",
-			messageText: "Hola",
+			messageText: "Quiero información sobre sus servicios",
 			now: new Date(),
 		});
 		expect(result.response.text).toBe("¡Hola! ¿En qué puedo ayudarte?");
