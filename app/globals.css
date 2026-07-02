@@ -9,6 +9,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-display), Georgia, "Times New Roman", serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -187,6 +188,42 @@
   border-radius: 1rem;
   box-shadow: 0 1px 2px rgba(16,16,24,0.04), 0 4px 16px rgba(16,16,24,0.03);
 }
+
+/* ── Voz editorial (serif) — títulos y cifras grandes, con restricción ── */
+@utility font-display {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+}
+
+/* Acento cálido (arena) para momentos de "ingreso" y "humano" — contrapeso al
+   violeta frío de marca, apropiado para el mundo cálido de la estética. */
+@utility app-warm { color: #B45309; }                      /* ámbar tostado (texto) */
+@utility app-warm-bg { background-color: #FEF6EC; }        /* superficie arena muy clara */
+
+/* Superficie de card con un velo cálido sutil — para la KPI destacada. */
+@utility app-card-warm {
+  background:
+    radial-gradient(120% 140% at 0% 0%, #FBF4EC 0%, #FFFFFF 46%);
+  border: 1px solid #EFE6DA;
+  border-radius: 1rem;
+  box-shadow: 0 1px 2px rgba(16,16,24,0.04), 0 8px 24px rgba(180,83,9,0.05);
+}
+
+/* Estado activo de navegación: pastilla con barra de marca a la izquierda en vez
+   del relleno indigo plano — más intencional, menos "default shadcn". */
+@utility app-nav-active {
+  background: linear-gradient(90deg, rgba(109,40,217,0.10), rgba(37,99,235,0.04) 70%, transparent);
+  color: #5B21B6;
+  box-shadow: inset 2px 0 0 0 #6D28D9;
+}
+
+/* Punto de presencia "vivo" — anillo que respira, para el agente en el widget. */
+@keyframes presence {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(52,211,153,0.55); }
+  50% { box-shadow: 0 0 0 5px rgba(52,211,153,0); }
+}
+.presence-dot { animation: presence 2.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .presence-dot { animation: none !important; } }
 
 @keyframes aurora {
   0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
