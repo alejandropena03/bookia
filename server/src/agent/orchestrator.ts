@@ -83,7 +83,7 @@ async function persistAndEmit(
   const providerMsgId = `bot_${crypto.randomUUID()}`;
   const [msg] = await sql`
     INSERT INTO messages (tenant_id, conversation_id, direction, sender_type, provider_message_id, content_type, text, created_at)
-    VALUES (${tenantId}, ${conversationId}, 'outbound', ${senderType}, ${providerMsgId}, 'text', ${text}, NOW())
+    VALUES (${tenantId}, ${conversationId}, 'outbound', ${senderType}, ${providerMsgId}, 'text', ${text}, clock_timestamp())
     RETURNING id, created_at
   `;
 
@@ -124,7 +124,8 @@ async function persistAndEmitSegmented(
   tenantSlug: string,
   text: string,
   senderType: "bot" | "human",
-  route: string
+  route: string,
+  media?: MediaItem[]
 ): Promise<string> {
   const segments = segmentResponse(text);
   let lastId = "";
@@ -141,7 +142,7 @@ async function persistAndEmitSegmented(
     const providerMsgId = `bot_${crypto.randomUUID()}`;
     const [msg] = await sql`
       INSERT INTO messages (tenant_id, conversation_id, direction, sender_type, provider_message_id, content_type, text, created_at)
-      VALUES (${tenantId}, ${conversationId}, 'outbound', ${senderType}, ${providerMsgId}, 'text', ${seg.text}, NOW())
+      VALUES (${tenantId}, ${conversationId}, 'outbound', ${senderType}, ${providerMsgId}, 'text', ${seg.text}, clock_timestamp())
       RETURNING id, created_at
     `;
 
@@ -153,6 +154,30 @@ async function persistAndEmitSegmented(
         direction: "outbound",
         senderType,
         text: seg.text,
+        createdAt: msg.created_at,
+      },
+    });
+
+    lastId = msg.id;
+  }
+
+  for (const item of media ?? []) {
+    const providerMsgId = `bot_${crypto.randomUUID()}`;
+    const [msg] = await sql`
+      INSERT INTO messages (tenant_id, conversation_id, direction, sender_type, provider_message_id, content_type, media_url, created_at)
+      VALUES (${tenantId}, ${conversationId}, 'outbound', ${senderType}, ${providerMsgId}, 'image', ${item.url}, clock_timestamp())
+      RETURNING id, created_at
+    `;
+
+    eventBus.emit(tenantSlug, {
+      tenantId,
+      conversationId,
+      message: {
+        id: msg.id,
+        direction: "outbound",
+        senderType,
+        text: null,
+        mediaUrl: item.url,
         createdAt: msg.created_at,
       },
     });
@@ -437,13 +462,29 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
     const { text, conversationId, contactName, tenantSlug } = req;
 
     if (isAgentKernelV2()) {
+      // Si un humano ya tomó el caso, el bot no vuelve a responder — el mensaje
+      // entrante queda en el hilo para que el humano lo vea y conteste él mismo.
+      const [convStatus] = await sql`SELECT status FROM conversations WHERE id = ${conversationId} LIMIT 1`;
+      if (convStatus?.status === "human_active") {
+        return { text: "", messageId: "", route: "canned", escalated: true, escalationReason: "already_handoff" };
+      }
+
       const { processMessageV2 } = await import("./v2/core/v2-adapter.js");
       const v2Result = await processMessageV2({ ...req, sql });
       // A2: persist outbound + emit SSE (parity with V1's persistAndEmitSegmented).
       // The kernel/adapters compute the response; the orchestrator owns persistence.
       const msgId = await persistAndEmitSegmented(
-        sql, req.tenantId, conversationId, tenantSlug, v2Result.text, "bot", v2Result.route
+        sql, req.tenantId, conversationId, tenantSlug, v2Result.text, "bot", v2Result.route, v2Result.media
       );
+
+      if (v2Result.escalated) {
+        await sql`
+          UPDATE conversations
+          SET status = 'human_active', handoff_summary = ${v2Result.escalationReason ?? "Requiere atención de un asesor humano."}
+          WHERE id = ${conversationId} AND status != 'human_active'
+        `;
+      }
+
       return { ...v2Result, messageId: msgId };
     }
 
@@ -474,7 +515,8 @@ export async function processMessage(req: AgentRequest): Promise<AgentResponse> 
     }
 
     const catalogItems: CatalogItem[] = await sql`
-      SELECT name, price::text, currency, COALESCE(cities, '[]') AS cities, COALESCE(image_keys, '[]') AS "imageKeys", promo_label AS "promoLabel"
+      SELECT name, price::text, currency, COALESCE(cities, '[]') AS cities, COALESCE(image_keys, '[]') AS "imageKeys", promo_label AS "promoLabel",
+             prices, requires_human_confirmation AS "requiresHumanConfirmation"
       FROM catalog_items WHERE tenant_id = ${req.tenantId} AND is_active = 1 ORDER BY name
     `;
 

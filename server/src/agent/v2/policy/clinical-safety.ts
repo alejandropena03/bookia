@@ -35,10 +35,13 @@ const PREDEFINED_ALLOWED_CLAIMS: Record<string, string[]> = {
 };
 
 const URGENT_HANDOFF_KEYWORDS = [
-  "dolor fuerte", "dolor intenso", "hinchazón excesiva", "hinchazon excesiva",
-  "fiebre", "sangrado", "infección", "infeccion", "pus",
+  "dolor fuerte", "dolor intenso", "dolor muy fuerte",
+  "fiebre", "sangrado", "sangrando", "sangra", "infección", "infeccion", "pus",
   "dificultad para respirar", "reacción alérgica", "reaccion alergica",
   "inflamación severa", "inflamacion severa", "asimetría", "asimetria",
+  // cualquier mención de hinchazón/hinchado tras un tratamiento, sin exigir
+  // la palabra clínica "excesiva" — así habla un cliente real.
+  "hinchazón", "hinchazon", "hinchado", "hinchada", "se hinchó", "se hincho",
 ];
 
 const EVALUATION_KEYWORDS = [

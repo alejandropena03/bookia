@@ -14,7 +14,7 @@ export interface KernelProviders {
   evaluatePolicy: (text: string, intent: AgentIntent, riskFlags: RiskFlags) => PolicyDecision;
   detectRisks: (text: string, intent: AgentIntent) => RiskFlags;
   loadContext: (input: AgentKernelInput) => Promise<Record<string, unknown>>;
-  resolveMedia?: (serviceName: string | undefined, intent: AgentIntent) => MediaItem[] | undefined;
+  resolveMedia?: (serviceName: string | undefined, intent: AgentIntent, city?: string) => MediaItem[] | undefined;
 }
 
 export class AgentKernel {
@@ -128,12 +128,71 @@ export class AgentKernel {
       },
     };
 
+    // Embarazo/lactancia: Carlos confirmó que es un NO tajante (restricción médica sin
+    // excepciones), no un "hay que evaluarlo" — respuesta fija, sin pasar por LLM libre.
+    if (/\b(embarazo|embarazada|lactancia|dando\s+pecho|amamantando)\b/i.test(input.messageText)) {
+      const pregnancyText =
+        "No realizamos ningún tratamiento estético durante el embarazo o la lactancia — es una restricción de nuestro equipo médico, sin excepciones. Con gusto te cuento todo lo que necesites para cuando ya no aplique 🤍";
+      const { text: finalText, route: finalRoute } = this.applyCritic(
+        pregnancyText, "canned", routerDecision.intent, policyDecision, trace,
+      );
+      trace.generation.route = "canned";
+      emit("agent.response.composed");
+      emit("agent.response.sent");
+      return {
+        response: { text: finalText, route: finalRoute as any },
+        decisionTrace: trace,
+        memoryUpdates,
+      };
+    }
+
+    // Rellenos/implantes previos de otra clínica: requiere valoración médica previa
+    // (confirmado por Carlos) — respuesta fija, no dejar que el LLM improvise.
+    if (/\b(implante|relleno)s?\s+(previo|anterior)|otra\s+cl[íi]nica.*(relleno|implante|bótox|botox)/i.test(input.messageText)) {
+      const priorWorkText =
+        "Si ya tienes rellenos o implantes de un procedimiento anterior (en otra clínica o con nosotros), necesitamos hacerte una valoración médica previa para confirmar que el tratamiento es viable en tu caso 🤍 ¿Te gustaría agendarla?";
+      const { text: finalText, route: finalRoute } = this.applyCritic(
+        priorWorkText, "canned", routerDecision.intent, policyDecision, trace,
+      );
+      trace.generation.route = "canned";
+      emit("agent.response.composed");
+      emit("agent.response.sent");
+      return {
+        response: { text: finalText, route: finalRoute as any },
+        decisionTrace: trace,
+        memoryUpdates,
+      };
+    }
+
     if (policyDecision.action === "block") {
       const refusalText = "Prefiero no responder a eso. ¿Hay algo más en lo que pueda ayudarte?";
       const { text: finalText, route: finalRoute } = this.applyCritic(
         refusalText, "refusal", routerDecision.intent, policyDecision, trace,
       );
       trace.generation.route = "refusal";
+      emit("agent.response.composed");
+      emit("agent.response.sent");
+      return {
+        response: { text: finalText, route: finalRoute as any },
+        decisionTrace: trace,
+        memoryUpdates,
+      };
+    }
+
+    // Casos de handoff van con un texto fijo y correcto (no LLM libre): habla en primera
+    // persona plural ("nuestro equipo"), porque Carlos SÍ representa a la clínica — no es
+    // un tercero que solo "conecta" con ella. El texto varía según la razón real del
+    // escalamiento: si hay señal clínica genuina, menciona síntomas/urgencias; si es solo
+    // una solicitud de humano o una queja sin señal clínica, NO se inventan síntomas.
+    if (policyDecision.action === "handoff") {
+      const isClinicalRisk = riskFlags.hasEmergencyKeywords || riskFlags.hasClinicalRisk;
+      const escalationText = isClinicalRisk
+        ? "Entiendo tu preocupación 💛 Voy a escalar tu caso ahora mismo a nuestro equipo médico para que te contacten directamente y revisen lo que comentas. Si notas dificultad para respirar o el malestar empeora, por favor acude a urgencias de inmediato."
+        : "Entendido, voy a escalar tu solicitud a nuestro equipo humano para que te contacten directamente. Gracias por tu paciencia 🤍";
+      const { text: finalText, route: finalRoute } = this.applyCritic(
+        escalationText, "handoff", routerDecision.intent, policyDecision, trace,
+      );
+      trace.generation.route = "handoff";
       emit("agent.response.composed");
       emit("agent.response.sent");
       return {
@@ -166,7 +225,7 @@ export class AgentKernel {
       trace.generation.route = "canned";
       emit("agent.response.composed");
       emit("agent.response.sent");
-      const cannedMedia = this.providers.resolveMedia?.(routerDecision.entities?.service, routerDecision.intent);
+      const cannedMedia = this.providers.resolveMedia?.(routerDecision.entities?.service, routerDecision.intent, routerDecision.entities?.city);
       return {
         response: { text: finalText, route: finalRoute as any, media: cannedMedia },
         decisionTrace: trace,
@@ -187,7 +246,7 @@ export class AgentKernel {
     emit("agent.response.composed");
     emit("agent.response.sent");
 
-    const llmMedia = this.providers.resolveMedia?.(routerDecision.entities?.service, routerDecision.intent);
+    const llmMedia = this.providers.resolveMedia?.(routerDecision.entities?.service, routerDecision.intent, routerDecision.entities?.city);
     return {
       response: { text: finalText, route: finalRoute as any, media: llmMedia },
       decisionTrace: trace,

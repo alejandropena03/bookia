@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from "react"
+import { useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
-import { Search, ChevronRight, Sparkles, Bot } from "lucide-react"
+import { Search, ChevronRight, Bot } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -10,6 +11,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { formatRelativeTime } from "@/lib/time"
 import { Button } from "@/components/ui/button"
 import { replyConversation, takeoverConversation, handbackConversation } from "@/lib/api"
+import { formatMessageText } from "@/lib/format-message"
 
 const CANAL_STYLES: Record<string, string> = {
   whatsapp: "bg-green-50 text-green-700",
@@ -47,6 +49,7 @@ interface Message {
   content: string
   timestamp: string
   messageId?: string
+  mediaUrl?: string
 }
 
 interface Conversation {
@@ -67,6 +70,7 @@ interface Props {
 }
 
 export default function ConversationsInbox({ conversations, activeConversation }: Props) {
+  const queryClient = useQueryClient()
   const [search, setSearch] = useState("")
   const [canalFilter, setCanalFilter] = useState("all")
   const [replyText, setReplyText] = useState("")
@@ -93,19 +97,8 @@ export default function ConversationsInbox({ conversations, activeConversation }
       setReplyText("")
       setSentMsg(true)
       setTimeout(() => setSentMsg(false), 2000)
-    } catch {
-      // fallback silently
-    }
-    setSending(false)
-  }
-
-  async function handleApprove(content: string) {
-    if (!activeConversation || sending) return
-    setSending(true)
-    try {
-      await replyConversation(activeConversation.id, content)
-      setSentMsg(true)
-      setTimeout(() => setSentMsg(false), 2000)
+      await queryClient.invalidateQueries({ queryKey: ["conversation", activeConversation.id] })
+      await queryClient.invalidateQueries({ queryKey: ["conversations"] })
     } catch {
       // fallback silently
     }
@@ -118,6 +111,8 @@ export default function ConversationsInbox({ conversations, activeConversation }
     try {
       await takeoverConversation(activeConversation.id)
       setEscalatedIds(prev => new Set(prev).add(activeConversation.id))
+      await queryClient.invalidateQueries({ queryKey: ["conversation", activeConversation.id] })
+      await queryClient.invalidateQueries({ queryKey: ["conversations"] })
     } catch {
       // fallback silently
     }
@@ -130,6 +125,8 @@ export default function ConversationsInbox({ conversations, activeConversation }
     try {
       await handbackConversation(activeConversation.id)
       setEscalatedIds(prev => { const next = new Set(prev); next.delete(activeConversation.id); return next })
+      await queryClient.invalidateQueries({ queryKey: ["conversation", activeConversation.id] })
+      await queryClient.invalidateQueries({ queryKey: ["conversations"] })
     } catch {
       // fallback silently
     }
@@ -207,15 +204,20 @@ export default function ConversationsInbox({ conversations, activeConversation }
                 <Badge className={`text-xs py-0 px-1.5 border-0 ${CANAL_STYLES[activeConversation.canal] ?? "bg-gray-50 text-gray-600"}`}>{activeConversation.canal}</Badge>
               </div>
               <span className={`text-xs ${STATUS_STYLES[getEstado(activeConversation)]?.replace("bg-", "text-").replace("-50", "-600") ?? "text-gray-500"}`}>
-                {getEstado(activeConversation) === "human_active" ? "Tú" : STATUS_LABELS[getEstado(activeConversation)] ?? getEstado(activeConversation)}
+                {getEstado(activeConversation) === "human_active" ? "Tú al frente" : STATUS_LABELS[getEstado(activeConversation)] ?? getEstado(activeConversation)}
               </span>
             </div>
+            {getEstado(activeConversation) !== "human_active" && getEstado(activeConversation) !== "closed" && (
+              <Button size="sm" variant="outline" className="ml-auto h-7 text-xs text-red-500 border-red-200 hover:bg-red-50" onClick={handleEscalate} disabled={escalating} aria-label="Escalar conversación a humano">
+                {escalating ? "..." : "Escalar a humano"}
+              </Button>
+            )}
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {activeConversation.messages.map((msg) => {
               const isUser = msg.role === "user"
-              const isAI = msg.role === "ai_suggestion"
+              const isBot = msg.role === "bot"
               const isAgent = msg.role === "agent"
 
               return (
@@ -227,49 +229,28 @@ export default function ConversationsInbox({ conversations, activeConversation }
                       </Avatar>
                       <div>
                         <div className="app-surface border app-border rounded-2xl rounded-bl-sm px-4 py-2.5 shadow-sm">
-                          <p className="text-sm app-text-hi">{msg.content}</p>
+                          <p className="text-sm app-text-hi">{formatMessageText(msg.content)}</p>
                         </div>
                         <p className="text-[10px] app-text-lo mt-1 ml-1" aria-label={`Enviado ${formatRelativeTime(msg.timestamp)}`}>{formatRelativeTime(msg.timestamp)}</p>
                       </div>
                     </div>
                   )}
-                  {(isAI || isAgent) && (
+                  {(isBot || isAgent) && (
                     <div className="max-w-[75%]">
-                      {isAI && (
+                      {isAgent && (
                         <div className="flex items-center gap-1 mb-1 justify-end">
-                          <Sparkles className="w-3 h-3 text-indigo-400" />
-                          <span className="text-[10px] text-indigo-400 font-medium">Sugerida por IA</span>
+                          <span className="text-[10px] text-emerald-600 font-medium">Tú (humano)</span>
                         </div>
                       )}
-                      <div className={`rounded-2xl rounded-br-sm px-4 py-2.5 shadow-sm ${isAI ? "bg-indigo-50 border border-indigo-100" : "app-brand-bg"}`}>
-                        <p className={`text-sm ${isAI ? "app-text-hi" : "text-white"}`}>{msg.content}</p>
+                      <div className="rounded-2xl rounded-br-sm px-4 py-2.5 shadow-sm app-brand-bg">
+                        {msg.mediaUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={msg.mediaUrl} alt="Imagen del servicio" className="rounded-lg max-w-full max-h-64 object-cover" />
+                        ) : (
+                          <p className="text-sm text-white">{formatMessageText(msg.content)}</p>
+                        )}
                       </div>
                       <p className="text-[10px] app-text-lo mt-1 text-right">{formatRelativeTime(msg.timestamp)}</p>
-                      {isAI && (
-                        <div className="flex gap-2 mt-2 justify-end">
-<Button
-                size="sm"
-                className="h-7 text-xs bg-indigo-600 hover:bg-indigo-700 text-white"
-                onClick={() => handleApprove(msg.content)}
-                disabled={sending}
-                aria-label="Aprobar respuesta sugerida por IA"
-              >
-                {sending ? "..." : "Aprobar"}
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-7 text-xs"
-                onClick={() => setReplyText(msg.content)}
-                aria-label="Editar respuesta sugerida por IA"
-              >
-                Editar
-              </Button>
-              <Button size="sm" variant="outline" className="h-7 text-xs text-red-500 border-red-200 hover:bg-red-50" onClick={handleEscalate} disabled={escalating} aria-label="Escalar conversación a humano">
-                {escalating ? "..." : "Escalar"}
-              </Button>
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>
@@ -278,37 +259,48 @@ export default function ConversationsInbox({ conversations, activeConversation }
           </div>
 
           <div className="app-surface border-t app-border p-4">
-            {getEstado(activeConversation) === "human_active" && (
-              <div className="flex items-center justify-between mb-3 px-1">
-                <span className="text-xs text-emerald-600 font-medium">Estás al frente de esta conversación</span>
-                <Button size="sm" variant="outline" className="h-7 text-xs" onClick={handleHandback} disabled={handingBack} aria-label="Devolver conversación al bot">
-                  {handingBack ? "..." : "Devolver al bot"}
+            {getEstado(activeConversation) === "human_active" ? (
+              <>
+                <div className="flex items-center justify-between mb-3 px-1">
+                  <span className="text-xs text-emerald-600 font-medium">Estás al frente de esta conversación — el bot no responderá</span>
+                  <Button size="sm" variant="outline" className="h-7 text-xs" onClick={handleHandback} disabled={handingBack} aria-label="Devolver conversación al bot">
+                    {handingBack ? "..." : "Devolver al bot"}
+                  </Button>
+                </div>
+                <form
+                  onSubmit={(e) => { e.preventDefault(); handleReply() }}
+                  className="flex gap-2"
+                >
+                  <Input
+                    placeholder="Escribe un mensaje..."
+                    className="flex-1 h-10"
+                    value={replyText}
+                    onChange={(e) => setReplyText(e.target.value)}
+                    disabled={sending}
+                    aria-label="Escribe un mensaje como operador humano"
+                  />
+                  <Button
+                    type="submit"
+                    className="h-10 app-brand-bg text-white text-sm"
+                    disabled={sending || !replyText.trim()}
+                  >
+                    {sending ? "..." : sentMsg ? "✓" : "Enviar"}
+                  </Button>
+                </form>
+                <p className="text-xs app-text-lo mt-2">
+                  {sentMsg ? "✅ Mensaje enviado" : "Respondes tú directamente al cliente"}
+                </p>
+              </>
+            ) : getEstado(activeConversation) === "closed" ? (
+              <p className="text-xs app-text-lo text-center py-1">Conversación cerrada</p>
+            ) : (
+              <div className="flex items-center justify-between px-1 py-1">
+                <span className="text-xs app-text-mid">Carlos (bot) está respondiendo automáticamente</span>
+                <Button size="sm" variant="outline" className="h-7 text-xs text-red-500 border-red-200 hover:bg-red-50" onClick={handleEscalate} disabled={escalating} aria-label="Escalar conversación a humano">
+                  {escalating ? "..." : "Escalar a humano"}
                 </Button>
               </div>
             )}
-            <form
-              onSubmit={(e) => { e.preventDefault(); handleReply() }}
-              className="flex gap-2"
-            >
-              <Input
-                placeholder="Escribe un mensaje..."
-                className="flex-1 h-10"
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                disabled={sending}
-                aria-label="Escribe un mensaje como operador humano"
-              />
-              <Button
-                type="submit"
-                className="h-10 app-brand-bg text-white text-sm"
-                disabled={sending || !replyText.trim()}
-              >
-                {sending ? "..." : sentMsg ? "✓" : "Enviar"}
-              </Button>
-            </form>
-            <p className="text-xs app-text-lo mt-2">
-              {sentMsg ? "✅ Mensaje enviado" : "Responde como operador humano a esta conversación"}
-            </p>
           </div>
         </div>
       ) : (

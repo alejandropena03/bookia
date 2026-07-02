@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react"
 import { sendSimMessage, subscribeToSSE } from "@/lib/api"
+import { formatMessageText } from "@/lib/format-message"
 import { Bot, X, Send, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -132,7 +133,7 @@ export default function DemoLive() {
                       </Avatar>
                       <div>
                         <div className="app-surface border app-border rounded-2xl rounded-bl-sm px-4 py-2.5 shadow-sm">
-                          <p className="text-sm app-text-hi">{msg.text}</p>
+                          <p className="text-sm app-text-hi">{formatMessageText(msg.text)}</p>
                         </div>
                       </div>
                     </div>

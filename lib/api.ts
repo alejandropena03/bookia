@@ -1,6 +1,6 @@
 import { getTenantSlug } from "./tenant"
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787"
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8787"
 
 async function apiFetch<T>(path: string, opts?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
@@ -74,6 +74,7 @@ export interface ConversationDetail {
     direction: string
     sender_type: string
     text: string | null
+    mediaUrl: string | null
     created_at: string
   }[]
 }

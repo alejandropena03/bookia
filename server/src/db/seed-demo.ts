@@ -1,90 +1,196 @@
 /**
- * seed-demo.ts — Puebla datos de muestra realistas para Santa María.
+ * seed-demo.ts — Genera conversaciones de demo REALES para Santa María.
+ * A diferencia de la versión anterior (mensajes hardcodeados al azar), este
+ * script hace correr guiones de usuario a través del agente V2 real
+ * (ingestInbound + processMessage, el mismo pipeline que /api/sim/message),
+ * así que las respuestas de Carlos son las que el agente produce de verdad
+ * (LLM + flows reales, no texto de relleno).
+ *
  * Idempotente: limpia datos demo antes de re-insertar (conversaciones,
  * mensajes, bookings, conversation_state, contacts de prueba).
  * No toca: tenants, catalog_items, flows, business_profile, users.
  *
  * Uso: npx tsx src/db/seed-demo.ts
- * (debe correrse DESPUÉS del seed base: npx tsx src/db/seed.ts)
+ * (debe correrse DESPUÉS del seed base: npx tsx src/db/seed.ts, y con el
+ * backend NO necesariamente corriendo — este script llama al agente in-process)
  */
 
+import "dotenv/config";
 import postgres from "postgres";
 import { randomUUID } from "crypto";
+import { ingestInbound } from "../conversations/service.js";
+import { processMessage } from "../agent/orchestrator.js";
+import type { NormalizedInboundMessage } from "../channels/types.js";
 
 const DB_URL = process.env.DATABASE_URL ?? "postgres://bookia:bookia_pass@localhost:5432/bookia";
 const sql = postgres(DB_URL, {
   max: 1, idle_timeout: 10, connect_timeout: 10,
 });
 
-// ─── Config ───
+const TENANT_SLUG = "santa-maria";
 
-const CHANNELS = ["whatsapp", "instagram", "messenger"] as const;
-const CONTACT_NAMES = [
-  "María López", "Carolina Rojas", "Andrea Gómez", "Daniela Pérez",
-  "Valentina Suárez", "Fernanda Díaz", "Gabriela Torres", "Sofía Ramírez",
-  "Isabella Castro", "Camila Mendoza", "Laura Jiménez", "Ximena Ruiz",
-  "Paola Herrera", "Natalia Vargas", "Alejandra Mora",
+// ─── Personas / guiones ───
+// Cada guión es una secuencia de mensajes de un usuario simulado. Las
+// respuestas del bot NO están escritas aquí: las genera el agente real.
+
+type PersonaType = "booking" | "price_dropoff" | "faq" | "escalation";
+
+interface Persona {
+  name: string;
+  channel: "whatsapp" | "instagram" | "messenger";
+  type: PersonaType;
+  phone: string;
+  service?: string; // nombre exacto del catalog_items usado en el guión
+  messages: string[];
+}
+
+const PERSONAS: Persona[] = [
+  // ── Booking completo (5) ──
+  {
+    name: "María López", channel: "whatsapp", type: "booking", phone: "3001234501",
+    service: "Botox por zona",
+    messages: [
+      "Hola, buenas tardes",
+      "Me gustaría agendar una cita",
+      "Bogotá",
+      "Botox por zona",
+      "Sí, me gustaría agendar",
+      "Perfecto, el próximo sábado a las 3:00 pm si tienen disponibilidad",
+      "María López, cédula 1020304050, nací el 15 de marzo de 1990, mi celular es 3001234501, mi correo es maria.lopez.demo@gmail.com",
+      "Transferencia bancaria",
+      "Listo, aquí está el comprobante de pago",
+    ],
+  },
+  {
+    name: "Carolina Rojas", channel: "instagram", type: "booking", phone: "3001234502",
+    service: "Doll Lips",
+    messages: [
+      "Hola, buenas",
+      "Quisiera agendar una cita",
+      "Bogotá",
+      "Doll Lips",
+      "Claro, quiero agendar",
+      "El jueves en la tarde, la hora que tengan libre",
+      "Carolina Rojas, cédula 1020304051, nací el 22 de junio de 1988, mi celular es 3001234502, mi correo es carolina.rojas.demo@gmail.com",
+      "Transferencia bancaria",
+      "Aquí está el comprobante de pago",
+    ],
+  },
+  {
+    name: "Andrea Gómez", channel: "messenger", type: "booking", phone: "3001234503",
+    service: "Rinomodelación",
+    messages: [
+      "Hola, buenas tardes",
+      "Me interesa agendar una valoración",
+      "Bogotá",
+      "Rinomodelación",
+      "Sí, quiero agendar",
+      "El viernes a primera hora si se puede",
+      "Andrea Gómez, cédula 1020304052, nací el 3 de septiembre de 1995, mi celular es 3001234503, mi correo es andrea.gomez.demo@gmail.com",
+      "Transferencia bancaria",
+      "Ya hice el pago, les envío el comprobante",
+    ],
+  },
+  {
+    name: "Daniela Pérez", channel: "whatsapp", type: "booking", phone: "3001234504",
+    service: "Full Face Botox",
+    messages: [
+      "Hola, buenos días",
+      "Quiero agendar una cita para Full Face Botox",
+      "Bogotá",
+      "Full Face Botox",
+      "Sí, me gustaría agendar",
+      "El sábado en la mañana",
+      "Daniela Pérez, cédula 1020304053, nací el 11 de enero de 1992, mi celular es 3001234504, mi correo es daniela.perez.demo@gmail.com",
+      "Transferencia bancaria",
+      "Aquí está el comprobante de pago",
+    ],
+  },
+  {
+    name: "Valentina Suárez", channel: "instagram", type: "booking", phone: "3001234505",
+    service: "Russian Lips",
+    messages: [
+      "Hola, ¿cómo están?",
+      "Me gustaría agendar una cita",
+      "Bogotá",
+      "Russian Lips",
+      "Sí, quiero agendar",
+      "El próximo miércoles en la tarde",
+      "Valentina Suárez, cédula 1020304054, nací el 27 de noviembre de 1993, mi celular es 3001234505, mi correo es valentina.suarez.demo@gmail.com",
+      "Transferencia bancaria",
+      "Listo, aquí está el comprobante",
+    ],
+  },
+  // ── Pregunta precio sin agendar (3) ──
+  {
+    name: "Fernanda Díaz", channel: "messenger", type: "price_dropoff", phone: "3001234506",
+    service: "Barbie Botox",
+    messages: [
+      "Hola, buenas",
+      "¿Cuánto cuesta el Barbie Botox?",
+      "Bogotá",
+      "Barbie Botox",
+      "Ah ok, gracias, lo voy a pensar",
+    ],
+  },
+  {
+    name: "Gabriela Torres", channel: "whatsapp", type: "price_dropoff", phone: "3001234507",
+    service: "Bichectomía enzimática",
+    messages: [
+      "Hola, buenas tardes",
+      "¿Cuál es el precio de la bichectomía enzimática?",
+      "Bogotá",
+      "Bichectomía enzimática",
+      "Gracias, lo pienso y les escribo",
+    ],
+  },
+  {
+    name: "Sofía Ramírez", channel: "instagram", type: "price_dropoff", phone: "3001234508",
+    service: "Red Lips",
+    messages: [
+      "Hola",
+      "¿Cuánto vale el Red Lips?",
+      "Bogotá",
+      "Red Lips",
+      "Ok, gracias, cualquier cosa les escribo",
+    ],
+  },
+  // ── FAQ / interés general, sin agendar (2) ──
+  {
+    name: "Isabella Castro", channel: "messenger", type: "faq", phone: "3001234509",
+    messages: [
+      "Hola, buenas",
+      "¿Qué tratamientos faciales tienen disponibles?",
+      "¿Cuál me recomiendan para líneas de expresión?",
+    ],
+  },
+  {
+    name: "Camila Mendoza", channel: "whatsapp", type: "faq", phone: "3001234510",
+    messages: [
+      "Hola, ¿cómo están?",
+      "¿Cuánto dura una sesión de botox?",
+      "¿Y cada cuánto hay que repetirla?",
+    ],
+  },
+  // ── Escalamiento real (2) ──
+  {
+    name: "Laura Jiménez", channel: "instagram", type: "escalation", phone: "3001234511",
+    messages: [
+      "Hola, buenas",
+      "Hola, me salió una hinchazón muy fuerte después de mi tratamiento de botox, me preocupa",
+    ],
+  },
+  {
+    name: "Ximena Ruiz", channel: "messenger", type: "escalation", phone: "3001234512",
+    messages: [
+      "Hola",
+      "Quiero poner una queja, el servicio fue pésimo y nadie me atendió bien",
+    ],
+  },
 ];
-const MESSAGES_INBOUND = [
-  "Hola, buenos días",
-  "Buenas tardes, quisiera información",
-  "Hola, ¿cómo están?",
-  "Quisiera saber sobre los servicios que ofrecen",
-  "Hola, me interesa agendar una cita",
-  "Buenos días, ¿tienen disponibles?",
-  "Hola, ¿cuánto cuesta la depilación láser?",
-  "Quiero información sobre precios",
-  "Buenas, ¿qué tratamientos faciales tienen?",
-  "Hola, ¿me pueden dar más información del masaje relajante?",
-  "¿Cuánto vale la consulta dermatológica?",
-  "Buenas tardes, quisiera agendar",
-  "Hola, ¿tienen promociones?",
-  "¿El paquete premium incluye cuántas sesiones?",
-  "Hola, ¿atienden los sábados?",
-  "Me interesa el tratamiento facial",
-  "¿Cuánto cuesta la depilación láser en axilas?",
-  "Quiero saber el precio del paquete de bienestar",
-  "Buenos días, ¿puedo agendar para esta semana?",
-  "Hola, ¿me ayudan con una consulta?",
-  "¿Tienen disponibles para masaje hoy?",
-  "Hola, quiero hacer una reserva",
-  "¿Cuánto tiempo dura cada sesión?",
-  "Buenas, ¿qué métodos de pago aceptan?",
-];
-const MESSAGES_OUTBOUND = [
-  "¡Hola! Bienvenido a Santa María Clínica Estética. ¿En qué puedo ayudarte hoy?",
-  "Claro, con gusto te informamos. Tenemos varios servicios disponibles.",
-  "Con mucho gusto. Déjame consultarte...",
-  "¡Gracias por tu interés! Te cuento sobre nuestros servicios.",
-  "Perfecto, podemos agendar tu cita. ¿Qué día te gustaría?",
-  "Sí, tenemos disponibilidad. ¿Qué servicio te interesa?",
-  "La depilación láser tiene un costo de $350.000 por sesión. ¿Te gustaría agendar?",
-  "Nuestros precios varían según el servicio. ¿Cuál te interesa en particular?",
-  "Tenemos tratamientos faciales desde $280.000. ¿Te gustaría conocer más?",
-  "El masaje relajante cuesta $200.000 por sesión de 60 minutos.",
-  "La consulta dermatológica tiene un valor de $150.000.",
-  "¡Claro! ¿Qué día y hora prefieres?",
-  "Sí, tenemos promociones especiales. Te cuento...",
-  "El paquete premium incluye 4 sesiones por $650.000.",
-  "Sí, atendemos los sábados de 9:00 a 22:30.",
-  "El tratamiento facial profundo es excelente para revitalizar la piel.",
-  "Te cuento: depilación láser en axilas $200.000 por sesión.",
-  "El paquete de bienestar incluye 5 faciales + 2 masajes por $1.200.000.",
-  "Déjame revisar disponibilidad y te confirmo.",
-  "¡Por supuesto! Te atenderemos con gusto.",
-  "Sí, tenemos espacio para masaje hoy. ¿A qué hora?",
-  "Genial, voy a agendar tu cita. ¿Me confirmas tus datos?",
-  "Cada sesión dura aproximadamente 45-60 minutos.",
-  "Aceptamos transferencia bancaria, Nequi, y tarjeta de crédito/débito.",
-];
-const PRICE_KEYWORDS = ["precio", "cuánto", "cuesta", "costo", "tarifa", "valor"];
 
 function randomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function randomPick<T>(arr: readonly T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
 }
 
 function randomDateWeighted(daysAgo: number): Date {
@@ -92,7 +198,7 @@ function randomDateWeighted(daysAgo: number): Date {
   const start = now - daysAgo * 24 * 60 * 60 * 1000;
   const offset = Math.random() * (now - start);
   const d = new Date(start + offset);
-  // Bias toward evening hours for natural heatmap shape:
+  // Sesgo hacia horas tarde-noche para forma natural del heatmap:
   // 60% tarde-noche (15-21), 30% mañana (9-14), 10% otro (6-8 o 22)
   const r = Math.random();
   let hour: number;
@@ -103,11 +209,52 @@ function randomDateWeighted(daysAgo: number): Date {
   return d;
 }
 
-async function seedDemo() {
-  console.log("🎭 Seeding demo data for Santa María...\n");
+async function sendTurn(
+  tenantId: string,
+  channel: Persona["channel"],
+  externalId: string,
+  name: string,
+  phone: string,
+  text: string,
+): Promise<{ conversationId: string; contactId: string; escalated: boolean; escalationReason?: string }> {
+  const normalized: NormalizedInboundMessage = {
+    channel,
+    providerMessageId: `demo_${randomUUID()}`,
+    conversationKey: `${channel}:${externalId}`,
+    account: { channelAccountId: "demo" },
+    contact: { externalId, name, phone },
+    content: { type: "text", text },
+    timestamp: new Date().toISOString(),
+    replyWindowExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+    tenantId,
+  };
 
-  // ── Get Santa María tenant ──
-  const [tenant] = await sql`SELECT id, slug FROM tenants WHERE slug = 'santa-maria' LIMIT 1`;
+  const persistResult = await ingestInbound(normalized);
+  if (persistResult.duplicated) {
+    throw new Error(`Mensaje duplicado inesperado para ${externalId}`);
+  }
+
+  const agentResponse = await processMessage({
+    tenantId,
+    tenantSlug: TENANT_SLUG,
+    conversationId: persistResult.conversationId,
+    contactId: persistResult.contactId,
+    contactName: name,
+    text,
+  });
+
+  return {
+    conversationId: persistResult.conversationId,
+    contactId: persistResult.contactId,
+    escalated: !!agentResponse.escalated,
+    escalationReason: agentResponse.escalationReason,
+  };
+}
+
+async function seedDemo() {
+  console.log("🎭 Generando conversaciones de demo REALES (agente V2) para Santa María...\n");
+
+  const [tenant] = await sql`SELECT id, slug FROM tenants WHERE slug = ${TENANT_SLUG} LIMIT 1`;
   if (!tenant) {
     console.error("❌ Tenant 'santa-maria' not found. Run seed.ts first.");
     process.exit(1);
@@ -116,39 +263,7 @@ async function seedDemo() {
   await sql`SELECT set_config('app.current_tenant', ${tenantId}, true)`;
   console.log(`✓ Tenant: ${tenant.slug} (${tenantId})`);
 
-  // ── Get channel_accounts (create missing ones) ──
-  const channelIds: Record<string, string> = {};
-  for (const ch of CHANNELS) {
-    let [ca] = await sql`SELECT id FROM channel_accounts WHERE tenant_id = ${tenantId} AND channel = ${ch} LIMIT 1`;
-    if (!ca) {
-      [ca] = await sql`
-        INSERT INTO channel_accounts (tenant_id, channel, mode, status, external_account_id)
-        VALUES (${tenantId}, ${ch}, 'mock', 'connected', ${`demo-${ch}-001`})
-        RETURNING id
-      `;
-    }
-    channelIds[ch] = ca.id;
-  }
-  // Ensure mock channel exists (from seed)
-  let [mockCa] = await sql`SELECT id FROM channel_accounts WHERE tenant_id = ${tenantId} AND channel = 'mock' LIMIT 1`;
-  if (!mockCa) {
-    [mockCa] = await sql`
-      INSERT INTO channel_accounts (tenant_id, channel, mode, status, external_account_id)
-      VALUES (${tenantId}, 'mock', 'mock', 'connected', 'demo-mock-001')
-      RETURNING id
-    `;
-  }
-  channelIds.mock = mockCa.id;
-  console.log(`✓ Channel accounts: ${Object.keys(channelIds).join(", ")}`);
-
-  // ── Get catalog items for service mapping ──
-  const catalogItems = await sql`
-    SELECT id, name, price::numeric FROM catalog_items
-    WHERE tenant_id = ${tenantId} AND is_active = 1
-  `;
-  console.log(`✓ Catalog items: ${catalogItems.length}`);
-
-  // ── Clean existing demo data (conversations, messages, etc.) ──
+  // ── Limpiar datos demo existentes ──
   await sql`DELETE FROM bookings WHERE tenant_id = ${tenantId}`;
   await sql`DELETE FROM conversation_state WHERE tenant_id = ${tenantId}`;
   await sql`DELETE FROM messages WHERE tenant_id = ${tenantId}`;
@@ -156,183 +271,85 @@ async function seedDemo() {
   await sql`DELETE FROM contacts WHERE tenant_id = ${tenantId}`;
   console.log("✓ Cleaned existing demo data\n");
 
-  // ── Create contacts + conversations + messages ──
-  const contactIds: string[] = [];
-  const convIds: string[] = [];
-  const bookingConvs: string[] = [];
-  const priceConvs: string[] = []; // conversations that asked price without booking
-  const allMessageTexts: { convId: string; direction: string; sender: string; text: string; createdAt: Date }[] = [];
+  let i = 0;
+  for (const persona of PERSONAS) {
+    i++;
+    const externalId = `demo-${persona.channel}-${i}`;
+    console.log(`  [${i}/${PERSONAS.length}] ${persona.name} (${persona.channel}, ${persona.type})...`);
 
-  for (let i = 0; i < CONTACT_NAMES.length; i++) {
-    const name = CONTACT_NAMES[i];
-    const channel = randomPick(CHANNELS);
-    const externalId = `demo-${channel}-${i + 1}`;
-    const phone = `300${String(randomInt(1000000, 9999999))}`;
+    let conversationId = "";
+    let contactId = "";
+    let escalated = false;
+    let escalationReason: string | undefined;
 
-    // Insert contact
-    const [contact] = await sql`
-      INSERT INTO contacts (tenant_id, channel, external_id, name, phone)
-      VALUES (${tenantId}, ${channel}, ${externalId}, ${name}, ${phone})
-      RETURNING id
-    `;
-    contactIds.push(contact.id);
-
-    // Conversation status distribution: ~40% bot_active, ~20% human_active, ~15% escalated, ~25% closed
-    let status: string;
-    const r = Math.random();
-    if (r < 0.4) status = "bot_active";
-    else if (r < 0.6) status = "human_active";
-    else if (r < 0.75) status = "escalated";
-    else status = "closed";
-
-    // Determine if this conversation has a booking (~35% of conversations)
-    const hasBooking = Math.random() < 0.35;
-    // Determine if this conversation asked price without booking (~20% of conversations)
-    const hasPriceNoBooking = !hasBooking && Math.random() < 0.3;
-
-    // Conversation start date (spread over last 30 days)
-    const convStart = randomDateWeighted(29);
-    const msgCount = randomInt(5, 25);
-
-    // Create conversation
-    const [conv] = await sql`
-      INSERT INTO conversations (tenant_id, contact_id, channel_account_id, status, created_at, last_message_at)
-      VALUES (${tenantId}, ${contact.id}, ${channelIds[channel]}, ${status}, ${convStart.toISOString()}, ${convStart.toISOString()})
-      RETURNING id
-    `;
-    convIds.push(conv.id);
-
-    // Generate messages
-    for (let m = 0; m < msgCount; m++) {
-      const isInbound = m % 2 === 0;
-      const msgTime = new Date(convStart.getTime() + m * randomInt(1, 60) * 60 * 1000);
-
-      let text: string;
-      if (isInbound) {
-        if (hasPriceNoBooking) {
-          // Some messages should have price keywords
-          if (m === 1 || (m < msgCount && Math.random() < 0.2)) {
-            text = randomPick(PRICE_KEYWORDS) === "precio"
-              ? `¿Cuál es el precio de ${randomPick(catalogItems).name}?`
-              : `¿Cuánto cuesta ${randomPick(catalogItems).name}?`;
-          } else {
-            text = randomPick(MESSAGES_INBOUND);
-          }
-        } else {
-          text = randomPick(MESSAGES_INBOUND);
-        }
-      } else {
-        if (hasBooking && m === msgCount - 2) {
-          text = "¡Gracias! Quedo atenta a la confirmación.";
-        } else if (hasBooking && m === msgCount - 1) {
-          text = "✅ Cita confirmada. Te esperamos.";
-        } else {
-          text = randomPick(MESSAGES_OUTBOUND);
-        }
-      }
-
-      const sender = isInbound ? "contact" : "bot";
-      allMessageTexts.push({
-        convId: conv.id,
-        direction: isInbound ? "inbound" : "outbound",
-        sender,
-        text,
-        createdAt: msgTime,
-      });
-
-      if (isInbound && hasPriceNoBooking && (text.includes("precio") || text.includes("cuánto") || text.includes("cuesta"))) {
-        if (!priceConvs.includes(conv.id)) priceConvs.push(conv.id);
+    for (const text of persona.messages) {
+      const r = await sendTurn(tenantId, persona.channel, externalId, persona.name, persona.phone, text);
+      conversationId = r.conversationId;
+      contactId = r.contactId;
+      if (r.escalated) {
+        escalated = true;
+        escalationReason = r.escalationReason;
       }
     }
 
-    // Update last_message_at
-    if (allMessageTexts.length > 0) {
-      const lastMsg = allMessageTexts[allMessageTexts.length - 1];
-      await sql`
-        UPDATE conversations SET last_message_at = ${lastMsg.createdAt.toISOString()}
-        WHERE id = ${conv.id}
-      `;
-    }
+    // ── Retrasar la conversación en el tiempo (últimos 29 días, sesgo tarde-noche) ──
+    const [{ min_created: actualStart }] = await sql`
+      SELECT MIN(created_at) AS min_created FROM messages WHERE conversation_id = ${conversationId}
+    `;
+    const targetStart = randomDateWeighted(29);
+    const deltaMs = targetStart.getTime() - new Date(actualStart).getTime();
+    const deltaLiteral = `${deltaMs} milliseconds`;
 
-    // Create booking for ~35% of conversations
-    if (hasBooking) {
-      const svc = randomPick(catalogItems);
-      const bookingDate = new Date(convStart.getTime() + 2 * 24 * 60 * 60 * 1000);
-      const bookingStatus = Math.random() < 0.7 ? "confirmed" : (Math.random() < 0.5 ? "scheduled" : "pending");
-
-      await sql`
-        INSERT INTO bookings (tenant_id, conversation_id, contact_id, service_name, service_price, datetime, status)
-        VALUES (${tenantId}, ${conv.id}, ${contact.id}, ${svc.name}, ${String(svc.price)}, ${bookingDate.toISOString()}, ${bookingStatus})
-      `;
-      bookingConvs.push(conv.id);
-
-      // Add conversation_state for booking flow
-      await sql`
-        INSERT INTO conversation_state (tenant_id, conversation_id, flow_key, current_state, slots, created_at, updated_at)
-        VALUES (
-          ${tenantId}, ${conv.id}, 'agendamiento', 'confirm_booking',
-          ${sql.json({ servicio: svc.name, city: "Bogotá", datetime: bookingDate.toISOString() })},
-          ${convStart.toISOString()}, ${bookingDate.toISOString()}
-        )
-      `;
-    }
-
-    // Add conversation_state for price conversations without booking
-    if (hasPriceNoBooking) {
-      const svc = randomPick(catalogItems);
-      await sql`
-        INSERT INTO conversation_state (tenant_id, conversation_id, flow_key, current_state, slots, created_at, updated_at)
-        VALUES (
-          ${tenantId}, ${conv.id}, 'precio', 'ask_city',
-          ${sql.json({ servicio: svc.name })},
-          ${convStart.toISOString()}, ${convStart.toISOString()}
-        )
-      `;
-    }
-  }
-
-  // ── Bulk insert messages ──
-  console.log(`  Inserting ${allMessageTexts.length} messages...`);
-  for (const msg of allMessageTexts) {
     await sql`
-      INSERT INTO messages (tenant_id, conversation_id, direction, sender_type, content_type, text, created_at)
-      VALUES (${tenantId}, ${msg.convId}, ${msg.direction}, ${msg.sender}, 'text', ${msg.text}, ${msg.createdAt.toISOString()})
+      UPDATE messages SET created_at = created_at + ${deltaLiteral}::interval
+      WHERE conversation_id = ${conversationId}
     `;
+    await sql`
+      UPDATE conversations
+      SET created_at = created_at + ${deltaLiteral}::interval,
+          last_message_at = last_message_at + ${deltaLiteral}::interval
+      WHERE id = ${conversationId}
+    `;
+
+    // ── Estado + booking según el tipo de guión ──
+    // El booking en sí lo crea el flow-adapter real (maybeCreateBooking) cuando
+    // el usuario envía el comprobante de pago — aquí solo limpiamos el `datetime`
+    // (el flow guarda el texto libre del usuario, ej. "el sábado a las 3pm") para
+    // que quede una fecha real coherente con el resto del timeline del demo.
+    if (persona.type === "booking") {
+      const bookingDate = new Date(targetStart.getTime() + 2 * 24 * 60 * 60 * 1000);
+      await sql`
+        UPDATE bookings SET datetime = ${bookingDate.toISOString()}
+        WHERE conversation_id = ${conversationId}
+      `;
+      await sql`UPDATE conversations SET status = 'closed' WHERE id = ${conversationId}`;
+    } else if (persona.type === "escalation") {
+      await sql`
+        UPDATE conversations
+        SET status = 'human_active', handoff_summary = ${escalationReason ?? "Requiere atención de un asesor humano."}
+        WHERE id = ${conversationId}
+      `;
+    }
+    // price_dropoff / faq: se quedan en 'bot_active' (default de ingestInbound) — conversación abierta.
+
+    if (escalated && persona.type !== "escalation") {
+      console.warn(`    ⚠️  ${persona.name} escaló inesperadamente (${escalationReason})`);
+    }
   }
 
-  // ── Validate conversation_state entries ──
-  const demoStates = await sql`
-    SELECT cs.flow_key, cs.current_state, f.definition
-    FROM conversation_state cs
-    LEFT JOIN flows f ON f.tenant_id = cs.tenant_id AND f.key = cs.flow_key
-    WHERE cs.tenant_id = ${tenantId}
-  `;
-  for (const st of demoStates) {
-    if (!st.definition) {
-      console.warn(`  ⚠️  flow_key '${st.flow_key}' not found in flows table`);
-      continue;
-    }
-    const def = st.definition as { states: Record<string, unknown> };
-    if (!def.states[st.current_state as string]) {
-      throw new Error(`Invalid current_state '${st.current_state}' for flow '${st.flow_key}'. Valid states: ${Object.keys(def.states).join(", ")}`);
-    }
-  }
-
-  // ── Summary ──
+  // ── Resumen ──
   const [{ count: contacts }] = await sql`SELECT COUNT(*)::int AS count FROM contacts WHERE tenant_id = ${tenantId}`;
   const [{ count: conversations }] = await sql`SELECT COUNT(*)::int AS count FROM conversations WHERE tenant_id = ${tenantId}`;
   const [{ count: messages }] = await sql`SELECT COUNT(*)::int AS count FROM messages WHERE tenant_id = ${tenantId}`;
   const [{ count: bookings }] = await sql`SELECT COUNT(*)::int AS count FROM bookings WHERE tenant_id = ${tenantId}`;
-  const [{ count: states }] = await sql`SELECT COUNT(*)::int AS count FROM conversation_state WHERE tenant_id = ${tenantId}`;
 
-  console.log(`\n📊 Demo seed summary:`);
-  console.log(`  contacts:              ${contacts}`);
-  console.log(`  conversations:         ${conversations}`);
-  console.log(`  messages:              ${messages}`);
-  console.log(`  bookings:              ${bookings}`);
-  console.log(`  conversation_state:     ${states}`);
-  console.log(`  price with no booking:  ${priceConvs.length}`);
+  console.log(`\n📊 Demo seed summary (conversaciones generadas por el agente real):`);
+  console.log(`  contacts:      ${contacts}`);
+  console.log(`  conversations: ${conversations}`);
+  console.log(`  messages:      ${messages}`);
+  console.log(`  bookings:      ${bookings}`);
   console.log(`\n✅ Demo seed completed successfully!`);
+  await sql.end();
 }
 
 seedDemo().catch((err) => {

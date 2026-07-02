@@ -1,9 +1,19 @@
 import type postgres from "postgres";
+import * as chrono from "chrono-node";
 import { evaluateFlow, startFlow, type FlowDefinition, type FlowContext, type FlowResult, type CatalogItem } from "../../../flows/engine.js";
 import { renderTemplate } from "../../../flows/template.js";
 import { SANTA_MARIA_CANNED } from "../../../flows/santa-maria/canned-responses.js";
 import { type MemoryService } from "../memory/memory-service.js";
 import type { MediaItem } from "../../v2/types/agent-intent.js";
+import { filterImagesByMarket } from "../../../flows/santa-maria/pricing.js";
+
+// Convierte texto libre ("el sábado a las 3pm", "próximo miércoles en la tarde") a un
+// datetime ISO real. Si no se puede parsear con confianza, deja el texto original —
+// mejor un texto claro para revisión humana que una fecha inventada.
+function parseBookingDateTime(text: string, refDate: Date): string {
+  const parsed = chrono.es.parseDate(text, refDate, { forwardDate: true });
+  return parsed ? parsed.toISOString() : text;
+}
 
 const INTENT_TO_FLOW_KEY: Record<string, string> = {
   saludo: "first_contact",
@@ -40,7 +50,8 @@ function resolveMedia(catalogItems: CatalogItem[], slots: Record<string, string>
     (c) => serviceName.toLowerCase().includes(c.name.toLowerCase()) || c.name.toLowerCase().includes(serviceName.toLowerCase()),
   );
   if (!match?.imageKeys?.length) return undefined;
-  return match.imageKeys.map((key: string) => ({
+  const filteredKeys = filterImagesByMarket(match.imageKeys, slots.city);
+  return filteredKeys.map((key: string) => ({
     url: `/images/${key}`,
     type: "image" as const,
     imageKey: key,
@@ -156,6 +167,12 @@ export class FlowAdapter {
       return null;
     }
 
+    // Solo se envían fotos justo cuando el cliente elige el servicio — transición
+    // show_service → confirm_service (agendamiento) o ask_service → show_price (precio).
+    // En turnos posteriores slots.service sigue presente, pero ya no hay que reenviar
+    // las mismas imágenes cada vez.
+    const justSelectedService = active.currentState === "show_service" || active.currentState === "ask_service";
+
     const result = evaluateFlow(definition, active, text, this.catalogItems);
 
     await this.memoryService.onDataCollected(tenantId, contactId, conversationId, result.context.slots);
@@ -186,7 +203,11 @@ export class FlowAdapter {
       if (guide) finalResponse = `${finalResponse}\n\n${guide}`;
     }
 
-    return { response: finalResponse, route: "flow", media: resolveMedia(this.catalogItems, flowContext.slots) };
+    return {
+      response: finalResponse,
+      route: "flow",
+      media: justSelectedService ? resolveMedia(this.catalogItems, flowContext.slots) : undefined,
+    };
   }
 
   private async handleStart(
@@ -219,7 +240,11 @@ export class FlowAdapter {
       `;
     }
 
-    return { response: finalResponse, route: "flow", media: resolveMedia(this.catalogItems, flowContext.slots) };
+    return {
+      response: finalResponse,
+      route: "flow",
+      media: flowContext.currentState === "confirm_service" ? resolveMedia(this.catalogItems, flowContext.slots) : undefined,
+    };
   }
 
   private async maybeCreateBooking(
@@ -242,6 +267,7 @@ export class FlowAdapter {
     const hasPaymentProof = !!slots.payment_proof;
     const bookingStatus = hasPaymentProof ? "confirmed" : "pending";
     const paymentStatus = hasPaymentProof ? "paid" : "pending";
+    const parsedDatetime = slots.datetime ? parseBookingDateTime(slots.datetime, new Date()) : null;
 
     const [existing] = await this.sql`
       SELECT id, status FROM bookings WHERE conversation_id = ${conversationId} LIMIT 1
@@ -253,7 +279,7 @@ export class FlowAdapter {
           UPDATE bookings
           SET status = 'confirmed', payment_status = 'paid', service_name = ${serviceName},
               service_price = ${selected ? selected.price : null}, city = ${slots.city ?? null},
-              datetime = ${slots.datetime ?? null}, data = ${this.sql.json(slots)}
+              datetime = ${parsedDatetime}, data = ${this.sql.json(slots)}
           WHERE id = ${existing.id}
         `;
         await this.memoryService.onBookingConfirmed(tenantId, contactId, conversationId);
@@ -270,7 +296,7 @@ export class FlowAdapter {
         ${serviceName},
         ${selected ? selected.price : null},
         ${slots.city ?? null},
-        ${slots.datetime ?? null},
+        ${parsedDatetime},
         ${bookingStatus},
         ${paymentStatus},
         ${this.sql.json(slots)}

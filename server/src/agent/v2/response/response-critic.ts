@@ -141,7 +141,15 @@ export function criticize(input: CriticInput): ResponseCriticResult {
 
   // 2. Clinical risk — diagnosis, prescription, dosage
   for (const [pattern, name] of CLINICAL_RISK_PATTERNS) {
-    if (pattern.test(input.text)) {
+    const match = pattern.exec(input.text);
+    // Frases como "esto no es un diagnóstico", "no tienes ninguna condición grave" o
+    // "para un diagnóstico certero ve al doctor" son lenguaje seguro (negación o
+    // remisión al médico), no un reclamo real de diagnóstico — no deben bloquear la respuesta.
+    if (match && (name === "direct diagnosis" || name === "diagnosis claim")) {
+      const before = input.text.slice(Math.max(0, match.index - 25), match.index).toLowerCase();
+      if (/\bno\s+(\w+\s+){0,2}$|\bpara\s+(un[oa]?\s+)?$|\bsin\s+(\w+\s+){0,2}$/.test(before)) continue;
+    }
+    if (match) {
       const isCritical = name === "diagnosis claim" || name === "direct diagnosis";
       issues.push({
         type: "diagnosis_or_prescription",

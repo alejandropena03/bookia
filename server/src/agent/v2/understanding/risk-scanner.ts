@@ -4,8 +4,14 @@ import type { AgentIntent } from "../types/agent-intent.js";
 const EMERGENCY_KEYWORDS = [
   "emergencia", "urgencia", "reaccion alérgica", "reacción alérgica",
   "alergia", "inflamación severa", "inflamacion severa", "dolor fuerte",
-  "sangrado", "infección", "infeccion", "fiebre", "hinchazón excesiva",
-  "hinchazon excesiva", "dificultad para respirar",
+  "dolor muy fuerte", "dolor intenso",
+  "sangrado", "sangrando", "sangra", "infección", "infeccion", "fiebre",
+  // "hinchazón"/"hinchado" solo, sin exigir la palabra exacta "excesiva" —
+  // un cliente real dice "hinchazón muy fuerte" o "se me hinchó mucho", no
+  // el término clínico. Cualquier mención de hinchazón tras un tratamiento
+  // vale más escalarla que dejarla pasar al LLM libre.
+  "hinchazón", "hinchazon", "hinchado", "hinchada", "se hinchó", "se hincho",
+  "dificultad para respirar",
 ];
 
 const CLINICAL_RISK_KEYWORDS = [

@@ -64,7 +64,7 @@ dashboard.get("/conversations/:id", async (c) => {
     if (!conv) return c.json({ error: "Conversation not found" }, 404);
 
     const messages = await sql`
-      SELECT id, direction, sender_type, text, created_at
+      SELECT id, direction, sender_type, text, media_url AS "mediaUrl", created_at
       FROM messages
       WHERE conversation_id = ${convId} AND tenant_id = ${tenantId}
       ORDER BY created_at ASC
@@ -95,7 +95,7 @@ dashboard.post(
       const providerMsgId = `human_${crypto.randomUUID()}`;
       const [msg] = await sql`
         INSERT INTO messages (tenant_id, conversation_id, direction, sender_type, provider_message_id, content_type, text, created_at)
-        VALUES (${tenantId}, ${convId}, 'outbound', 'human', ${providerMsgId}, 'text', ${text}, NOW())
+        VALUES (${tenantId}, ${convId}, 'outbound', 'human', ${providerMsgId}, 'text', ${text}, clock_timestamp())
         RETURNING id, created_at
       `;
 

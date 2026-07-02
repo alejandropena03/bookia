@@ -2,7 +2,7 @@
 
 import { use } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { listConversations, getConversation } from "@/lib/api"
+import { listConversations, getConversation, API_BASE } from "@/lib/api"
 import ConversationsInbox from "@/components/conversations/ConversationsInbox"
 import { notFound } from "next/navigation"
 import { AlertCircle, Loader2 } from "lucide-react"
@@ -14,7 +14,7 @@ function toMockConv(row: { id: string; contact_name: string; channel: string; st
     contact_name: row.contact_name,
     contact_avatar: initials,
     canal: row.channel,
-    estado: row.status === "bot_active" ? "in_progress" : row.status,
+    estado: row.status,
     servicio: "—",
     updated_at: row.last_message_at ?? new Date().toISOString(),
     cita: null,
@@ -24,25 +24,27 @@ function toMockConv(row: { id: string; contact_name: string; channel: string; st
   }
 }
 
-function toDetailConv(detail: { conversation: { id: string; contact_name: string; channel: string; status: string; last_message_at: string | null }; messages: { id: string; direction: string; sender_type: string; text: string | null; created_at: string }[] }) {
+function toDetailConv(detail: { conversation: { id: string; contact_name: string; channel: string; status: string; last_message_at: string | null }; messages: { id: string; direction: string; sender_type: string; text: string | null; mediaUrl: string | null; created_at: string }[] }) {
   const c = detail.conversation
   const initials = (c.contact_name ?? "??").split(" ").map((s: string) => s[0]).join("").slice(0, 2).toUpperCase()
-  const statusMap: Record<string, string> = { bot_active: "in_progress", human_active: "in_progress", escalated: "escalated", closed: "lost" }
   return {
     id: c.id,
     contact_name: c.contact_name,
     contact_avatar: initials,
     canal: c.channel,
-    estado: statusMap[c.status] ?? "pending",
+    estado: c.status,
     servicio: "—",
     updated_at: c.last_message_at ?? new Date().toISOString(),
     cita: null,
-    messages: detail.messages.map((m) => ({
-      id: m.id,
-      role: m.direction === "inbound" ? "user" : m.sender_type === "bot" ? "ai_suggestion" : "agent",
-      content: m.text ?? "",
-      timestamp: m.created_at,
-    })),
+    messages: detail.messages
+      .filter((m) => m.text || m.mediaUrl)
+      .map((m) => ({
+        id: m.id,
+        role: m.direction === "inbound" ? "user" : m.sender_type === "bot" ? "bot" : "agent",
+        content: m.text ?? "",
+        mediaUrl: m.mediaUrl ? `${API_BASE}${m.mediaUrl}` : undefined,
+        timestamp: m.created_at,
+      })),
   }
 }
 
@@ -58,6 +60,7 @@ export default function ConversationDetailPage({ params }: { params: Promise<{ i
     queryKey: ["conversation", id],
     queryFn: () => getConversation(id),
     retry: 2,
+    refetchInterval: 4000,
   })
 
   if (listLoading || detailLoading) {
