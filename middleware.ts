@@ -8,7 +8,8 @@ export function middleware(request: NextRequest) {
 
   const isProtected = request.nextUrl.pathname.startsWith("/dashboard") ||
     request.nextUrl.pathname.startsWith("/conversations") ||
-    request.nextUrl.pathname.startsWith("/settings")
+    request.nextUrl.pathname.startsWith("/settings") ||
+    request.nextUrl.pathname.startsWith("/agenda")
 
   if (isProtected && !sessionToken) {
     return NextResponse.redirect(new URL("/login", request.url))
@@ -17,5 +18,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/conversations/:path*", "/settings/:path*"],
+  matcher: ["/dashboard/:path*", "/conversations/:path*", "/settings/:path*", "/agenda/:path*"],
 }
