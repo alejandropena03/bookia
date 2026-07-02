@@ -1,13 +1,32 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { MessageCircle, Camera, Tv2, Info, Sparkles } from "lucide-react"
-import { getProfile, getCatalog, updateProfile } from "@/lib/api"
+import { getProfile, getCatalog, updateProfile, type BusinessProfile } from "@/lib/api"
+
+// Deriva los valores del formulario desde el perfil del backend. Defaults
+// alineados con Santa María (persona Carlos, L-S 9:00-19:00), no placeholders
+// genéricos. Al derivar en vez de copiar a estado con un efecto, evitamos el
+// setState-síncrono-en-efecto y el formulario siempre refleja el backend.
+function deriveFromProfile(profile?: BusinessProfile) {
+  const persona = profile?.persona ?? ""
+  const nameMatch = persona.match(/Eres\s+([^,]+),\s+asesor/i)
+  const toneMatch = persona.match(/Tono\s+(\w+)/i)
+  const toneRaw = toneMatch?.[1]?.trim().toLowerCase() ?? ""
+  const hours = (profile?.hours ?? {}) as Record<string, { open: string; close: string }>
+  const firstSlot = Object.values(hours)[0]
+  return {
+    agentName: nameMatch?.[1]?.trim() || "Carlos",
+    tone: ["formal", "amigable", "mixto"].includes(toneRaw) ? toneRaw : "amigable",
+    openTime: firstSlot?.open || "09:00",
+    closeTime: firstSlot?.close || "19:00",
+  }
+}
 
 export default function SettingsPage() {
   const { data: profile } = useQuery({
@@ -20,39 +39,40 @@ export default function SettingsPage() {
     queryFn: getCatalog,
   })
 
-  const [business, setBusiness] = useState({
-    name: "Estética Santa María",
-    type: "clinica_estetica",
-    city: "Cali",
-    openTime: "09:00",
-    closeTime: "22:30",
-  })
-  const [agentName, setAgentName] = useState("Sofia")
-  const [tone, setTone] = useState("amigable")
+  const derived = deriveFromProfile(profile)
+
+  // El estado local guarda SOLO las ediciones del usuario (undefined = sin editar).
+  // El valor mostrado cae al derivado del backend mientras no se edite el campo.
+  const [nameEdit, setNameEdit] = useState<string>()
+  const [toneEdit, setToneEdit] = useState<string>()
+  const [cityEdit, setCityEdit] = useState<string>()
+  const [bizNameEdit, setBizNameEdit] = useState<string>()
+  const [bizTypeEdit, setBizTypeEdit] = useState<string>()
+  const [openEdit, setOpenEdit] = useState<string>()
+  const [closeEdit, setCloseEdit] = useState<string>()
+
+  const agentName = nameEdit ?? derived.agentName
+  const tone = toneEdit ?? derived.tone
+  const business = {
+    name: bizNameEdit ?? "Estética Santa María",
+    type: bizTypeEdit ?? "clinica_estetica",
+    city: cityEdit ?? "Medellín",
+    openTime: openEdit ?? derived.openTime,
+    closeTime: closeEdit ?? derived.closeTime,
+  }
+  const setBusiness = (patch: Partial<typeof business>) => {
+    if ("name" in patch) setBizNameEdit(patch.name)
+    if ("type" in patch) setBizTypeEdit(patch.type)
+    if ("city" in patch) setCityEdit(patch.city)
+    if ("openTime" in patch) setOpenEdit(patch.openTime)
+    if ("closeTime" in patch) setCloseEdit(patch.closeTime)
+  }
+  const setAgentName = (v: string) => setNameEdit(v)
+  const setTone = (v: string) => setToneEdit(v)
+
   const [notifs, setNotifs] = useState({ escalation: true, newCita: true, dailySummary: false })
   const [saved, setSaved] = useState(false)
   const [saving, setSaving] = useState(false)
-
-  // Hidratación desde el backend: cuando profile llega, sobreescribimos los valores
-  // iniciales (placeholder) con los reales. Sincroniza name/city/horas/agente/tono.
-  useEffect(() => {
-    if (!profile) return
-    // Extraer nombre y tono del campo persona (formato: "Eres <name>, asesor de <biz>. Tono <tone> ...")
-    const persona = profile.persona ?? ""
-    const nameMatch = persona.match(/Eres\s+([^,]+),\s+asesor/i)
-    const toneMatch = persona.match(/Tono\s+(\w+)/i)
-    if (nameMatch) setAgentName(nameMatch[1].trim())
-    if (toneMatch) {
-      const t = toneMatch[1].trim().toLowerCase()
-      if (["formal", "amigable", "mixto"].includes(t)) setTone(t)
-    }
-    // Horarios desde profile.hours (formato: { lunes: { open: "09:00", close: "19:00" }, ... }) → tomar el primero
-    const hours: Record<string, { open: string; close: string }> = profile.hours ?? {}
-    const firstSlot = Object.values(hours)[0]
-    if (firstSlot?.open) setBusiness((b) => ({ ...b, openTime: firstSlot.open }))
-    if (firstSlot?.close) setBusiness((b) => ({ ...b, closeTime: firstSlot.close }))
-    // Ciudades no están en el schema actual — dejamos el placeholder (edición manual)
-  }, [profile])
 
   async function handleSave() {
     setSaving(true)
@@ -77,8 +97,8 @@ export default function SettingsPage() {
   return (
     <div className="max-w-2xl space-y-8 pb-24">
       <div>
-        <h1 className="text-2xl font-bold app-text-hi">Configuración</h1>
-        <p className="app-text-mid text-sm mt-1">Gestiona tu negocio y tu agente IA</p>
+        <h1 className="font-display text-[2rem] leading-none app-text-hi tracking-tight">Configuración</h1>
+        <p className="app-text-mid text-sm mt-2">Gestiona tu negocio y tu agente IA</p>
       </div>
 
       <section className="app-card p-6 space-y-5">
@@ -86,17 +106,17 @@ export default function SettingsPage() {
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium app-text-hi block mb-1.5">Nombre del negocio</label>
-            <Input value={business.name} onChange={(e) => setBusiness({ ...business, name: e.target.value })} className="h-10" />
+            <Input value={business.name} onChange={(e) => setBusiness({ name: e.target.value })} className="h-10" />
           </div>
           <div>
             <label className="text-sm font-medium app-text-hi block mb-1.5">Ciudad</label>
-            <Input value={business.city} onChange={(e) => setBusiness({ ...business, city: e.target.value })} className="h-10" />
+            <Input value={business.city} onChange={(e) => setBusiness({ city: e.target.value })} className="h-10" />
           </div>
           <div>
             <label className="text-sm font-medium app-text-hi block mb-1.5">Tipo de negocio</label>
             <select
               value={business.type}
-              onChange={(e) => setBusiness({ ...business, type: e.target.value })}
+              onChange={(e) => setBusiness({ type: e.target.value })}
               className="w-full h-10 px-3 rounded-xl border app-border bg-white text-sm app-text-hi focus:outline-none focus:ring-2 focus:ring-[#6D28D9]/20 focus:border-[#6D28D9]"
             >
               <option value="clinica_estetica">Clínica estética</option>
@@ -108,11 +128,11 @@ export default function SettingsPage() {
           <div className="grid grid-cols-2 gap-2">
             <div>
               <label className="text-sm font-medium app-text-hi block mb-1.5">Apertura</label>
-              <Input type="time" value={business.openTime} onChange={(e) => setBusiness({ ...business, openTime: e.target.value })} className="h-10" />
+              <Input type="time" value={business.openTime} onChange={(e) => setBusiness({ openTime: e.target.value })} className="h-10" />
             </div>
             <div>
               <label className="text-sm font-medium app-text-hi block mb-1.5">Cierre</label>
-              <Input type="time" value={business.closeTime} onChange={(e) => setBusiness({ ...business, closeTime: e.target.value })} className="h-10" />
+              <Input type="time" value={business.closeTime} onChange={(e) => setBusiness({ closeTime: e.target.value })} className="h-10" />
             </div>
           </div>
         </div>
