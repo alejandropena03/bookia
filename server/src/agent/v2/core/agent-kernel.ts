@@ -323,6 +323,47 @@ export class AgentKernel {
       }
     }
 
+    // Casos sensibles que matchean intent "precio" y arrancaban el precio_flow, cuyo
+    // primer estado abre con "¡Claro!" — un opener que sonaba como si CONFIRMÁRAMOS la
+    // comparación o el descuento. Los interceptamos ANTES del dispatch a flow con un
+    // canned que NO empieza confirmando.
+    if (routerDecision.intent === "precio") {
+      // Comparación con la competencia ("¿son mejores que la clínica X?"). Política:
+      // nunca hablar de/comparar con la competencia. Reencuadramos hacia nuestro valor.
+      if (/\bmejor(es)?\s+que\b|\bcompit(en|encia)\b|otra\s+cl[íi]nica|otras?\s+cl[íi]nicas?/i.test(input.messageText)) {
+        const competitorText =
+          "No me gusta compararnos con otras clínicas 🙂 Lo que sí puedo contarte es cómo trabajamos en Santa María: valoración personalizada con el doctor, productos y protocolos que cuidamos al detalle, y un acompañamiento cercano en todo tu proceso. ¿Te gustaría que te cuente sobre algún tratamiento en particular o agendamos tu valoración? 🤍";
+        const { text: finalText, route: finalRoute } = this.applyCritic(
+          competitorText, "canned", routerDecision.intent, policyDecision, trace,
+        );
+        trace.generation.route = "canned";
+        emit("agent.response.composed");
+        emit("agent.response.sent");
+        return {
+          response: { text: finalText, route: finalRoute as any },
+          decisionTrace: trace,
+          memoryUpdates,
+        };
+      }
+      // Descuento especial / negociación de precio. Política: descuentos/canjes se
+      // manejan con Elkin, no se confirman en el chat. Nada de "¡Claro!" de apertura.
+      if (/descuento\s+especial|me\s+hacen?\s+(un\s+)?descuento|rebaja|negociar\s+(el\s+)?precio|me\s+lo\s+dejan?\s+m[áa]s\s+barato/i.test(input.messageText)) {
+        const discountText =
+          "Los descuentos y promociones especiales los maneja directamente Elkin 🙂 Con gusto te paso el contacto para que revisen tu caso:\n📞 Elkin Acevedo: 318 735 4841\n📧 esteticasantamariabga@gmail.com\n\nMientras tanto, ¿te gustaría que te cuente sobre el tratamiento que te interesa o agendamos tu valoración? 🤍";
+        const { text: finalText, route: finalRoute } = this.applyCritic(
+          discountText, "canned", routerDecision.intent, policyDecision, trace,
+        );
+        trace.generation.route = "canned";
+        emit("agent.response.composed");
+        emit("agent.response.sent");
+        return {
+          response: { text: finalText, route: finalRoute as any },
+          decisionTrace: trace,
+          memoryUpdates,
+        };
+      }
+    }
+
     const flowResult = await this.providers.evaluateFlow(input.conversationId, routerDecision.intent, input.messageText, routerDecision.entities);
     if (flowResult) {
       const { text: finalText, route: finalRoute } = this.applyCritic(
