@@ -40,7 +40,7 @@
 - **Sin menú de botones** (Carlos dijo que no usan menú en chat)
 - Horario real: Lun-Sáb 9:00-19:00, pero **responde normal fuera de horario** (no bloquea, no menciona horario)
 - Escalation: **Elkin** (no Carlos) es el contacto de escalation
-- Precios varían por país (COP/MXN/USD/EUR) — el agente muestra según ciudad del cliente (pendiente multi-moneda)
+- Precios varían por país (COP/MXN/USD/EUR) — el agente muestra según ciudad del cliente (multi-moneda implementado 2026-07-01, migración `0013_add_catalog_multi_market_prices.sql`, ver `docs/HANDOFF-NEXT-LEVEL.md`)
 - Citas requieren: nombre, celular, correo, fecha de nacimiento, cédula
 - Anticipo requerido para confirmar cita
 
