@@ -164,6 +164,25 @@ export class AgentKernel {
       };
     }
 
+    // Despedida / agradecimiento de cierre: "gracias", "ok gracias", "muchas gracias".
+    // El bot repetía el prompt genérico ("¿qué servicio te interesa?") en vez de cerrar
+    // cálidamente. Regex estricto anclado (^...$) para NO capturar "gracias, también
+    // quiero saber X" — eso sí lleva intención y debe seguir por el pipeline normal.
+    if (/^(ok\s+)?(muchas\s+)?gracias\.?!?$/i.test(input.messageText.trim())) {
+      const farewellText = "¡Con gusto! Cuando quieras, aquí estoy 😊🤍";
+      const { text: finalText, route: finalRoute } = this.applyCritic(
+        farewellText, "canned", routerDecision.intent, policyDecision, trace,
+      );
+      trace.generation.route = "canned";
+      emit("agent.response.composed");
+      emit("agent.response.sent");
+      return {
+        response: { text: finalText, route: finalRoute as any },
+        decisionTrace: trace,
+        memoryUpdates,
+      };
+    }
+
     if (policyDecision.action === "block") {
       const refusalText = "Prefiero no responder a eso. ¿Hay algo más en lo que pueda ayudarte?";
       const { text: finalText, route: finalRoute } = this.applyCritic(
