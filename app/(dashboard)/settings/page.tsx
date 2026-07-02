@@ -70,6 +70,11 @@ export default function SettingsPage() {
   const setAgentName = (v: string) => setNameEdit(v)
   const setTone = (v: string) => setToneEdit(v)
 
+  // Instrucciones avanzadas: override del system prompt por clínica. undefined = sin
+  // editar (se muestra lo del backend); "" = el usuario lo vació (usar prompt default).
+  const [promptEdit, setPromptEdit] = useState<string>()
+  const promptOverride = promptEdit ?? profile?.system_prompt_overrides ?? ""
+
   const [notifs, setNotifs] = useState({ escalation: true, newCita: true, dailySummary: false })
   const [saved, setSaved] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -87,6 +92,8 @@ export default function SettingsPage() {
         persona: `Eres ${agentName}, asesor de ${business.name}. Tono ${tone} y cercano.`,
         hours: hoursPayload,
         booking_mode: profile?.booking_mode ?? "mock",
+        // "" (editor vacío) → null: el agente vuelve al prompt por defecto.
+        system_prompt_overrides: promptOverride.trim() ? promptOverride : null,
       })
       setSaved(true)
     } catch {}
@@ -218,7 +225,7 @@ export default function SettingsPage() {
         <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium app-text-hi block mb-1.5">Nombre del agente</label>
-            <Input value={agentName} onChange={(e) => setAgentName(e.target.value)} className="h-10" placeholder="Ej: Sofia" />
+            <Input value={agentName} onChange={(e) => setAgentName(e.target.value)} className="h-10" placeholder="Ej: Carlos" />
           </div>
           <div>
             <label className="text-sm font-medium app-text-hi block mb-1.5">Tono de comunicación</label>
@@ -227,6 +234,32 @@ export default function SettingsPage() {
               <option value="amigable">Amigable</option>
               <option value="mixto">Mixto</option>
             </select>
+          </div>
+        </div>
+
+        <div className="pt-2">
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-sm font-medium app-text-hi">Instrucciones del agente (avanzado)</label>
+            {promptOverride.trim() ? (
+              <Badge className="text-[10px] bg-indigo-50 text-indigo-700 border-0">Prompt personalizado activo</Badge>
+            ) : (
+              <Badge className="text-[10px] bg-gray-100 text-gray-500 border-0">Usando prompt por defecto</Badge>
+            )}
+          </div>
+          <textarea
+            value={promptOverride}
+            onChange={(e) => setPromptEdit(e.target.value)}
+            rows={6}
+            placeholder={"Deja esto vacío para usar el comportamiento por defecto de Bookia.\n\nO escribe instrucciones propias, ej: «Eres Carlos, de Santa María. Tono cercano, tuteas al cliente, nunca prometes resultados, siempre ofreces valoración...»"}
+            className="w-full px-3 py-2.5 rounded-xl border app-border bg-white text-sm app-text-hi leading-relaxed resize-y focus:outline-none focus:ring-2 focus:ring-[#6D28D9]/20 focus:border-[#6D28D9]"
+          />
+          <div className="mt-2 flex items-start gap-2 rounded-lg app-warm-bg px-3 py-2">
+            <Info className="w-3.5 h-3.5 app-warm shrink-0 mt-0.5" />
+            <p className="text-xs app-text-mid leading-relaxed">
+              Si escribes aquí, estas instrucciones <span className="font-medium app-text-hi">reemplazan por completo</span> el prompt por
+              defecto del agente. Las barreras de seguridad clínica y el enrutamiento determinístico se mantienen; esto solo cambia cómo
+              redacta el agente. Déjalo vacío para volver al comportamiento estándar.
+            </p>
           </div>
         </div>
       </section>
