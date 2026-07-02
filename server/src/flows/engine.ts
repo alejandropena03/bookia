@@ -206,6 +206,30 @@ function buildTemplateContext(slots: Record<string, string>, catalogItems?: Cata
   };
 }
 
+// ── Push 6 — corrección de ciudad a mitad de flow ───────────────────────────
+// Ciudades reconocibles (sin tildes, ya normalizadas). Debe cubrir las mismas que
+// resolveMarketFromCity mapea a un mercado, más variantes comunes.
+const KNOWN_CITY_PATTERN =
+  /\b(medellin|bogota|cali|bucaramanga|barranquilla|cartagena|pereira|manizales|armenia|cdmx|ciudad de mexico|mexico|guadalajara|monterrey|miami|madrid|barcelona|paris|londres|berlin)\b/i;
+
+// Frases que señalan que el cliente se está CORRIGIENDO, no respondiendo al slot.
+const CORRECTION_PATTERN =
+  /\b(ah\s+espera|espera|en\s+realidad|perd[oó]n|me\s+equivoqu[eé]|correcci[oó]n|corrijo|mejor\s+dicho|quise\s+decir|no,?\s+de\b)\b/i;
+
+// Si el cliente mete una corrección de ciudad fuera de guion ("ah espera, en
+// realidad escribo desde CDMX") en cualquier estado que NO esté pidiendo la ciudad,
+// devuelve la ciudad corregida; si no, null. Requiere frase de corrección + ciudad
+// reconocible juntas, para no capturar respuestas normales al slot.
+function detectCityCorrection(input: string): string | null {
+  const normalized = input.normalize("NFD").replace(/[̀-ͯ]/g, "");
+  if (!CORRECTION_PATTERN.test(input) && !CORRECTION_PATTERN.test(normalized)) return null;
+  const match = normalized.match(KNOWN_CITY_PATTERN);
+  if (!match) return null;
+  // Devolvemos el fragmento original con la ciudad reconocida, capitalizado simple.
+  const city = match[0];
+  return city.charAt(0).toUpperCase() + city.slice(1);
+}
+
 function isStateTerminal(definition: FlowDefinition, stateName: string): boolean {
   const s = definition.states[stateName];
   if (!s) return true;
@@ -248,6 +272,25 @@ export function evaluateFlow(
 
   const collects = state.collects;
   const newSlots = { ...context.slots };
+
+  // Push 6: corrección de ciudad fuera de guion. Si el cliente ya había dado la
+  // ciudad y luego se corrige ("ah espera, en realidad escribo desde CDMX") mientras
+  // estamos pidiendo OTRA cosa (ej. el servicio), NO metemos el texto de la corrección
+  // en el slot actual (eso generaba basura tipo "El tratamiento de Ah espera, en
+  // realidad escribo desde Ciudad de México tiene un valor de ."). En su lugar
+  // actualizamos slots.city y re-preguntamos el slot original sin avanzar de estado.
+  if (collects && collects !== "city" && input) {
+    const correctedCity = detectCityCorrection(input);
+    if (correctedCity) {
+      newSlots.city = correctedCity;
+      const templateContext = buildTemplateContext(newSlots, catalogItems);
+      return {
+        response: renderTemplate(state.prompt, templateContext),
+        context: { ...context, currentState: context.currentState, slots: newSlots },
+        completed: false,
+      };
+    }
+  }
 
   if (collects && input) {
     newSlots[collects] = input;
