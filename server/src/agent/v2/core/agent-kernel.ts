@@ -17,6 +17,58 @@ export interface KernelProviders {
   resolveMedia?: (serviceName: string | undefined, intent: AgentIntent, city?: string) => MediaItem[] | undefined;
 }
 
+// ── Push 3 — recomendaciones por zona corporal ──────────────────────────────
+// Cada entrada mapea una zona/preocupación estética a los servicios reales del
+// catálogo de Santa María que la resuelven. La respuesta NO da precio final (varía
+// por ciudad; lo resuelve el flow de precio) y siempre cierra invitando a la
+// valoración — coherente con la política (no prometer resultados, no diagnosticar).
+const BODY_ZONE_RECOMMENDATIONS: Array<{ pattern: RegExp; response: string }> = [
+  {
+    // Líneas de expresión / arrugas dinámicas → Botox
+    pattern: /l[íi]neas?\s+de\s+expresi[óo]n|arrugas?\s+(de\s+expresi[óo]n|din[áa]micas?|del?\s+(entrecejo|frente|ojos))|patas?\s+de\s+gallo|entrecejo|frente\s+arrugad/i,
+    response:
+      "Para líneas de expresión lo que mejor funciona es el Botox 💉 Puede aplicarse por zona (entrecejo, frente, patas de gallo) o como Full Face Botox si quieres trabajar todo el rostro de una vez para una apariencia más fresca y descansada.\n\n¿Desde qué ciudad nos escribes? Así te doy el valor exacto y, si quieres, agendamos una valoración con el doctor para revisar tu caso 🤍",
+  },
+  {
+    // Papada / grasa submentoniana
+    pattern: /papada|grasa\s+(en\s+el\s+|del?\s+)?(cuello|ment[óo]n|submentoniana)|doble\s+ment[óo]n/i,
+    response:
+      "Para la papada tenemos la Lipopapada enzimática 💧 Reduce la grasa localizada de esa zona con enzimas (incluye dos aplicaciones, la segunda a los 8 días). Se complementa con la Faja mentonera para potenciar el resultado durante las noches.\n\n¿Desde qué ciudad nos escribes? Así te confirmo el valor según tu ubicación y te ayudo a agendar tu valoración 🤍",
+  },
+  {
+    // Ojeras
+    pattern: /ojeras?|bolsas?\s+(en\s+los\s+|debajo\s+de\s+los\s+)?ojos|c[íi]rculos?\s+oscuros/i,
+    response:
+      "Para las ojeras manejamos dos opciones según lo que necesites 👀\n• Ojeras con ácido hialurónico — mejora el hundimiento, hidrata y disminuye las bolsitas.\n• NCTF — Ojeras — hidratación profunda y mejora de la pigmentación de la ojera.\n\nEn una valoración el doctor define cuál te conviene. ¿Desde qué ciudad nos escribes para darte el valor? 🤍",
+  },
+  {
+    // Pómulos
+    pattern: /p[óo]mulos?|realzar\s+(los\s+)?(cachetes|mejillas)|volumen\s+en\s+(los\s+)?p[óo]mulos/i,
+    response:
+      "Para los pómulos tenemos la Proyección de pómulos con ácido hialurónico ✨ Realza y define los pómulos aportando volumen y soporte al rostro de forma armónica y natural.\n\n¿Desde qué ciudad nos escribes? Con gusto te doy el valor exacto y agendamos tu valoración 🤍",
+  },
+  {
+    // Mentón / perfil
+    pattern: /ment[óo]n|perfil(ar)?|proyectar\s+(el\s+)?ment[óo]n|barbilla/i,
+    response:
+      "Para el mentón tenemos la Proyección de mentón con ácido hialurónico ✨ Equilibra el rostro y proyecta el mentón de forma natural, mejorando el perfil y la simetría facial.\n\n¿Desde qué ciudad nos escribes? Así te doy el valor y, si deseas, agendamos tu valoración con el doctor 🤍",
+  },
+  {
+    // Labios
+    pattern: /labios?|boca|aumentar?\s+(los\s+)?labios|volumen\s+en\s+(los\s+)?labios|relleno\s+de\s+labios/i,
+    response:
+      "Para labios tenemos tres estilos según lo que busques 💋\n• Russian Lips — efecto más elevado y definido, con proyección del arco de cupido.\n• Doll Lips — volumen marcado, estilo muñeca, mayor proyección.\n• Red Lips — resultado natural y equilibrado con ácido hialurónico.\n\nEn la valoración el doctor te ayuda a elegir el que mejor va contigo. ¿Desde qué ciudad nos escribes para darte el valor? 🤍",
+  },
+];
+
+function resolveBodyZoneRecommendation(text: string): string | null {
+  const normalized = text.normalize("NFC");
+  for (const { pattern, response } of BODY_ZONE_RECOMMENDATIONS) {
+    if (pattern.test(normalized)) return response;
+  }
+  return null;
+}
+
 export class AgentKernel {
   private snapshotBuilder = new ConversationSnapshotBuilder();
   private providers: KernelProviders;
@@ -219,6 +271,30 @@ export class AgentKernel {
         decisionTrace: trace,
         memoryUpdates,
       };
+    }
+
+    // Preguntas por zona corporal ("¿qué me sirve para la papada?", "para líneas de
+    // expresión?"). Antes caían en el canned genérico faq_servicios (efecto secundario
+    // del fix de alucinación: todo lo que el router determinístico clasifica como
+    // faq_servicios por zona corporal terminaba en la misma respuesta genérica).
+    // Aquí devolvemos una recomendación REAL del catálogo por zona, sin LLM libre y sin
+    // dar precio final ambiguo (los precios varían por ciudad → el flow de precio los
+    // resuelve). Solo aplica a intents informativos, nunca a booking/queja/riesgo.
+    if (routerDecision.intent === "faq_servicios") {
+      const zoneAnswer = resolveBodyZoneRecommendation(input.messageText);
+      if (zoneAnswer) {
+        const { text: finalText, route: finalRoute } = this.applyCritic(
+          zoneAnswer, "canned", routerDecision.intent, policyDecision, trace,
+        );
+        trace.generation.route = "canned";
+        emit("agent.response.composed");
+        emit("agent.response.sent");
+        return {
+          response: { text: finalText, route: finalRoute as any },
+          decisionTrace: trace,
+          memoryUpdates,
+        };
+      }
     }
 
     const flowResult = await this.providers.evaluateFlow(input.conversationId, routerDecision.intent, input.messageText, routerDecision.entities);
