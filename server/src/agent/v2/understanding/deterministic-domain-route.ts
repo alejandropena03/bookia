@@ -77,6 +77,22 @@ const DOMAIN_SIGNALS: DomainSignal[] = [
 		confidence: 0.9,
 		reason: "duración sesión",
 	},
+	// "¿cuánto dura el botox?" — duración de un TRATAMIENTO nombrado es info médica
+	// (dudas_medicas: el canned de duraciones), no resultados_esperados (Instagram).
+	// El router LLM variaba y a veces lo mandaba a resultados_esperados. Forzamos
+	// determinísticamente ANTES del LLM. Debe ir antes de la regla de
+	// resultados_esperados "cuánto dura el efecto/resultado" para ganarle; se excluye
+	// explícitamente "efecto"/"resultado" para no pisar esa consulta legítima.
+	{
+		// NOTA: sin \b antes del grupo de tratamientos. \b en JS es solo ASCII: entre un
+		// espacio y "á"/"ó" no hay frontera de palabra (ambos son no-word), así que
+		// /\bácido/ NUNCA matchea "ácido". El espacio previo (\s) ya delimita.
+		regex:
+			/¿?(cu[aá]nto\s+(dura|tiempo\s+dura)|cu[aá]nto\s+tiempo)\b(?!.*\b(efecto|resultados?)\b).*(botox|b[óo]tox|[áa]cido\s+hialur[óo]nico|full\s+face|rinomodelaci[óo]n|russian\s+lips|doll\s+lips|red\s+lips|labios|rejuvenecimiento|bichectom[íi]a|lipopapada|sculptra|radiesse|pdrn|salm[óo]n|rostro\s+coreano|marcaci[óo]n)/i,
+		intent: "dudas_medicas",
+		confidence: 0.9,
+		reason: "duración de tratamiento nombrado (info médica, no resultados)",
+	},
 	{
 		regex:
 			/\b(me\s+)?(puedo\s+)?hac[eé]r(?:melo|me|lo|se|selo)?\s+(si\s+)?(estoy\s+(en\s+)?(mi\s+)?(periodo|menstruación|menstruacion|regla)|con\s+(mi\s+)?(periodo|menstruación|menstruacion|regla))\b/i,

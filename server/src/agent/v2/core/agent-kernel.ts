@@ -297,6 +297,32 @@ export class AgentKernel {
       }
     }
 
+    // "¿Quién es el doctor?" / "¿qué doctor me atiende?" → nombres de especialistas.
+    // nombres_doctores es solo una clave de canned (mapeada a dudas_medicas en el
+    // router), no un intent que el LLM pueda emitir, así que sin este caso especial
+    // la pregunta caía en el canned genérico de dudas_medicas (duraciones). Lo
+    // resolvemos determinísticamente devolviendo el canned nombres_doctores.
+    // Se excluye "mal/maltrato/trató mal" para no robarle una queja al pipeline.
+    if (
+      /\b(qui[eé]n\s+es\s+el\s+doctor|qui[eé]nes?\s+son\s+(los|las)\s+(doctores?|m[eé]dicos?|especialistas?)|qu[eé]\s+doctor(a)?\s+(me\s+)?(atiende|ver[áa]|va\s+a\s+atender)|nombre\s+del?\s+(doctor|m[eé]dico|especialista)|c[óo]mo\s+se\s+llama\s+el\s+(doctor|m[eé]dico|especialista))\b/i.test(input.messageText) &&
+      !/\b(mal|maltrat|grosero|p[eé]sim|trat[óo]\s+mal)\b/i.test(input.messageText)
+    ) {
+      const doctorsCanned = this.providers.getCannedResponse("nombres_doctores");
+      if (doctorsCanned) {
+        const { text: finalText, route: finalRoute } = this.applyCritic(
+          doctorsCanned, "canned", routerDecision.intent, policyDecision, trace,
+        );
+        trace.generation.route = "canned";
+        emit("agent.response.composed");
+        emit("agent.response.sent");
+        return {
+          response: { text: finalText, route: finalRoute as any },
+          decisionTrace: trace,
+          memoryUpdates,
+        };
+      }
+    }
+
     const flowResult = await this.providers.evaluateFlow(input.conversationId, routerDecision.intent, input.messageText, routerDecision.entities);
     if (flowResult) {
       const { text: finalText, route: finalRoute } = this.applyCritic(
