@@ -45,7 +45,7 @@ export default function LoginPage() {
         <div className="app-card p-8 space-y-5">
           <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-3 text-center">
             <p className="text-xs app-text-mid font-medium mb-1">Credenciales de demo</p>
-            <code className="text-xs font-mono app-brand font-semibold">admin@bookia.co</code>
+            <code className="text-xs font-mono app-brand font-semibold">admin@santamaria.test</code>
             <span className="mx-2 text-indigo-300">/</span>
             <code className="text-xs font-mono app-brand font-semibold">bookia2024</code>
           </div>
