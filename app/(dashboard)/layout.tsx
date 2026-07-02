@@ -68,11 +68,11 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
                   onClick={() => setSidebarOpen(false)}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
                     active
-                      ? "bg-indigo-50 text-indigo-700 font-medium"
+                      ? "app-nav-active font-semibold"
                       : "app-text-mid hover:bg-white/60 hover:text-app-text-hi"
                   }`}
                 >
-                  <item.icon className={`w-4 h-4 ${active ? "text-indigo-600" : ""}`} />
+                  <item.icon className={`w-4 h-4 ${active ? "app-brand" : ""}`} />
                   {item.label}
                 </Link>
               )

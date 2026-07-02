@@ -40,33 +40,45 @@ function AnimatedNumber({ value, suffix }: { value: string; suffix?: string }) {
   return <span>{display}{suffix}</span>
 }
 
-const INTENSITY_GRADIENT = ["from-indigo-50 to-indigo-100", "from-indigo-100 to-purple-100"]
+// Barra de acento por métrica: la primera (ingreso) es cálida (arena), las demás
+// llevan el gradiente de marca. La barra hairline sustituye al velo morado plano.
+const ACCENT_BARS = [
+  "linear-gradient(90deg, #D97706, #F59E0B)",
+  "linear-gradient(90deg, #6D28D9, #2563EB)",
+  "linear-gradient(90deg, #6D28D9, #2563EB)",
+]
 
 export default function RevenueKpiCards({ kpis }: { kpis: RevenueKpi[] }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-      {kpis.map((kpi, idx) => (
-        <div
-          key={idx}
-          className={`app-card p-6 relative overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 ${idx === 0 ? "md:col-span-1 md:row-span-1" : ""}`}
-        >
-          {idx === 0 && (
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-50/80 via-indigo-50/40 to-transparent pointer-events-none" />
-          )}
-          <div className="relative">
-            <p className="text-xs app-text-mid font-medium tracking-wide uppercase mb-3">{kpi.title}</p>
-            <div className="tabular-nums text-4xl font-extrabold app-text-hi tracking-tight mb-1">
-              <AnimatedNumber value={kpi.value} />
+      {kpis.map((kpi, idx) => {
+        const isRevenue = idx === 0
+        return (
+          <div
+            key={idx}
+            className={`${isRevenue ? "app-card-warm" : "app-card"} p-6 relative overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-0.5`}
+          >
+            {/* Hairline de acento superior — encoding: cálido = dinero, marca = actividad */}
+            <span
+              className="absolute inset-x-0 top-0 h-[3px]"
+              style={{ background: ACCENT_BARS[idx] ?? ACCENT_BARS[1] }}
+              aria-hidden="true"
+            />
+            <div className="relative">
+              <p className="text-[11px] app-text-lo font-semibold tracking-[0.12em] uppercase mb-4">{kpi.title}</p>
+              <div className={`font-display tabular-nums text-[2.6rem] leading-none tracking-tight mb-1.5 ${isRevenue ? "app-warm" : "app-text-hi"}`}>
+                <AnimatedNumber value={kpi.value} />
+              </div>
+              <p className="text-sm font-medium app-text-mid mb-3">{kpi.subtitle}</p>
+              <div className="flex items-center gap-2">
+                <TrendArrow trend={kpi.trend} />
+                <span className="text-xs app-text-lo">{kpi.trendLabel}</span>
+              </div>
+              <p className="text-xs app-text-lo mt-2 leading-relaxed">{kpi.description}</p>
             </div>
-            <p className="text-sm font-medium app-text-lo mb-3">{kpi.subtitle}</p>
-            <div className="flex items-center gap-2">
-              <TrendArrow trend={kpi.trend} />
-              <span className="text-xs app-text-lo">{kpi.trendLabel}</span>
-            </div>
-            <p className="text-xs app-text-lo mt-2 leading-relaxed">{kpi.description}</p>
           </div>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }
