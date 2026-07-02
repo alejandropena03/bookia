@@ -119,6 +119,8 @@ export function maskPII(text: string): string {
 export function criticize(input: CriticInput): ResponseCriticResult {
   const issues: ResponseCriticIssue[] = [];
   const lower = input.text.toLowerCase();
+  // PII masking solo aplica a texto libre del LLM (ver nota más abajo, sección 4).
+  const maskIfLlm = (text: string) => (input.route === "llm" ? maskPII(text) : text);
 
   // 1. Prompt leak — highest priority, always block
   for (const pattern of PROMPT_LEAK_PATTERNS) {
@@ -193,9 +195,13 @@ export function criticize(input: CriticInput): ResponseCriticResult {
     };
   }
 
-  // 4. Privacy / PII
+  // 4. Privacy / PII — solo aplica a texto libre del LLM. Canned/flow/handoff son
+  // plantillas fijas escritas por el equipo (pueden incluir a propósito el teléfono/
+  // correo del negocio, ej. contacto de Elkin para descuentos) o eco de datos que el
+  // propio cliente ya dio (confirmación de su cita) — enmascararlas rompe el mensaje
+  // sin proteger a nadie. El riesgo real de PII es que el LLM invente o filtre datos.
   const beforeMask = input.text;
-  const afterMask = maskPII(beforeMask);
+  const afterMask = maskIfLlm(beforeMask);
   if (beforeMask !== afterMask) {
     issues.push({
       type: "privacy_risk",
@@ -291,7 +297,7 @@ export function criticize(input: CriticInput): ResponseCriticResult {
 
   if (issues.some((i) => i.severity === "high")) {
     if (issues.some((i) => i.type === "privacy_risk")) {
-      const revised = maskPII(input.text);
+      const revised = maskIfLlm(input.text);
       return {
         passed: true,
         action: "revise_deterministically",
@@ -303,7 +309,7 @@ export function criticize(input: CriticInput): ResponseCriticResult {
       passed: false,
       action: "handoff",
       issues,
-      revisedResponse: maskPII(input.text),
+      revisedResponse: maskIfLlm(input.text),
     };
   }
 
@@ -313,7 +319,7 @@ export function criticize(input: CriticInput): ResponseCriticResult {
       passed: true,
       action: "send",
       issues,
-      revisedResponse: maskPII(input.text),
+      revisedResponse: maskIfLlm(input.text),
     };
   }
 
