@@ -1,4 +1,4 @@
-import { CatalogItem, formatPrice } from "./catalog";
+import { CatalogItem, formatPrice, IMAGE_MANIFEST } from "./catalog";
 
 type Market = "COP" | "MXN" | "USD" | "EUR";
 
@@ -27,6 +27,19 @@ const CITY_TO_MARKET: Record<string, Market> = {
 export function resolveMarket(city: string): Market {
   const key = city.toLowerCase().trim();
   return CITY_TO_MARKET[key] || "COP";
+}
+
+// Filtra las imágenes de un servicio para que el cliente solo reciba las de SU
+// mercado (ej. Bogotá → COP), no las 4 monedas juntas. Si ninguna imagen tiene
+// el mercado exacto, cae a las genéricas (sin mercado definido); si tampoco hay
+// genéricas, devuelve todas antes que no mandar nada.
+export function filterImagesByMarket(imageKeys: string[], city: string | undefined): string[] {
+  if (!city) return imageKeys;
+  const market = resolveMarket(city);
+  const matched = imageKeys.filter((key) => IMAGE_MANIFEST[key]?.market === market);
+  if (matched.length > 0) return matched;
+  const generic = imageKeys.filter((key) => !IMAGE_MANIFEST[key]?.market);
+  return generic.length > 0 ? generic : imageKeys;
 }
 
 export interface ResolvedPrice {

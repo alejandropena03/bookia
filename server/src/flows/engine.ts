@@ -31,9 +31,34 @@ export interface CatalogItem {
   description?: string;
   price: string;
   currency: string;
+  category?: string;
   cities?: string[];
   imageKeys?: string[];
   promoLabel?: string | null;
+}
+
+const CATEGORY_LABELS: Record<string, string> = {
+  facial: "Rostro y facial",
+  armonización: "Armonización facial",
+  inyectables: "Inyectables (Botox)",
+  labios: "Labios",
+  bioestimuladores: "Rejuvenecimiento",
+  correctivos: "Correctivos",
+  consultas: "Valoración",
+  accesorios: "Accesorios",
+  bienestar: "Bienestar",
+  micropigmentación: "Micropigmentación",
+  promociones: "Promociones",
+};
+
+function buildCatalogListGrouped(items: CatalogItem[]): string {
+  const grouped = new Map<string, string[]>();
+  for (const item of items) {
+    const label = CATEGORY_LABELS[item.category ?? ""] ?? "Otros tratamientos";
+    if (!grouped.has(label)) grouped.set(label, []);
+    grouped.get(label)!.push(item.name);
+  }
+  return [...grouped.entries()].map(([label, names]) => `• ${label}: ${names.join(", ")}`).join("\n");
 }
 
 function normalizeText(t: string): string {
@@ -159,18 +184,24 @@ function buildTemplateContext(slots: Record<string, string>, catalogItems?: Cata
     }
   }
 
+  // Abono de la reserva — mismo monto real en cada mercado ($50.000 COP = $2.000 MXN =
+  // $80 USD = 80€), confirmado por Carlos. No es un precio de servicio, es fijo por mercado.
+  const ABONO_BY_MARKET: Record<string, string> = { COP: "50000", MXN: "2000", USD: "80", EUR: "80" };
+  const abono = formatPrice(ABONO_BY_MARKET[market] ?? ABONO_BY_MARKET.COP, market);
+
   return {
     ...slots,
     nombre: slots.nombre || "",
     city: cleanSlot(city),
     service_name: selected?.name ?? cleanSlot(slots.service_name ?? slots.service ?? ""),
     service_price: resolvedPriceStr,
+    abono,
     service_description: selected?.description ?? "",
     service_promo_info: needsHumanConfirm ? "" : servicePromoInfo,
     datetime: cleanSlot(slots.datetime || ""),
     client_name: slots.client_name || slots.clientData || "",
     catalog_list: cityFiltered.length > 0
-      ? cityFiltered.map((c) => `- ${c.name}: ${formatPrice(c.price, c.currency)}`).join("\n")
+      ? buildCatalogListGrouped(cityFiltered)
       : slots.catalog_list || "(Sin servicios disponibles)",
   };
 }

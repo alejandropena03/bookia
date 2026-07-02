@@ -183,7 +183,7 @@ describe("SANTA_MARIA_CANNED — all canned responses", () => {
 
   it("rechazo_fecha_nacimiento justifies with medical safety", () => {
     const result = getCannedResponse("rechazo_fecha_nacimiento", ctx, SANTA_MARIA_CANNED);
-    expect(result).toContain("16 años");
+    expect(result).toContain("representante legal");
     expect(result).toContain("seguridad");
   });
 
@@ -299,9 +299,10 @@ describe("Multi-city catalog filtering", () => {
   it("CDMX shows only ALL_CITIES services (no CO-only)", () => {
     const result = startFlow(AGENDAMIENTO_FLOW, "Test", catalog);
     const s2 = evaluateFlow(AGENDAMIENTO_FLOW, result.context, "CDMX", catalog);
-    // CDMX should NOT have Micropigmentación (Medellín only) or Botox por zona (CO only)
+    // CDMX should NOT have Micropigmentación (Medellín only) or Barbie Botox (CO only,
+    // confirmado por Carlos — Botox por zona ya se confirmó disponible en CDMX/Miami).
     expect(s2.response).not.toContain("Micropigmentación");
-    expect(s2.response).not.toContain("Botox por zona");
+    expect(s2.response).not.toContain("Barbie Botox");
     // But should have Full Face (ALL_CITIES)
     expect(s2.response).toContain("Full Face");
   });
@@ -390,7 +391,9 @@ describe("A6.6 — Hand Rejuvenation y Masculinización AH", () => {
     expect(hrRadio.prices).toBeDefined();
     expect(hrRadio.prices!["USD"]).toBeDefined();
     expect(hrRadio.prices!["EUR"]).toBeDefined();
-    expect((hrRadio as any).requiresHumanConfirmation).toEqual(["COP", "MXN"]);
+    // Carlos confirmó COP/MXN también (mismo precio que Radiesse/Sculptra por vial) — ya no pendiente.
+    expect(hrRadio.prices!["COP"]).toBeDefined();
+    expect(hrRadio.prices!["MXN"]).toBeDefined();
   });
 
   it("Hand Rejuvenation Radiesse Miami → $699 USD", () => {
@@ -406,11 +409,11 @@ describe("A6.6 — Hand Rejuvenation y Masculinización AH", () => {
     expect(rp.currency).toBe("EUR");
   });
 
-  it("Hand Rejuvenation Radiesse Bogotá → requiresHumanConfirmation", () => {
+  it("Hand Rejuvenation Radiesse Bogotá → $2.600.000 COP", () => {
     const rp = resolveServicePrice(hrRadio, "Bogotá");
-    expect(rp.requiresHumanConfirmation).toBe(true);
-    expect(rp.unconfirmedMarkets).toContain("COP");
-    expect(rp.unconfirmedMarkets).toContain("MXN");
+    expect(rp.formattedPrice).toBe("$2.600.000 COP");
+    expect(rp.currency).toBe("COP");
+    expect(rp.requiresHumanConfirmation).toBeFalsy();
   });
 
   it("catalog has Masculinización facial con AH", () => {
@@ -440,16 +443,15 @@ describe("A6.6 — Hand Rejuvenation y Masculinización AH", () => {
     expect(r.completed).toBe(true);
   });
 
-  it("show_price flow: Hand Rejuvenation Bogotá → human confirmation", () => {
+  it("show_price flow: Hand Rejuvenation Bogotá → $2.600.000 COP", () => {
     const catalogA6 = [
       ...SANTA_MARIA_CATALOG.map((c) => ({ ...c })),
     ] as CatalogItem[];
     const flowCtx = { flowKey: "precio", currentState: "ask_service", slots: { city: "Bogotá", service: "Hand Rejuvenation (Radiesse)" } };
     const r = evaluateFlow(PRECIO_FLOW, flowCtx, "", catalogA6);
-    expect(r.response).toContain("pendiente de confirmación");
-    expect(r.response).toContain("Elkin");
-    // No debe alucinar precio COP
-    expect(r.response).not.toContain("$");
+    expect(r.response).toContain("2.600.000");
+    expect(r.response).toContain("COP");
+    expect(r.completed).toBe(true);
   });
 
   it("show_price flow: Masculinización facial AH Bogotá → $2.999.000 COP", () => {

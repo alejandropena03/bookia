@@ -102,16 +102,19 @@ async function seed() {
   await queryClient`DELETE FROM catalog_items WHERE tenant_id = ${tenantId}`;
   for (const item of SANTA_MARIA_CATALOG) {
     await queryClient`
-      INSERT INTO catalog_items (tenant_id, name, description, price, currency, category, duration_minutes, cities, image_keys, promo_label, is_active)
+      INSERT INTO catalog_items (tenant_id, name, description, price, currency, category, duration_minutes, cities, image_keys, promo_label, prices, requires_human_confirmation, is_active)
       VALUES (
         ${tenantId}, ${item.name}, ${item.description}, ${item.price}, ${item.currency},
         ${item.category}, ${item.durationMinutes},
         ${JSON.stringify(item.cities)}::jsonb, ${JSON.stringify(item.imageKeys)}::jsonb,
-        ${item.promoLabel ?? null}, 1
+        ${item.promoLabel ?? null},
+        ${item.prices ? JSON.stringify(item.prices) : null}::jsonb,
+        ${item.requiresHumanConfirmation ? JSON.stringify(item.requiresHumanConfirmation) : null}::jsonb,
+        1
       )
     `;
   }
-  console.log(`✓ ${SANTA_MARIA_CATALOG.length} catalog items synced (with cities + image_keys)`);
+  console.log(`✓ ${SANTA_MARIA_CATALOG.length} catalog items synced (con precios multi-mercado)`);
 
   const flowDefs = [
     { key: "agendamiento", name: "Flujo de agendamiento — Santa María", def: AGENDAMIENTO_FLOW },

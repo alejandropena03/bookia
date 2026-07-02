@@ -11,6 +11,10 @@ export const SANTA_MARIA_CANNED: Record<string, string> = {
   charla:
     "¡Con gusto te ayudo! 😊 Cuéntame, ¿qué servicio te interesa o qué duda tienes?",
 
+  // ── Preguntas abiertas de "qué servicios tienen" (grounded, sin LLM libre) ──
+  faq_servicios:
+    "¡Claro! 😊 Estos son los grupos de tratamientos que manejamos en Santa María:\n\n• Rostro y armonización facial: Full Face Botox, Rinomodelación, proyección de pómulos y mentón\n• Labios: Doll Lips, Russian Lips, Red Lips, hidratación\n• Rejuvenecimiento (bioestimuladores): Radiesse, Sculptra, Boost Skin Glow\n• Otros faciales: bichectomía, ojeras, mesobotox, nasolabiales\n\nCuéntame ¿qué te gustaría lograr o qué tratamiento te llama la atención? Así te doy el detalle y el precio exacto 🤍",
+
   // ── Precios (§4.1) ──
   precio:
     "¡Claro {nombre}! Algunos de nuestros precios:\n\n{catalog_list}\n\nDime ¿desde qué ciudad nos escribes? para darte información más específica ✨",
@@ -55,9 +59,13 @@ export const SANTA_MARIA_CANNED: Record<string, string> = {
   valoracion:
     "La cita de valoración tiene un valor de *$50.000 pesos.* Si decides realizarte el procedimiento con nosotros, *¡la valoración te queda totalmente GRATIS!* y los $50.000 se descuentan del total del tratamiento que elijas. Durante la valoración, el doctor realiza una evaluación personalizada, revisa tu caso, resuelve todas tus dudas y te orienta sobre el tratamiento más adecuado, las opciones disponibles y el presupuesto según tus objetivos 🤍\n\n*Además, si lo deseas el mismo día de la valoración puedes realizarte el procedimiento.*",
 
-  // ── Dudas médicas / procedimientos (§4.4) — NUEVO ──
+  // ── Dudas médicas / procedimientos (§4.4, duraciones actualizadas 2026-07) ──
   dudas_medicas:
-    "Te comparto la información sobre nuestros procedimientos:\n\n• Duración del efecto de Full Face: 1 año a 1 año y medio.\n• Duración del efecto de ácido hialurónico: entre 6 a 12 meses.\n• Duración del efecto de Botox: 4 meses.\n• Cuidados: depende de qué se haya realizado, lo principal sería evitar mucha exposición al sol, no tomar alcohol en las próximas 48 horas y tener cuidado.\n• Anestesia: sí, solo de manera tópica.\n\n¿Te gustaría agendar una valoración para que el doctor revise tu caso personalmente? 🤍",
+    "Te comparto la duración de nuestros tratamientos:\n\n• Botox: 4 meses.\n• Full Face: 1 año a 1 año y medio.\n• Ácido hialurónico (general): 6 a 12 meses.\n• Labios (Russian/Doll/Red Lips): se aplica en ~45 min, dura de 6 a 12 meses según estilo de vida.\n• Rinomodelación: 6 meses la primera vez; si se repite, dura 12 meses (se cobra cada aplicación).\n• Marcación mandibular / Mentón / Pómulos: 8 a 12 meses.\n• Rostro Coreano: 1 sola sesión, dura 8 a 12 meses.\n• Esperma de Salmón / PDRN: 4 a 6 meses.\n• Lipopapada y Bichectomía enzimática: 4 a 6 meses (requieren varias sesiones para ver resultado completo).\n• Barbie Botox: 4 a 6 meses.\n• Rejuvenecimiento de manos: 1 año.\n\nCuidados generales: evitar mucha exposición al sol, no tomar alcohol en las próximas 48 horas. Anestesia: sí, solo de manera tópica.\n\n¿Te gustaría agendar una valoración para que el doctor revise tu caso personalmente? 🤍",
+
+  // ── Fotos / resultados reales (Instagram, fuente única de material visual confirmada) ──
+  resultados_esperados:
+    "Tenemos fotos y videos reales de antes/después en nuestro Instagram 📸 Ahí puedes ver los resultados de todos nuestros tratamientos:\nhttps://www.instagram.com/aestheticsantamaria\n\n¿Hay algún tratamiento en particular del que te gustaría ver más? 🤍",
 
   // ── Solicitud comercial / descuentos / canjes (§4.4) — NUEVO ──
   solicitud_comercial:
@@ -69,7 +77,7 @@ export const SANTA_MARIA_CANNED: Record<string, string> = {
 
   // ── Cliente no quiere dar fecha de nacimiento (§4.4) — NUEVO ──
   rechazo_fecha_nacimiento:
-    "La fecha de nacimiento es un requisito indispensable, ya que nuestros médicos necesitan conocer la edad del paciente para determinar de forma segura qué tratamiento es el más adecuado. Además, realizamos procedimientos en pacientes desde los 16 años, siempre que estén acompañados por sus padres o acudientes, por lo que esta información es muy importante por temas de seguridad y protocolo médico. Te agradecemos mucho si puedes compartirnos este dato para poder continuar con tu agendamiento ✨",
+    "La fecha de nacimiento es un requisito indispensable, ya que nuestros médicos necesitan conocer la edad del paciente para determinar de forma segura qué tratamiento es el más adecuado. No hay una edad mínima estricta, pero si eres menor de edad debes venir acompañado(a) de tu representante legal, por lo que esta información es muy importante por temas de seguridad y protocolo médico. Te agradecemos mucho si puedes compartirnos este dato para poder continuar con tu agendamiento ✨",
 
   // ── Nombres de doctores por ciudad (§4.4) — NUEVO ──
   nombres_doctores:

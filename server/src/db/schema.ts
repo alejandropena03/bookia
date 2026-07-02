@@ -129,6 +129,8 @@ export const catalogItems = pgTable("catalog_items", {
   cities: jsonb("cities").$type<string[]>().default([]).notNull(),
   imageKeys: jsonb("image_keys").$type<string[]>().default([]).notNull(),
   promoLabel: text("promo_label"),
+  prices: jsonb("prices").$type<Record<string, { price: string; promoPrice?: string; promoLabel?: string }>>(),
+  requiresHumanConfirmation: jsonb("requires_human_confirmation").$type<string[]>(),
   isActive: integer("is_active").default(1).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });

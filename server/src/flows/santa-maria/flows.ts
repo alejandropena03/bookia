@@ -44,14 +44,14 @@ export const AGENDAMIENTO_FLOW: FlowDefinition = {
     collect_data: {
       // Texto exacto del Flujo 1 (paso 5): datos requeridos
       prompt:
-        "Para realizar tu reserva, envíanos los siguientes datos:\n\n• Nombre completo\n• Fecha de nacimiento\n• Documento (cédula)\n• Teléfono\n• Correo\n• Fecha y hora confirmada ({datetime})\n\nLa reserva se confirma con un abono de $50.000, descontable del procedimiento.",
+        "Para realizar tu reserva, envíanos los siguientes datos:\n\n• Nombre completo\n• Fecha de nacimiento\n• Documento (cédula)\n• Teléfono\n• Correo\n• Fecha y hora confirmada ({datetime})\n\nLa reserva se confirma con un abono de {abono}, descontable del procedimiento.",
       collects: "client_data",
       next: "payment_info",
       description: "Recolectar datos del paciente (§4.2)",
     },
     payment_info: {
       prompt:
-        "Gracias por tus datos. Para confirmar tu cita del {datetime}, realizamos el abono de $50.000.\n\n💳 Pago:\n• Bancolombia Ahorros – A y S Group SAS N.° 090 00005573 | NIT 901916939\n• O link de pago con cualquier tarjeta\n\nCondiciones: pagos no reembolsables. Reagendamiento con mínimo 24 h de anticipación.\n\n¿Cómo prefieres pagar?",
+        "Gracias por tus datos. Para confirmar tu cita del {datetime}, realizamos el abono de {abono}.\n\n💳 Pago:\n• Bancolombia Ahorros – A y S Group SAS N.° 090 00005573 | NIT 901916939\n• O link de pago con cualquier tarjeta\n\nCondiciones: pagos no reembolsables. Reagendamiento con mínimo 24 h de anticipación.\n\n¿Cómo prefieres pagar?",
       collects: "payment_method",
       next: "await_proof",
       description: "Instrucciones de pago (Flujo 1 paso 5)",
