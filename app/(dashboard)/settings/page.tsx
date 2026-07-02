@@ -289,7 +289,9 @@ export default function SettingsPage() {
       </section>
 
       {/* Sticky action bar: el botón Guardar siempre visible, sin scroll */}
-      <div className="fixed bottom-0 left-0 right-0 md:left-64 z-30 bg-white/95 backdrop-blur border-t app-border px-6 py-3 flex items-center justify-between gap-4">
+      {/* pr-48: deja despejado el botón flotante de DemoLive (fixed bottom-6 right-6, z-50),
+          que si no queda encima de "Guardar cambios" y bloquea el click. */}
+      <div className="fixed bottom-0 left-0 right-0 md:left-64 z-30 bg-white/95 backdrop-blur border-t app-border px-6 py-3 pr-48 flex items-center justify-between gap-4">
         <p className="text-xs app-text-mid hidden sm:block">
           Los cambios se guardan en el backend vía PUT /api/profile.
         </p>

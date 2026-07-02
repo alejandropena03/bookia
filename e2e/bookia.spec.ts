@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test"
 // Login helper — uses seed demo credentials.
 async function loginAsDemo(page: import("@playwright/test").Page) {
   await page.goto("/login")
-  await page.fill('input[type="email"]', "admin@bookia.co")
+  await page.fill('input[type="email"]', "admin@santamaria.test")
   await page.fill('input[type="password"]', "bookia2024")
   await page.click('button[type="submit"]')
   await page.waitForURL(/\/dashboard/, { timeout: 10_000 })
@@ -60,7 +60,7 @@ test.describe("Dashboard", () => {
   test("carga sin errores críticos (vacío o con datos)", async ({ page }) => {
     // Acepta tanto el estado vacío como el estado con datos
     const emptyState = page.locator("text=No hay suficientes datos")
-    const hasData = page.locator("text=Mensajes hoy, text=Conversaciones, text=Bot ROI").first()
+    const hasData = page.locator("text=Rendimiento del agente")
     await expect(emptyState.or(hasData)).toBeVisible({ timeout: 8_000 })
   })
 
@@ -86,8 +86,8 @@ test.describe("Conversaciones", () => {
   test("muestra la lista (vacía o con conversaciones)", async ({ page }) => {
     // Puede estar vacía o tener conversaciones — ambos son estados válidos
     const emptyState = page.locator("text=No hay conversaciones, text=Sin conversaciones, text=vacío").first()
-    const hasConvs = page.locator('[data-testid="conversation-row"], .conversation-row, [role="listitem"]').first()
-    await expect(emptyState.or(hasConvs).or(page.locator("text=Bandeja"))).toBeVisible({ timeout: 8_000 })
+    const hasConvs = page.locator("text=Elige una conversación")
+    await expect(emptyState.or(hasConvs)).toBeVisible({ timeout: 8_000 })
   })
 
   test("filtro por estado bot_active no rompe la página", async ({ page }) => {
@@ -108,10 +108,7 @@ test.describe("Configuración", () => {
   })
 
   test("muestra el formulario de perfil de negocio", async ({ page }) => {
-    // Persona / tono del agente
-    await expect(
-      page.locator("text=Persona, text=Tono, text=Asistente, textarea").first()
-    ).toBeVisible({ timeout: 8_000 })
+    await expect(page.locator("text=Perfil del negocio")).toBeVisible({ timeout: 8_000 })
   })
 
   test("guarda cambios en horario sin error", async ({ page }) => {
@@ -131,12 +128,12 @@ test.describe("Demo en vivo (SSE)", () => {
   test("botón de demo flota en dashboard autenticado", async ({ page }) => {
     await loginAsDemo(page)
     // DemoLive flota en el layout autenticado
-    await expect(page.locator('[aria-label="Abrir demo en vivo"]')).toBeVisible()
+    await expect(page.locator('[aria-label="Abrir demo en vivo con el agente"]')).toBeVisible()
   })
 
   test("abre y cierra el chat de demo", async ({ page }) => {
     await loginAsDemo(page)
-    await page.click('[aria-label="Abrir demo en vivo"]')
+    await page.click('[aria-label="Abrir demo en vivo con el agente"]')
     await expect(page.locator('[role="dialog"]')).toBeVisible()
     await page.click('[aria-label="Cerrar demo en vivo"]')
     await expect(page.locator('[role="dialog"]')).not.toBeVisible()
@@ -144,7 +141,7 @@ test.describe("Demo en vivo (SSE)", () => {
 
   test("envía un mensaje y recibe respuesta del agente", async ({ page }) => {
     await loginAsDemo(page)
-    await page.click('[aria-label="Abrir demo en vivo"]')
+    await page.click('[aria-label="Abrir demo en vivo con el agente"]')
 
     const input = page.locator('[aria-label="Escribe un mensaje como cliente del bot"]')
     await expect(input).toBeVisible({ timeout: 5_000 })
