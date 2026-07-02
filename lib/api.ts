@@ -113,6 +113,30 @@ export function getCatalog(): Promise<{ data: CatalogItem[] }> {
   return apiFetch<{ data: CatalogItem[] }>("/api/catalog")
 }
 
+export interface Booking {
+  id: string
+  service_name: string
+  service_price: string | null
+  city: string | null
+  datetime: string | null
+  status: string
+  payment_status: string
+  created_at: string
+  conversation_id: string
+  contact_name: string | null
+  contact_phone: string | null
+}
+
+export interface BookingsResponse {
+  data: Booking[]
+  summary: { total: number; confirmed: number; pending: number }
+}
+
+export function listBookings(status?: string): Promise<BookingsResponse> {
+  const q = status ? `?status=${encodeURIComponent(status)}` : ""
+  return apiFetch<BookingsResponse>(`/api/bookings${q}`)
+}
+
 export interface BusinessProfile {
   persona: string
   rules: Record<string, unknown>

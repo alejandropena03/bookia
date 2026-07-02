@@ -221,6 +221,37 @@ dashboard.get("/catalog", async (c) => {
   });
 });
 
+// ── GET /api/bookings — citas reales creadas por el agente ──
+// La tabla bookings ya se llena al completar el flow de agendamiento (con o sin
+// comprobante). Este endpoint las expone para la vista Agenda. No usa Agenda Pro
+// real (Fase 2): son las citas que el propio agente registró en la DB.
+dashboard.get("/bookings", async (c) => {
+  const { tenantId } = ctx(c);
+  const status = c.req.query("status");
+  return withTenant(tenantId, async (sql) => {
+    let where = sql`WHERE b.tenant_id = ${tenantId}`;
+    if (status) where = sql`${where} AND b.status = ${status}`;
+    const rows = await sql`
+      SELECT
+        b.id, b.service_name, b.service_price, b.city, b.datetime,
+        b.status, b.payment_status, b.created_at, b.conversation_id,
+        ct.name AS contact_name, ct.phone AS contact_phone
+      FROM bookings b
+      LEFT JOIN contacts ct ON ct.id = b.contact_id
+      ${where}
+      ORDER BY b.created_at DESC
+      LIMIT 200
+    `;
+    // Resumen para las KPI cards de la Agenda.
+    const summary = {
+      total: rows.length,
+      confirmed: rows.filter((r: any) => r.status === "confirmed").length,
+      pending: rows.filter((r: any) => r.status === "pending").length,
+    };
+    return c.json({ data: rows, summary });
+  });
+});
+
 // ── GET /api/profile ──
 dashboard.get("/profile", async (c) => {
   const { tenantId } = ctx(c);
