@@ -135,15 +135,34 @@ export function updateProfile(data: Partial<BusinessProfile>): Promise<{ success
   })
 }
 
-export function sendSimMessage(text: string): Promise<{ messageId: string; conversationId: string; agentResponse?: unknown }> {
+export interface SimMessageResponse {
+  messageId: string
+  conversationId: string
+  agentResponse?: { text?: string; route?: string; media?: unknown[] }
+}
+
+export function sendSimMessage(text: string): Promise<SimMessageResponse> {
   const slug = getTenantSlug()
-  return apiFetch<{ messageId: string; conversationId: string; agentResponse?: unknown }>("/api/sim/message", {
+  return apiFetch<SimMessageResponse>("/api/sim/message", {
     method: "POST",
     body: JSON.stringify({ text, tenantSlug: slug, from: "demo-user", name: "Tú (demo)", channel: "mock" }),
   })
 }
 
-export function subscribeToSSE(onMessage: (data: unknown) => void, onError?: (err: Event) => void): () => void {
+// Forma de un evento del stream SSE del simulador. Los campos van opcionales
+// porque el stream mezcla heartbeats, confirmaciones y mensajes reales.
+export interface SSEPayload {
+  direction?: string
+  conversationId?: string
+  message?: {
+    id?: string
+    text?: string
+    direction?: string
+    conversationId?: string
+  }
+}
+
+export function subscribeToSSE(onMessage: (data: SSEPayload) => void, onError?: (err: Event) => void): () => void {
   const slug = getTenantSlug()
   let es: EventSource | null = null
   let cancelled = false
@@ -154,9 +173,9 @@ export function subscribeToSSE(onMessage: (data: unknown) => void, onError?: (er
     es = new EventSource(url)
     es.onmessage = (event) => {
       try {
-        onMessage(JSON.parse(event.data))
+        onMessage(JSON.parse(event.data) as SSEPayload)
       } catch {
-        onMessage(event.data)
+        onMessage({})
       }
     }
     es.onerror = (err) => onError?.(err)

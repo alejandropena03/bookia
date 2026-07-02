@@ -16,12 +16,17 @@ function TrendArrow({ trend }: { trend: number }) {
 }
 
 function AnimatedNumber({ value, suffix }: { value: string; suffix?: string }) {
-  const [display, setDisplay] = useState("0")
   const target = parseInt(value.replace(/[^0-9.]/g, ""))
   const prefix = value.startsWith("$") ? "$" : ""
+  const numeric = !isNaN(target)
+  const reduce = typeof window !== "undefined"
+    && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+  // Semilla vía lazy initializer: los valores no numéricos, o con motion reducido,
+  // arrancan ya en su valor final, así el efecto nunca hace setState síncrono.
+  const [display, setDisplay] = useState(() => (numeric && !reduce ? "0" : value))
 
   useEffect(() => {
-    if (isNaN(target)) { setDisplay(value); return }
+    if (!numeric || reduce) return
     let start = 0
     const duration = 800
     const step = Math.ceil(target / (duration / 16))
@@ -35,7 +40,7 @@ function AnimatedNumber({ value, suffix }: { value: string; suffix?: string }) {
       }
     }, 16)
     return () => clearInterval(timer)
-  }, [target, value, prefix])
+  }, [target, value, prefix, numeric, reduce])
 
   return <span>{display}{suffix}</span>
 }

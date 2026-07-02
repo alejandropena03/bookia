@@ -40,6 +40,11 @@ export default function DemoLive() {
     setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 50)
   }, [])
 
+  const handleClose = useCallback(() => {
+    setOpen(false)
+    setConnected(false)
+  }, [])
+
   useEffect(() => {
     scrollDown()
   }, [messages, scrollDown])
@@ -48,18 +53,20 @@ export default function DemoLive() {
   // re-emitir mensajes OUTBOUND de esa misma conversación (cross-talk protegido).
   useEffect(() => {
     if (!open) return
-    setConnected(false)
+    // Nota: no reseteamos `connected` aquí de forma síncrona (dispara render en
+    // cascada). El estado arranca en false y el callback de SSE lo pone en true;
+    // al cerrar el panel, handleClose lo vuelve a false.
     const unsub = subscribeToSSE(
-      (data: any) => {
+      (data) => {
         setConnected(true)
         const msg = data?.message
         if (!msg) return
         const dir = msg.direction ?? data?.direction
-        const convId = data?.message?.conversationId ?? data?.conversationId
+        const convId = msg.conversationId ?? data?.conversationId
         // Filtra cross-talk: solo outbound + mismo conversationId (una vez conocido).
         if (dir !== "outbound") return
         if (demoConvId && convId && convId !== demoConvId) return
-        const text = msg?.text ?? ""
+        const text = msg.text ?? ""
         if (!text) return
         setMessages((prev) => {
           if (prev.some((m) => m.id === `sse-${msg.id}`)) return prev
@@ -81,12 +88,12 @@ export default function DemoLive() {
       const result = await sendSimMessage(text)
       setDemoConvId(result.conversationId)
       // Respuesta primaria del agente: usa el agentResponse del POST (determinista).
-      const agentText = (result as any).agentResponse?.text
+      const agentText = result.agentResponse?.text
       if (agentText) {
         setMessages((prev) => [...prev, { id: `bot-${++msgId}`, text: agentText, sender: "bot" }])
       }
-    } catch (err: any) {
-      const reason = err?.message ?? String(err ?? "Error desconocido")
+    } catch (err) {
+      const reason = err instanceof Error ? err.message : String(err ?? "Error desconocido")
       setMessages((prev) => [...prev, { id: `bot-${++msgId}`, text: `⚠️ ${reason}`, sender: "bot" }])
     }
     setSending(false)
@@ -109,7 +116,7 @@ export default function DemoLive() {
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-end justify-center sm:justify-end p-4 sm:p-6 pointer-events-none">
-          <div className="absolute inset-0 bg-black/20 pointer-events-auto" onClick={() => setOpen(false)} aria-hidden="true" />
+          <div className="absolute inset-0 bg-black/20 pointer-events-auto" onClick={handleClose} aria-hidden="true" />
           <div
             className="relative w-full sm:w-96 h-[520px] sm:h-[560px] app-surface rounded-2xl shadow-2xl border app-border flex flex-col overflow-hidden pointer-events-auto animate-in fade-in slide-in-from-bottom-4 duration-200"
             role="dialog"
@@ -129,7 +136,7 @@ export default function DemoLive() {
                   </p>
                 </div>
               </div>
-              <button onClick={() => setOpen(false)} className="text-white/70 hover:text-white transition-colors -mr-1" aria-label="Cerrar demo en vivo">
+              <button onClick={handleClose} className="text-white/70 hover:text-white transition-colors -mr-1" aria-label="Cerrar demo en vivo">
                 <X className="w-5 h-5" />
               </button>
             </div>

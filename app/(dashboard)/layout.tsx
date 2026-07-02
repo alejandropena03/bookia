@@ -7,7 +7,7 @@ import { signOut, useSession, SessionProvider } from "next-auth/react"
 import Image from "next/image"
 import {
   LayoutDashboard, MessageSquare, Calendar, Settings,
-  Menu, X, LogOut, Bell, ChevronDown,
+  Menu, LogOut, Bell, ChevronDown,
 } from "lucide-react"
 import { QueryProvider } from "@/app/providers"
 import DemoLive from "@/components/dashboard/DemoLive"
