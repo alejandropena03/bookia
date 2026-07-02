@@ -9,6 +9,7 @@ import { PRICING_CASES } from "./pricing-cases.js";
 import { FAQ_CASES } from "./faq-cases.js";
 import { TYPOS_AMBIGUOUS_CASES } from "./typos-ambiguous.js";
 import { REGRESSION_V1_CASES } from "./regression-v1.js";
+import { NEXT_LEVEL_REGRESSION_CASES } from "./next-level-regression.js";
 import { GOLDEN_CONVERSATIONS } from "./golden-conversations.js";
 
 export const ALL_CASES: EvalCase[] = [
@@ -22,6 +23,7 @@ export const ALL_CASES: EvalCase[] = [
   ...FAQ_CASES,
   ...TYPOS_AMBIGUOUS_CASES,
   ...REGRESSION_V1_CASES,
+  ...NEXT_LEVEL_REGRESSION_CASES,
 ];
 
 export const CASE_COUNT = ALL_CASES.length;
@@ -55,4 +57,5 @@ export {
   FAQ_CASES,
   TYPOS_AMBIGUOUS_CASES,
   REGRESSION_V1_CASES,
+  NEXT_LEVEL_REGRESSION_CASES,
 };

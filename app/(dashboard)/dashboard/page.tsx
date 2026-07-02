@@ -5,6 +5,7 @@ import { getIntelligence } from "@/lib/api"
 import { getDashboardData } from "@/lib/dashboard-mock"
 import type { DashboardData } from "@/lib/dashboard-mock"
 import RevenueKpiCards from "@/components/dashboard/RevenueKpiCards"
+import BotPerformanceStrip from "@/components/dashboard/BotPerformanceStrip"
 import ConversionFunnel from "@/components/dashboard/ConversionFunnel"
 import ServiceDemand from "@/components/dashboard/ServiceDemandHeatmap"
 import DemandHeatmap from "@/components/dashboard/DemandHeatmap"
@@ -54,20 +55,30 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold app-text-hi">Dashboard de inteligencia</h1>
-          <p className="app-text-mid text-sm mt-1">Estética Santa María · Resumen de los últimos 30 días</p>
+          <p className="text-[11px] app-brand font-semibold uppercase tracking-[0.14em] mb-1">Estética Santa María</p>
+          <h1 className="font-display text-[2rem] leading-none app-text-hi tracking-tight">Inteligencia del negocio</h1>
+          <p className="app-text-mid text-sm mt-2">Lo que tu agente logró en los últimos 30 días</p>
         </div>
-        {isLoading && (
-          <span className="text-xs app-text-lo flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
-            Actualizando...
-          </span>
-        )}
+        <span className="shrink-0 inline-flex items-center gap-2 rounded-full app-warm-bg px-3 py-1.5 text-xs app-warm font-medium">
+          {isLoading ? (
+            <>
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
+              Actualizando…
+            </>
+          ) : (
+            <>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 presence-dot" />
+              En vivo · cada 30 s
+            </>
+          )}
+        </span>
       </div>
 
       <RevenueKpiCards kpis={data.kpis} />
+
+      {data.botPerformance && <BotPerformanceStrip {...data.botPerformance} />}
 
       <div className="grid lg:grid-cols-5 gap-6">
         <div className="lg:col-span-3">
@@ -75,7 +86,7 @@ export default function DashboardPage() {
         </div>
         <div className="lg:col-span-2">
           <div className="app-card p-6">
-            <h3 className="text-sm font-semibold app-text-hi mb-3">Resumen rápido</h3>
+            <h3 className="font-display text-lg app-text-hi mb-4">Resumen rápido</h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between py-2 border-b app-border">
                 <span className="text-xs app-text-mid">Tasa de conversión general</span>

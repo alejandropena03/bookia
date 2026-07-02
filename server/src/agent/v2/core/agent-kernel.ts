@@ -2,7 +2,7 @@ import crypto from "crypto";
 import type { AgentKernelInput, AgentKernelOutput, AgentEvent, AgentEventType, MemoryUpdate } from "../types/agent-kernel.js";
 import type { DecisionTrace, PolicyDecision, RiskFlags } from "../types/decision-trace.js";
 import { ConversationSnapshotBuilder } from "./conversation-snapshot.js";
-import type { AgentIntent, MediaItem, RouterDecision } from "../types/agent-intent.js";
+import type { AgentIntent, ExtractedEntities, MediaItem, RouterDecision } from "../types/agent-intent.js";
 import { detectSentiment } from "../../../lib/sentiment.js";
 import { criticize, type ResponseCriticResult } from "../response/response-critic.js";
 
@@ -10,11 +10,63 @@ export interface KernelProviders {
   classifyIntent: (text: string) => Promise<RouterDecision>;
   getCannedResponse: (key: string, vars?: Record<string, string>) => string | null;
   generateLlmResponse: (text: string, context: Record<string, unknown>) => Promise<string>;
-  evaluateFlow: (conversationId: string, intent: AgentIntent, text: string) => Promise<{ response: string; route: string; media?: MediaItem[] } | null>;
+  evaluateFlow: (conversationId: string, intent: AgentIntent, text: string, entities?: ExtractedEntities) => Promise<{ response: string; route: string; media?: MediaItem[] } | null>;
   evaluatePolicy: (text: string, intent: AgentIntent, riskFlags: RiskFlags) => PolicyDecision;
   detectRisks: (text: string, intent: AgentIntent) => RiskFlags;
   loadContext: (input: AgentKernelInput) => Promise<Record<string, unknown>>;
   resolveMedia?: (serviceName: string | undefined, intent: AgentIntent, city?: string) => MediaItem[] | undefined;
+}
+
+// ── Push 3 — recomendaciones por zona corporal ──────────────────────────────
+// Cada entrada mapea una zona/preocupación estética a los servicios reales del
+// catálogo de Santa María que la resuelven. La respuesta NO da precio final (varía
+// por ciudad; lo resuelve el flow de precio) y siempre cierra invitando a la
+// valoración — coherente con la política (no prometer resultados, no diagnosticar).
+const BODY_ZONE_RECOMMENDATIONS: Array<{ pattern: RegExp; response: string }> = [
+  {
+    // Líneas de expresión / arrugas dinámicas → Botox
+    pattern: /l[íi]neas?\s+de\s+expresi[óo]n|arrugas?\s+(de\s+expresi[óo]n|din[áa]micas?|del?\s+(entrecejo|frente|ojos))|patas?\s+de\s+gallo|entrecejo|frente\s+arrugad/i,
+    response:
+      "Para líneas de expresión lo que mejor funciona es el Botox 💉 Puede aplicarse por zona (entrecejo, frente, patas de gallo) o como Full Face Botox si quieres trabajar todo el rostro de una vez para una apariencia más fresca y descansada.\n\n¿Desde qué ciudad nos escribes? Así te doy el valor exacto y, si quieres, agendamos una valoración con el doctor para revisar tu caso 🤍",
+  },
+  {
+    // Papada / grasa submentoniana
+    pattern: /papada|grasa\s+(en\s+el\s+|del?\s+)?(cuello|ment[óo]n|submentoniana)|doble\s+ment[óo]n/i,
+    response:
+      "Para la papada tenemos la Lipopapada enzimática 💧 Reduce la grasa localizada de esa zona con enzimas (incluye dos aplicaciones, la segunda a los 8 días). Se complementa con la Faja mentonera para potenciar el resultado durante las noches.\n\n¿Desde qué ciudad nos escribes? Así te confirmo el valor según tu ubicación y te ayudo a agendar tu valoración 🤍",
+  },
+  {
+    // Ojeras
+    pattern: /ojeras?|bolsas?\s+(en\s+los\s+|debajo\s+de\s+los\s+)?ojos|c[íi]rculos?\s+oscuros/i,
+    response:
+      "Para las ojeras manejamos dos opciones según lo que necesites 👀\n• Ojeras con ácido hialurónico — mejora el hundimiento, hidrata y disminuye las bolsitas.\n• NCTF — Ojeras — hidratación profunda y mejora de la pigmentación de la ojera.\n\nEn una valoración el doctor define cuál te conviene. ¿Desde qué ciudad nos escribes para darte el valor? 🤍",
+  },
+  {
+    // Pómulos
+    pattern: /p[óo]mulos?|realzar\s+(los\s+)?(cachetes|mejillas)|volumen\s+en\s+(los\s+)?p[óo]mulos/i,
+    response:
+      "Para los pómulos tenemos la Proyección de pómulos con ácido hialurónico ✨ Realza y define los pómulos aportando volumen y soporte al rostro de forma armónica y natural.\n\n¿Desde qué ciudad nos escribes? Con gusto te doy el valor exacto y agendamos tu valoración 🤍",
+  },
+  {
+    // Mentón / perfil
+    pattern: /ment[óo]n|perfil(ar)?|proyectar\s+(el\s+)?ment[óo]n|barbilla/i,
+    response:
+      "Para el mentón tenemos la Proyección de mentón con ácido hialurónico ✨ Equilibra el rostro y proyecta el mentón de forma natural, mejorando el perfil y la simetría facial.\n\n¿Desde qué ciudad nos escribes? Así te doy el valor y, si deseas, agendamos tu valoración con el doctor 🤍",
+  },
+  {
+    // Labios
+    pattern: /labios?|boca|aumentar?\s+(los\s+)?labios|volumen\s+en\s+(los\s+)?labios|relleno\s+de\s+labios/i,
+    response:
+      "Para labios tenemos tres estilos según lo que busques 💋\n• Russian Lips — efecto más elevado y definido, con proyección del arco de cupido.\n• Doll Lips — volumen marcado, estilo muñeca, mayor proyección.\n• Red Lips — resultado natural y equilibrado con ácido hialurónico.\n\nEn la valoración el doctor te ayuda a elegir el que mejor va contigo. ¿Desde qué ciudad nos escribes para darte el valor? 🤍",
+  },
+];
+
+function resolveBodyZoneRecommendation(text: string): string | null {
+  const normalized = text.normalize("NFC");
+  for (const { pattern, response } of BODY_ZONE_RECOMMENDATIONS) {
+    if (pattern.test(normalized)) return response;
+  }
+  return null;
 }
 
 export class AgentKernel {
@@ -164,6 +216,25 @@ export class AgentKernel {
       };
     }
 
+    // Despedida / agradecimiento de cierre: "gracias", "ok gracias", "muchas gracias".
+    // El bot repetía el prompt genérico ("¿qué servicio te interesa?") en vez de cerrar
+    // cálidamente. Regex estricto anclado (^...$) para NO capturar "gracias, también
+    // quiero saber X" — eso sí lleva intención y debe seguir por el pipeline normal.
+    if (/^(ok\s+)?(muchas\s+)?gracias\.?!?$/i.test(input.messageText.trim())) {
+      const farewellText = "¡Con gusto! Cuando quieras, aquí estoy 😊🤍";
+      const { text: finalText, route: finalRoute } = this.applyCritic(
+        farewellText, "canned", routerDecision.intent, policyDecision, trace,
+      );
+      trace.generation.route = "canned";
+      emit("agent.response.composed");
+      emit("agent.response.sent");
+      return {
+        response: { text: finalText, route: finalRoute as any },
+        decisionTrace: trace,
+        memoryUpdates,
+      };
+    }
+
     if (policyDecision.action === "block") {
       const refusalText = "Prefiero no responder a eso. ¿Hay algo más en lo que pueda ayudarte?";
       const { text: finalText, route: finalRoute } = this.applyCritic(
@@ -202,7 +273,104 @@ export class AgentKernel {
       };
     }
 
-    const flowResult = await this.providers.evaluateFlow(input.conversationId, routerDecision.intent, input.messageText);
+    // Preguntas por zona corporal ("¿qué me sirve para la papada?", "para líneas de
+    // expresión?"). Antes caían en el canned genérico faq_servicios (efecto secundario
+    // del fix de alucinación: todo lo que el router determinístico clasifica como
+    // faq_servicios por zona corporal terminaba en la misma respuesta genérica).
+    // Aquí devolvemos una recomendación REAL del catálogo por zona, sin LLM libre y sin
+    // dar precio final ambiguo (los precios varían por ciudad → el flow de precio los
+    // resuelve). Solo aplica a intents informativos, nunca a booking/queja/riesgo.
+    if (routerDecision.intent === "faq_servicios") {
+      const zoneAnswer = resolveBodyZoneRecommendation(input.messageText);
+      if (zoneAnswer) {
+        const { text: finalText, route: finalRoute } = this.applyCritic(
+          zoneAnswer, "canned", routerDecision.intent, policyDecision, trace,
+        );
+        trace.generation.route = "canned";
+        emit("agent.response.composed");
+        emit("agent.response.sent");
+        return {
+          response: { text: finalText, route: finalRoute as any },
+          decisionTrace: trace,
+          memoryUpdates,
+        };
+      }
+    }
+
+    // "¿Quién es el doctor?" / "¿qué doctor me atiende?" → nombres de especialistas.
+    // nombres_doctores es solo una clave de canned (mapeada a dudas_medicas en el
+    // router), no un intent que el LLM pueda emitir, así que sin este caso especial
+    // la pregunta caía en el canned genérico de dudas_medicas (duraciones). Lo
+    // resolvemos determinísticamente devolviendo el canned nombres_doctores.
+    // Se excluye "mal/maltrato/trató mal" para no robarle una queja al pipeline.
+    if (
+      /\b(qui[eé]n\s+es\s+el\s+doctor|qui[eé]nes?\s+son\s+(los|las)\s+(doctores?|m[eé]dicos?|especialistas?)|qu[eé]\s+doctor(a)?\s+(me\s+)?(atiende|ver[áa]|va\s+a\s+atender)|nombre\s+del?\s+(doctor|m[eé]dico|especialista)|c[óo]mo\s+se\s+llama\s+el\s+(doctor|m[eé]dico|especialista))\b/i.test(input.messageText) &&
+      !/\b(mal|maltrat|grosero|p[eé]sim|trat[óo]\s+mal)\b/i.test(input.messageText)
+    ) {
+      const doctorsCanned = this.providers.getCannedResponse("nombres_doctores");
+      if (doctorsCanned) {
+        const { text: finalText, route: finalRoute } = this.applyCritic(
+          doctorsCanned, "canned", routerDecision.intent, policyDecision, trace,
+        );
+        trace.generation.route = "canned";
+        emit("agent.response.composed");
+        emit("agent.response.sent");
+        return {
+          response: { text: finalText, route: finalRoute as any },
+          decisionTrace: trace,
+          memoryUpdates,
+        };
+      }
+    }
+
+    // Casos sensibles que matchean intent "precio" y arrancaban el precio_flow, cuyo
+    // primer estado abre con "¡Claro!" — un opener que sonaba como si CONFIRMÁRAMOS la
+    // comparación o el descuento. Los interceptamos ANTES del dispatch a flow con un
+    // canned que NO empieza confirmando.
+    // Guardrails de tono/política independientes del intent: el router LLM clasifica
+    // estos mensajes de forma inconsistente (a veces precio, a veces charla/otro), así
+    // que gatear por intent === "precio" dejaba el fix a merced del LLM. Los regex son
+    // específicos para no capturar comparaciones de TRATAMIENTOS legítimas.
+    {
+      // Comparación con la competencia: exige señal de "otra clínica / competencia /
+      // clínica X", no un "¿botox o ácido, qué es mejor?" (eso es dudas_medicas).
+      const isCompetitorCompare =
+        /\bcompetencia\b|otra\s+cl[íi]nica|otras?\s+cl[íi]nicas?|la\s+cl[íi]nica\s+\w+|mejor(es)?\s+que\s+(la\s+|el\s+|los\s+|las\s+)?(cl[íi]nica|competencia|doctor|otro\s+lugar)/i;
+      if (isCompetitorCompare.test(input.messageText)) {
+        const competitorText =
+          "No me gusta compararnos con otras clínicas 🙂 Lo que sí puedo contarte es cómo trabajamos en Santa María: valoración personalizada con el doctor, productos y protocolos que cuidamos al detalle, y un acompañamiento cercano en todo tu proceso. ¿Te gustaría que te cuente sobre algún tratamiento en particular o agendamos tu valoración? 🤍";
+        const { text: finalText, route: finalRoute } = this.applyCritic(
+          competitorText, "canned", routerDecision.intent, policyDecision, trace,
+        );
+        trace.generation.route = "canned";
+        emit("agent.response.composed");
+        emit("agent.response.sent");
+        return {
+          response: { text: finalText, route: finalRoute as any },
+          decisionTrace: trace,
+          memoryUpdates,
+        };
+      }
+      // Descuento especial / negociación de precio → lo maneja Elkin, no se confirma en
+      // el chat. Regex específico, seguro de correr independiente del intent.
+      if (/descuento\s+especial|me\s+hacen?\s+(un\s+)?descuento|(un|alg[uú]n)\s+descuento|rebaja|negociar\s+(el\s+)?precio|me\s+lo\s+dejan?\s+m[áa]s\s+barato/i.test(input.messageText)) {
+        const discountText =
+          "Los descuentos y promociones especiales los maneja directamente Elkin 🙂 Con gusto te paso el contacto para que revisen tu caso:\n📞 Elkin Acevedo: 318 735 4841\n📧 esteticasantamariabga@gmail.com\n\nMientras tanto, ¿te gustaría que te cuente sobre el tratamiento que te interesa o agendamos tu valoración? 🤍";
+        const { text: finalText, route: finalRoute } = this.applyCritic(
+          discountText, "canned", routerDecision.intent, policyDecision, trace,
+        );
+        trace.generation.route = "canned";
+        emit("agent.response.composed");
+        emit("agent.response.sent");
+        return {
+          response: { text: finalText, route: finalRoute as any },
+          decisionTrace: trace,
+          memoryUpdates,
+        };
+      }
+    }
+
+    const flowResult = await this.providers.evaluateFlow(input.conversationId, routerDecision.intent, input.messageText, routerDecision.entities);
     if (flowResult) {
       const { text: finalText, route: finalRoute } = this.applyCritic(
         flowResult.response, "flow", routerDecision.intent, policyDecision, trace,

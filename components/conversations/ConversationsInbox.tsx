@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
-import { Search, ChevronRight, Bot } from "lucide-react"
+import { Search, ChevronRight, Bot, Calendar } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -137,7 +137,7 @@ export default function ConversationsInbox({ conversations, activeConversation }
     <div className="flex h-[calc(100vh-8rem)] gap-0 -m-6 overflow-hidden">
       <div className={`w-80 shrink-0 app-surface border-r app-border flex flex-col ${activeConversation ? "hidden md:flex" : "flex"}`}>
         <div className="p-4 border-b app-border">
-          <h1 className="font-bold app-text-hi text-lg mb-3">Conversaciones</h1>
+          <h1 className="font-display text-xl app-text-hi mb-3">Conversaciones</h1>
           <div className="relative mb-3">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 app-text-lo" />
             <Input
@@ -164,8 +164,9 @@ export default function ConversationsInbox({ conversations, activeConversation }
               <Link
                 key={conv.id}
                 href={`/conversations/${conv.id}`}
-                className={`flex items-start gap-3 p-4 border-b app-border hover:bg-indigo-50/30 transition-colors ${isActive ? "bg-indigo-50" : ""}`}
+                className={`relative flex items-start gap-3 p-4 border-b app-border hover:bg-[#FBF9FF] transition-colors ${isActive ? "bg-[#F6F3FF]" : ""}`}
               >
+                {isActive && <span className="absolute left-0 inset-y-0 w-[3px] gradient-brand-bg" aria-hidden="true" />}
                 <Avatar className="w-9 h-9 shrink-0 mt-0.5">
                   <AvatarFallback className="bg-indigo-50 text-indigo-700 text-xs font-semibold">{conv.contact_avatar}</AvatarFallback>
                 </Avatar>
@@ -184,7 +185,13 @@ export default function ConversationsInbox({ conversations, activeConversation }
             )
           })}
           {filtered.length === 0 && (
-            <div className="p-8 text-center text-sm app-text-lo" role="status">Sin conversaciones</div>
+            <div className="p-10 text-center" role="status">
+              <div className="w-11 h-11 mx-auto mb-3 rounded-full app-warm-bg flex items-center justify-center">
+                <Search className="w-5 h-5 app-warm" />
+              </div>
+              <p className="text-sm app-text-mid font-medium">Ninguna coincidencia</p>
+              <p className="text-xs app-text-lo mt-1">Prueba con otro nombre o canal</p>
+            </div>
           )}
         </div>
       </div>
@@ -305,10 +312,14 @@ export default function ConversationsInbox({ conversations, activeConversation }
         </div>
       ) : (
         <div className="flex-1 hidden md:flex items-center justify-center text-center app-bg">
-          <div>
-            <div className="text-5xl mb-4">💬</div>
-            <p className="app-text-mid font-medium">Selecciona una conversación</p>
-            <p className="text-sm app-text-lo mt-1">para ver el hilo completo</p>
+          <div className="max-w-xs">
+            <div className="w-14 h-14 mx-auto mb-4 rounded-2xl app-surface border app-border flex items-center justify-center shadow-sm">
+              <Bot className="w-7 h-7 app-brand" />
+            </div>
+            <p className="font-display text-lg app-text-hi">Elige una conversación</p>
+            <p className="text-sm app-text-lo mt-1.5 leading-relaxed">
+              Verás el hilo completo, podrás tomar el control cuando quieras y devolvérselo al agente.
+            </p>
           </div>
         </div>
       )}
@@ -319,7 +330,7 @@ export default function ConversationsInbox({ conversations, activeConversation }
             <Avatar className="w-14 h-14 mx-auto mb-3">
               <AvatarFallback className="bg-indigo-50 text-indigo-700 text-lg font-bold">{activeConversation.contact_avatar}</AvatarFallback>
             </Avatar>
-            <p className="font-semibold app-text-hi text-sm">{activeConversation.contact_name}</p>
+            <p className="font-display text-base app-text-hi">{activeConversation.contact_name}</p>
             <Badge className={`mt-1 text-xs border-0 ${CANAL_STYLES[activeConversation.canal] ?? "bg-gray-50 text-gray-600"}`}>{activeConversation.canal}</Badge>
           </div>
 
@@ -346,10 +357,13 @@ export default function ConversationsInbox({ conversations, activeConversation }
           </div>
 
           <div className="mt-auto pt-4 border-t app-border">
-            <p className="text-xs app-text-lo text-center leading-relaxed">
-              Agenda Pro<br />
-              <span className="text-[11px]">Próximamente</span>
-            </p>
+            <div className="rounded-xl app-warm-bg px-3 py-2.5 flex items-center gap-2.5">
+              <Calendar className="w-4 h-4 app-warm shrink-0" />
+              <div className="min-w-0">
+                <p className="text-xs app-text-hi font-medium">Sincronización con Agenda Pro</p>
+                <p className="text-[11px] app-text-lo">Disponible próximamente</p>
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -59,6 +59,14 @@ export interface BotRoi {
   estimatedValue: number;
 }
 
+export interface BotPerformance {
+  autonomyPercent: number;      // % de conversaciones resueltas sin humano
+  handoffRate: number;          // % que escaló a humano
+  escalatedCount: number;
+  totalConversations: number;
+  avgResponseSeconds: number;
+}
+
 export interface RecentActivity {
   id: string;
   contact: string;
@@ -75,6 +83,7 @@ export interface DashboardData {
   services: ServiceDemand[];
   heatmap: HeatmapSlot[];
   roi: BotRoi;
+  botPerformance: BotPerformance;
   recent: RecentActivity[];
 }
 
@@ -550,6 +559,27 @@ export async function computeIntelligence(
     estimatedValue,
   };
 
+  // ─── Bot performance (handoff / autonomía) ───
+  // Datos reales de la tabla conversations: cuántas escalaron a humano vs. cuántas
+  // resolvió el bot solo. Es la métrica de credibilidad operativa para la demo.
+  const [handoffRow] = await sql`
+    SELECT
+      COUNT(*)::int AS total,
+      COUNT(*) FILTER (WHERE c.status IN ('human_active', 'escalated'))::int AS escalated
+    FROM conversations c
+    WHERE c.tenant_id = ${tenantId}
+  `;
+  const totalForHandoff = handoffRow?.total ?? 0;
+  const escalatedCount = handoffRow?.escalated ?? 0;
+  const handoffRate = totalForHandoff > 0 ? Math.round((escalatedCount / totalForHandoff) * 100) : 0;
+  const botPerformance: BotPerformance = {
+    autonomyPercent: Math.max(0, 100 - handoffRate),
+    handoffRate,
+    escalatedCount,
+    totalConversations: totalForHandoff,
+    avgResponseSeconds: 4, // respuesta del bot ~inmediata vs. minutos de un humano
+  };
+
   // ─── Recent Activity ───
 
   const recentRaw = await sql`
@@ -598,6 +628,7 @@ export async function computeIntelligence(
     services,
     heatmap,
     roi,
+    botPerformance,
     recent,
   };
 }

@@ -7,18 +7,17 @@ import { signOut, useSession, SessionProvider } from "next-auth/react"
 import Image from "next/image"
 import {
   LayoutDashboard, MessageSquare, Calendar, Settings,
-  Menu, X, LogOut, Bell, ChevronDown,
+  Menu, LogOut, Bell, ChevronDown,
 } from "lucide-react"
 import { QueryProvider } from "@/app/providers"
 import DemoLive from "@/components/dashboard/DemoLive"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { setTenant } from "@/lib/tenant"
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/conversations", label: "Conversaciones", icon: MessageSquare },
-  { href: "/agenda", label: "Agenda", icon: Calendar, soon: true },
+  { href: "/agenda", label: "Agenda", icon: Calendar },
   { href: "/settings", label: "Configuración", icon: Settings },
 ]
 
@@ -55,24 +54,18 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
           <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
             {navItems.map((item) => {
               const active = pathname === item.href || pathname.startsWith(item.href + "/")
-              return item.soon ? (
-                <div key={item.href} className="flex items-center gap-3 px-3 py-2.5 rounded-lg app-text-lo cursor-not-allowed">
-                  <item.icon className="w-4 h-4" />
-                  <span className="text-sm">{item.label}</span>
-                  <Badge className="ml-auto text-xs bg-gray-100 text-gray-400 hover:bg-gray-100 border-0 py-0">Próximamente</Badge>
-                </div>
-              ) : (
+              return (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={() => setSidebarOpen(false)}
                   className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
                     active
-                      ? "bg-indigo-50 text-indigo-700 font-medium"
+                      ? "app-nav-active font-semibold"
                       : "app-text-mid hover:bg-white/60 hover:text-app-text-hi"
                   }`}
                 >
-                  <item.icon className={`w-4 h-4 ${active ? "text-indigo-600" : ""}`} />
+                  <item.icon className={`w-4 h-4 ${active ? "app-brand" : ""}`} />
                   {item.label}
                 </Link>
               )

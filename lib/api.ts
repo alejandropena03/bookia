@@ -23,6 +23,7 @@ export interface DashboardData {
   services: { name: string; price: number; inquiries: number; bookings: number; closeRate: number }[]
   heatmap: { day: string; hour: string; count: number; intensity: 0 | 1 | 2 | 3 | 4 }[]
   roi: { resolvedPercent: number; resolvedCount: number; hoursSaved: number; afterHoursMessages: number; estimatedValue: number }
+  botPerformance?: { autonomyPercent: number; handoffRate: number; escalatedCount: number; totalConversations: number; avgResponseSeconds: number }
   recent: { id: string; contact: string; avatar: string; channel: "whatsapp" | "instagram" | "facebook"; status: string; summary: string; time: string }[]
 }
 
@@ -113,6 +114,30 @@ export function getCatalog(): Promise<{ data: CatalogItem[] }> {
   return apiFetch<{ data: CatalogItem[] }>("/api/catalog")
 }
 
+export interface Booking {
+  id: string
+  service_name: string
+  service_price: string | null
+  city: string | null
+  datetime: string | null
+  status: string
+  payment_status: string
+  created_at: string
+  conversation_id: string
+  contact_name: string | null
+  contact_phone: string | null
+}
+
+export interface BookingsResponse {
+  data: Booking[]
+  summary: { total: number; confirmed: number; pending: number }
+}
+
+export function listBookings(status?: string): Promise<BookingsResponse> {
+  const q = status ? `?status=${encodeURIComponent(status)}` : ""
+  return apiFetch<BookingsResponse>(`/api/bookings${q}`)
+}
+
 export interface BusinessProfile {
   persona: string
   rules: Record<string, unknown>
@@ -135,15 +160,34 @@ export function updateProfile(data: Partial<BusinessProfile>): Promise<{ success
   })
 }
 
-export function sendSimMessage(text: string): Promise<{ messageId: string; conversationId: string; agentResponse?: unknown }> {
+export interface SimMessageResponse {
+  messageId: string
+  conversationId: string
+  agentResponse?: { text?: string; route?: string; media?: unknown[] }
+}
+
+export function sendSimMessage(text: string): Promise<SimMessageResponse> {
   const slug = getTenantSlug()
-  return apiFetch<{ messageId: string; conversationId: string; agentResponse?: unknown }>("/api/sim/message", {
+  return apiFetch<SimMessageResponse>("/api/sim/message", {
     method: "POST",
     body: JSON.stringify({ text, tenantSlug: slug, from: "demo-user", name: "Tú (demo)", channel: "mock" }),
   })
 }
 
-export function subscribeToSSE(onMessage: (data: unknown) => void, onError?: (err: Event) => void): () => void {
+// Forma de un evento del stream SSE del simulador. Los campos van opcionales
+// porque el stream mezcla heartbeats, confirmaciones y mensajes reales.
+export interface SSEPayload {
+  direction?: string
+  conversationId?: string
+  message?: {
+    id?: string
+    text?: string
+    direction?: string
+    conversationId?: string
+  }
+}
+
+export function subscribeToSSE(onMessage: (data: SSEPayload) => void, onError?: (err: Event) => void): () => void {
   const slug = getTenantSlug()
   let es: EventSource | null = null
   let cancelled = false
@@ -154,9 +198,9 @@ export function subscribeToSSE(onMessage: (data: unknown) => void, onError?: (er
     es = new EventSource(url)
     es.onmessage = (event) => {
       try {
-        onMessage(JSON.parse(event.data))
+        onMessage(JSON.parse(event.data) as SSEPayload)
       } catch {
-        onMessage(event.data)
+        onMessage({})
       }
     }
     es.onerror = (err) => onError?.(err)

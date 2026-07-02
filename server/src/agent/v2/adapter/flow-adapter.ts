@@ -4,7 +4,7 @@ import { evaluateFlow, startFlow, type FlowDefinition, type FlowContext, type Fl
 import { renderTemplate } from "../../../flows/template.js";
 import { SANTA_MARIA_CANNED } from "../../../flows/santa-maria/canned-responses.js";
 import { type MemoryService } from "../memory/memory-service.js";
-import type { MediaItem } from "../../v2/types/agent-intent.js";
+import type { MediaItem, ExtractedEntities } from "../../v2/types/agent-intent.js";
 import { filterImagesByMarket } from "../../../flows/santa-maria/pricing.js";
 
 // Convierte texto libre ("el sábado a las 3pm", "próximo miércoles en la tarde") a un
@@ -75,6 +75,7 @@ export class FlowAdapter {
     tenantId: string,
     contactId: string,
     contactName?: string,
+    entities?: ExtractedEntities,
   ): Promise<FlowAdapterResult | null> {
     // A6.5: si pregunta directamente por cuidados post-tratamiento de un
     // servicio con guía, devolvemos la canned sin iniciar/resumir flow.
@@ -94,7 +95,7 @@ export class FlowAdapter {
     const flowKey = this.resolveFlowKey(intent);
     if (!flowKey) return null;
 
-    return this.handleStart(flowKey, intent, text, tenantId, conversationId, contactId, contactName);
+    return this.handleStart(flowKey, intent, text, tenantId, conversationId, contactId, contactName, entities);
   }
 
   private resolveFlowKey(intent: string): string | null {
@@ -218,12 +219,22 @@ export class FlowAdapter {
     conversationId: string,
     contactId: string,
     contactName?: string,
+    entities?: ExtractedEntities,
   ): Promise<FlowAdapterResult | null> {
     const definition = await this.loadDefinition(tenantId, flowKey);
     if (!definition) return null;
 
     const result = startFlow(definition, contactName, this.catalogItems);
     const slots = await this.memoryService.hydrateFlowSlots(tenantId, contactId, result.context.slots);
+
+    // Pre-sembrar slots con lo que el router ya extrajo del mensaje que disparó el flow.
+    // Sin esto, un cliente que dice "¿cuánto cuesta el Russian Lips?" (service ya explícito)
+    // igual tiene que responder "¿cuál servicio?" porque el flow arranca en ask_city/ask_service
+    // sin conocer nada. `advanceKnownSlots` salta cualquier estado cuyo slot ya esté lleno,
+    // así que sembrar aquí hace que el flow avance directo hasta lo que realmente falta.
+    // Memoria e info hidratada tienen prioridad: solo llenamos slots que sigan vacíos.
+    if (entities?.city && !slots.city) slots.city = entities.city;
+    if (entities?.service && !slots.service) slots.service = entities.service;
 
     let flowContext: FlowContext = { flowKey, currentState: result.context.currentState, slots };
     const flowResult = this.advanceKnownSlots(definition, flowContext, this.catalogItems);

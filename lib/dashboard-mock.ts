@@ -5,10 +5,6 @@
    SHAPE documentado para que el backend lo calcule igual después.
    ────────────────────────────────────────────────────────────── */
 
-function formatCOP(value: number): string {
-  return `$${value.toLocaleString("es-CO")}`
-}
-
 function formatShortCOP(value: number): string {
   if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`
   if (value >= 1_000) return `$${(value / 1_000).toFixed(0)}K`
@@ -66,12 +62,21 @@ export interface RecentActivity {
 
 export type PeriodComparison = "vs_periodo_anterior"
 
+export interface BotPerformance {
+  autonomyPercent: number
+  handoffRate: number
+  escalatedCount: number
+  totalConversations: number
+  avgResponseSeconds: number
+}
+
 export interface DashboardData {
   kpis: RevenueKpi[]
   funnel: FunnelStep[]
   services: ServiceDemand[]
   heatmap: HeatmapSlot[]
   roi: BotRoi
+  botPerformance?: BotPerformance
   recent: RecentActivity[]
   _shape_doc: string
 }
@@ -179,6 +184,14 @@ export function getDashboardData(): DashboardData {
       hoursSaved: 47,
       afterHoursMessages: 234,
       estimatedValue: 5_600_000,
+    },
+
+    botPerformance: {
+      autonomyPercent: 82,
+      handoffRate: 18,
+      escalatedCount: 47,
+      totalConversations: 261,
+      avgResponseSeconds: 4,
     },
 
     recent: [
