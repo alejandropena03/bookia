@@ -81,6 +81,7 @@ function createV2Providers(
   cannedResponses: Record<string, string>,
   priorBotTexts: Set<string>,
   rememberedCity: string | undefined,
+  conversationId: string,
 ) {
   const memoryRepo = createMemoryRepository(sql);
   const memoryService = new MemoryService(memoryRepo);
@@ -104,7 +105,48 @@ function createV2Providers(
     },
     generateLlmResponse: async (text: string, context: Record<string, unknown>): Promise<string> => {
       const { generateLlmResponse } = await import("../../responder.js");
-      return generateLlmResponse(text, context as any);
+
+      // El kernel pasa { intent, sentiment, context: businessContextSnapshot }. Antes
+      // se reenviaba ese envoltorio como si fuera el BusinessContext → persona/catalog/
+      // rules salían undefined y, además, NUNCA se pasaba history → el LLM respondía
+      // stateless (sin memoria del hilo, sin ciudad/servicio ya dados, sin tono).
+      // Aquí desempaquetamos y armamos el BusinessContext + ConversationHistory reales.
+      const snap = (context.context ?? {}) as Record<string, unknown>;
+      const sentiment = context.sentiment as import("../../../lib/sentiment.js").SentimentLabel | undefined;
+
+      const [profileRow] = await sql`
+        SELECT persona, rules, hours, booking_mode, off_hours_message,
+               system_prompt_overrides AS "systemPromptOverrides"
+        FROM business_profile WHERE tenant_id = ${tenantId}
+      `;
+      const businessContext = {
+        persona: (snap.persona as string) ?? profileRow?.persona ?? "Asistente virtual profesional y cordial",
+        catalog: (snap.catalog as string) ?? buildCatalogKnowledge(),
+        rules: (snap.rules as string) ?? (typeof profileRow?.rules === "object" ? JSON.stringify(profileRow.rules) : profileRow?.rules ?? "Sin reglas especiales"),
+        hours: (snap.hours as string) ?? (typeof profileRow?.hours === "object" ? JSON.stringify(profileRow.hours) : profileRow?.hours ?? "Horario no especificado"),
+        hoursRaw: (snap.hoursRaw as Record<string, { open: string | null; close: string | null }>) ?? {},
+        systemPromptOverrides: (profileRow?.systemPromptOverrides as string | null) ?? null,
+        cannedResponses,
+        offHoursMessage: (profileRow?.off_hours_message as string | null) ?? null,
+      };
+
+      // Historial reciente del hilo (últimos 10 turnos) + slots del flow activo.
+      const rows = await sql`
+        SELECT direction, text FROM messages
+        WHERE conversation_id = ${conversationId} AND text IS NOT NULL
+        ORDER BY created_at DESC LIMIT 10
+      `;
+      const messages = rows
+        .reverse()
+        .map((r: any) => ({ role: (r.direction === "inbound" ? "user" : "assistant") as "user" | "assistant", text: r.text as string }));
+
+      const [stateRow] = await sql`
+        SELECT slots FROM conversation_state WHERE conversation_id = ${conversationId} LIMIT 1
+      `;
+      const slots = (stateRow?.slots as Record<string, string>) ?? {};
+
+      const history = { messages, slots, contactName, sentiment };
+      return generateLlmResponse(text, businessContext, history);
     },
     evaluateFlow: async (conversationId: string, intent: string, text: string, entities?: ExtractedEntities): Promise<{ response: string; route: string } | null> => {
       return flowAdapter.evaluateFlow(conversationId, intent, text, tenantId, contactId, contactName, entities);
@@ -180,7 +222,7 @@ export async function processMessageV2(req: {
   const memoryRepo = createMemoryRepository(req.sql);
   const rememberedCity = (await new MemoryService(memoryRepo).getUserContext(req.tenantId, req.contactId ?? "unknown")).city;
 
-  const providers = createV2Providers(req.sql, req.tenantId, req.contactId ?? "unknown", req.contactName, catalogItems, cannedResponses, priorBotTexts, rememberedCity);
+  const providers = createV2Providers(req.sql, req.tenantId, req.contactId ?? "unknown", req.contactName, catalogItems, cannedResponses, priorBotTexts, rememberedCity, req.conversationId);
   const kernel = new AgentKernel(providers);
 
   const result = await kernel.process({
