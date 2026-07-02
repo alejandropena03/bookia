@@ -23,6 +23,7 @@ export interface DashboardData {
   services: { name: string; price: number; inquiries: number; bookings: number; closeRate: number }[]
   heatmap: { day: string; hour: string; count: number; intensity: 0 | 1 | 2 | 3 | 4 }[]
   roi: { resolvedPercent: number; resolvedCount: number; hoursSaved: number; afterHoursMessages: number; estimatedValue: number }
+  botPerformance?: { autonomyPercent: number; handoffRate: number; escalatedCount: number; totalConversations: number; avgResponseSeconds: number }
   recent: { id: string; contact: string; avatar: string; channel: "whatsapp" | "instagram" | "facebook"; status: string; summary: string; time: string }[]
 }
 

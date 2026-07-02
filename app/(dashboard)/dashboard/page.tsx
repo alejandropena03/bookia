@@ -5,6 +5,7 @@ import { getIntelligence } from "@/lib/api"
 import { getDashboardData } from "@/lib/dashboard-mock"
 import type { DashboardData } from "@/lib/dashboard-mock"
 import RevenueKpiCards from "@/components/dashboard/RevenueKpiCards"
+import BotPerformanceStrip from "@/components/dashboard/BotPerformanceStrip"
 import ConversionFunnel from "@/components/dashboard/ConversionFunnel"
 import ServiceDemand from "@/components/dashboard/ServiceDemandHeatmap"
 import DemandHeatmap from "@/components/dashboard/DemandHeatmap"
@@ -76,6 +77,8 @@ export default function DashboardPage() {
       </div>
 
       <RevenueKpiCards kpis={data.kpis} />
+
+      {data.botPerformance && <BotPerformanceStrip {...data.botPerformance} />}
 
       <div className="grid lg:grid-cols-5 gap-6">
         <div className="lg:col-span-3">

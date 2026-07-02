@@ -62,12 +62,21 @@ export interface RecentActivity {
 
 export type PeriodComparison = "vs_periodo_anterior"
 
+export interface BotPerformance {
+  autonomyPercent: number
+  handoffRate: number
+  escalatedCount: number
+  totalConversations: number
+  avgResponseSeconds: number
+}
+
 export interface DashboardData {
   kpis: RevenueKpi[]
   funnel: FunnelStep[]
   services: ServiceDemand[]
   heatmap: HeatmapSlot[]
   roi: BotRoi
+  botPerformance?: BotPerformance
   recent: RecentActivity[]
   _shape_doc: string
 }
@@ -175,6 +184,14 @@ export function getDashboardData(): DashboardData {
       hoursSaved: 47,
       afterHoursMessages: 234,
       estimatedValue: 5_600_000,
+    },
+
+    botPerformance: {
+      autonomyPercent: 82,
+      handoffRate: 18,
+      escalatedCount: 47,
+      totalConversations: 261,
+      avgResponseSeconds: 4,
     },
 
     recent: [
